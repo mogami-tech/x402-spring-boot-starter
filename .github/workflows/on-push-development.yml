@@ -1,0 +1,23 @@
+name: Push on development - Build, test, create spring boot starter
+
+on:
+  push:
+
+jobs:
+
+  # ====================================================================================================================
+  # Run unit tests.
+  unit_tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Retrieve the sources
+        uses: actions/checkout@v4
+
+      - name: Set up environment
+        uses: ./.github/actions/setup
+
+      # ================================================================================================================
+      - name: build and run tests
+        run: |
+          just run_tests

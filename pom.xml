@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- =========================================================================================================== -->
+    <!-- Project information -->
+    <groupId>tech.mogami.spring</groupId>
+    <artifactId>mogami-x402-spring-boot-starter-project</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>Mogami x402 spring boot starter project</name>
+    <url>https://github.com/mogami-tech/x402-spring-boot-starter</url>
+    <licenses>
+        <license>
+            <name>GNU Affero General Public License v3.0</name>
+            <url>https://github.com/mogami-tech/x402-spring-boot-starter/blob/development/LICENSE</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <!-- =========================================================================================================== -->
+
+    <!-- =========================================================================================================== -->
+    <!-- Developers -->
+    <developers>
+        <developer>
+            <id>straumat</id>
+            <email>mogami.unsheathe942@passmail.net</email>
+            <name>Stéphane Traumat</name>
+            <url>https://github.com/straumat</url>
+        </developer>
+    </developers>
+    <!-- =========================================================================================================== -->
+
+    <!-- =========================================================================================================== -->
+    <!-- Source Code Management -->
+    <scm>
+        <url>https://github.com/mogami-tech/x402-spring-boot-starter</url>
+        <connection>scm:git:git://github.com/mogami-tech/x402-spring-boot-starter</connection>
+        <developerConnection>scm:git:git@github.com:mogami-tech/x402-spring-boot-starter.git</developerConnection>
+    </scm>
+    <!-- =========================================================================================================== -->
+
+    <!-- =========================================================================================================== -->
+    <!-- Issue management -->
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/mogami-tech/x402-spring-boot-starter/issues</url>
+    </issueManagement>
+    <!-- =========================================================================================================== -->
+
+    <!-- =========================================================================================================== -->
+    <!-- Project configuration -->
+    <properties>
+        <!-- ======================================================================================================= -->
+        <!-- Java build configuration -->
+
+        <java.version>21</java.version>
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <!-- ======================================================================================================= -->
+        <!-- Libraries releases -->
+
+        <!-- Core -->
+        <spring.version>3.4.5</spring.version>
+
+        <!-- Core utils -->
+        <lombok.version>1.18.38</lombok.version>
+        <lombok.mapstruct.version>0.2.0</lombok.mapstruct.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
+
+        <!-- Tests -->
+        <awaitility.version>4.2.2</awaitility.version>
+
+        <!-- Maven -->
+        <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
+        <maven.puppycrawl.checkstyle.version>10.23.1</maven.puppycrawl.checkstyle.version>
+
+        <maven.source.plugin.version>3.3.1</maven.source.plugin.version>
+        <maven.resources.plugin.version>3.3.1</maven.resources.plugin.version>
+        <maven.compiler.plugin.version>3.14.0</maven.compiler.plugin.version>
+        <maven.javadoc.plugin.version>3.8.0</maven.javadoc.plugin.version>
+        <maven.jar.plugin.version>3.4.2</maven.jar.plugin.version>
+        <maven.archetype-packaging.version>3.2.1</maven.archetype-packaging.version>
+        <maven-surefire-junit5-tree-reporter.version>1.4.0</maven-surefire-junit5-tree-reporter.version>
+    </properties>
+    <!-- =========================================================================================================== -->
+
+    <!-- =========================================================================================================== -->
+    <!-- Modules -->
+    <modules>
+        <module>src/spring-boot-autoconfigure</module>
+        <module>src/spring-boot-starter</module>
+        <module>src-example-server</module>
+    </modules>
+    <!-- =========================================================================================================== -->
+
+    <!-- =========================================================================================================== -->
+    <!-- Build configuration -->
+    <build>
+        <!-- Plugins -->
+        <plugins>
+            <!-- Release -->
+            <plugin>
+                <groupId>com.amashchenko.maven.plugin</groupId>
+                <artifactId>gitflow-maven-plugin</artifactId>
+                <version>1.21.0</version>
+                <configuration>
+                    <skipTestProject>true</skipTestProject>
+                    <gitFlowConfig>
+                        <productionBranch>production</productionBranch>
+                        <developmentBranch>development</developmentBranch>
+                    </gitFlowConfig>
+                    <commitMessages>
+                        <featureStartMessage>Update versions for feature branch</featureStartMessage>
+                        <featureFinishMessage>Update versions for development branch</featureFinishMessage>
+                        <hotfixStartMessage>Update versions for hotfix</hotfixStartMessage>
+                        <hotfixFinishMessage>Update for next development version</hotfixFinishMessage>
+                        <releaseStartMessage>Update versions for release</releaseStartMessage>
+                        <releaseFinishMessage>Update for next development version</releaseFinishMessage>
+                        <tagHotfixMessage>Tag hotfix</tagHotfixMessage>
+                        <tagReleaseMessage>Tag release</tagReleaseMessage>
+                    </commitMessages>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <!-- =========================================================================================================== -->
+
+    <!-- =========================================================================================================== -->
+    <!-- Distribution management -->
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+    <!-- =========================================================================================================== -->
+
+    <!-- =========================================================================================================== -->
+    <!-- Spring boot -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.4.5</version>
+        <relativePath/>
+    </parent>
+    <!-- =========================================================================================================== -->
+
+</project>

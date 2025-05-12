@@ -1,0 +1,23 @@
+name: "Environment setup"
+description: "Install tools like Java, Maven, Docker, Just, etc."
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Java Setup
+      uses: actions/setup-java@v4.2.1
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+
+    - name: Cache Maven dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2/repository
+        key: maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+
+    - name: Just Setup
+      uses: taiki-e/install-action@just

@@ -10,6 +10,9 @@ jobs:
   unit_tests:
     name: Unit tests
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
       - name: Retrieve the sources
         uses: actions/checkout@v4

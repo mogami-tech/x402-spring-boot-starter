@@ -74,7 +74,7 @@
         <mapstruct.version>1.6.3</mapstruct.version>
 
         <!-- Tests -->
-        <awaitility.version>4.2.2</awaitility.version>
+        <awaitility.version>4.3.0</awaitility.version>
 
         <!-- Maven -->
         <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>

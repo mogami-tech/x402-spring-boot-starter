@@ -18,16 +18,16 @@ import tech.mogami.spring.autoconfigure.util.validators.BlockchainNetwork;
 @ConfigurationProperties(prefix = "mogami")
 public record MogamiParameters(
 
-        @NotEmpty
-        @BlockchainAddress(message = "{validation.blockchainAddress.invalid}")
+        @NotEmpty(message = "{validation.defaultReceiverAddress.empty}")
+        @BlockchainAddress(message = "{validation.defaultReceiverAddress.invalid}")
         String defaultReceiverAddress,
 
-        @NotEmpty
+        @NotEmpty(message = "{validation.facilitatorURL.empty}")
         @URL(message = "{validation.facilitatorURL.invalid}")
         String facilitatorUrl,
 
-        @NotEmpty
-        @BlockchainNetwork(message = "{validation.blockchainNetwork.invalid}")
+        @NotEmpty(message = "{validation.network.empty}")
+        @BlockchainNetwork(message = "{validation.network.invalid}")
         String network
 
 ) {

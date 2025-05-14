@@ -26,11 +26,11 @@ public class ParametersTest extends BaseTest {
             var message = ExceptionUtils.getRootCause(e).getMessage();
             // Fields with errors.
             assertTrue(message.contains("'defaultReceiverAddress'"));
-            assertFalse(message.contains("null"));
-            assertTrue(message.contains("Invalid address (must be something like 0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F73)"));
+            assertFalse(message.contains("Parameter mogami.default-receiver-address must be set"));
+            assertTrue(message.contains("Invalid mogami.default-receiver-address value (must be something like 0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F73)"));
             // Fields without errors.
-            assertFalse(message.contains("'facilitatorUrl'"));
-            assertFalse(message.contains("'network'"));
+            assertFalse(message.contains("mogami.facilitator-url"));
+            assertFalse(message.contains("mogami.network"));
         }
     }
 
@@ -46,11 +46,11 @@ public class ParametersTest extends BaseTest {
             var message = ExceptionUtils.getRootCause(e).getMessage();
             // Fields with errors.
             assertTrue(message.contains("'defaultReceiverAddress'"));
-            assertTrue(message.contains("null"));
-            assertFalse(message.contains("Invalid address (must be something like 0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F73)"));
+            assertTrue(message.contains("Parameter mogami.default-receiver-address must be set"));
+            assertFalse(message.contains("Invalid mogami.default-receiver-address value (must be something like 0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F73)"));
             // Fields without errors.
-            assertFalse(message.contains("'facilitatorUrl'"));
-            assertFalse(message.contains("'network'"));
+            assertFalse(message.contains("mogami.facilitator-url"));
+            assertFalse(message.contains("mogami.network"));
         }
     }
 
@@ -66,11 +66,11 @@ public class ParametersTest extends BaseTest {
             var message = ExceptionUtils.getRootCause(e).getMessage();
             // Fields with errors.
             assertTrue(message.contains("'defaultReceiverAddress'"));
-            assertTrue(message.contains("null"));
-            assertFalse(message.contains("Invalid address (must be something like 0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F73)"));
+            assertTrue(message.contains("Parameter mogami.default-receiver-address must be set"));
+            assertFalse(message.contains("Invalid mogami.default-receiver-address value (must be something like 0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F73)"));
             // Fields without errors.
-            assertFalse(message.contains("'facilitatorUrl'"));
-            assertFalse(message.contains("'network'"));
+            assertFalse(message.contains("mogami.facilitator-url"));
+            assertFalse(message.contains("mogami.network"));
         }
     }
 
@@ -86,11 +86,11 @@ public class ParametersTest extends BaseTest {
             var message = ExceptionUtils.getRootCause(e).getMessage();
             // Fields with errors.
             assertTrue(message.contains("'facilitatorUrl'"));
-            assertFalse(message.contains("null"));
-            assertTrue(message.contains("Invalid URL (must be something like https://x402.org/facilitator)"));
+            assertFalse(message.contains("Parameter mogami.facilitator-url must be set"));
+            assertTrue(message.contains("Invalid mogami.facilitator-url value (must be something like https://x402.org/facilitator)"));
             // Fields without errors.
-            assertFalse(message.contains("'defaultReceiverAddress'"));
-            assertFalse(message.contains("'network'"));
+            assertFalse(message.contains("mogami.default-receiver-address"));
+            assertFalse(message.contains("mogami.network"));
         }
     }
 
@@ -106,11 +106,11 @@ public class ParametersTest extends BaseTest {
             var message = ExceptionUtils.getRootCause(e).getMessage();
             // Fields with errors.
             assertTrue(message.contains("'facilitatorUrl'"));
-            assertTrue(message.contains("null"));
-            assertFalse(message.contains("Invalid URL (must be something like https://x402.org/facilitator)"));
+            assertTrue(message.contains("Parameter mogami.facilitator-url must be set"));
+            assertFalse(message.contains("Invalid mogami.facilitator-url value (must be something like https://x402.org/facilitator)"));
             // Fields without errors.
-            assertFalse(message.contains("'defaultReceiverAddress'"));
-            assertFalse(message.contains("'network'"));
+            assertFalse(message.contains("mogami.default-receiver-address"));
+            assertFalse(message.contains("mogami.network"));
         }
     }
 
@@ -127,10 +127,10 @@ public class ParametersTest extends BaseTest {
             // Fields with errors.
             assertTrue(message.contains("'facilitatorUrl'"));
             assertTrue(message.contains("null"));
-            assertFalse(message.contains("Invalid URL (must be something like https://x402.org/facilitator)"));
+            assertFalse(message.contains("Invalid mogami.facilitator-url value (must be something like https://x402.org/facilitator))"));
             // Fields without errors.
-            assertFalse(message.contains("'defaultReceiverAddress'"));
-            assertFalse(message.contains("'network'"));
+            assertFalse(message.contains("mogami.default-receiver-address"));
+            assertFalse(message.contains("mogami.network"));
         }
     }
 
@@ -146,11 +146,11 @@ public class ParametersTest extends BaseTest {
             var message = ExceptionUtils.getRootCause(e).getMessage();
             // Fields with errors.
             assertTrue(message.contains("'network'"));
-            assertFalse(message.contains("null"));
-            assertTrue(message.contains("Invalid network (must be something like base-sepolia)"));
+            assertFalse(message.contains("Parameter mogami.network must be set"));
+            assertTrue(message.contains("Invalid mogami.network value (must be something like base-sepolia)"));
             // Fields without errors.
-            assertFalse(message.contains("'defaultReceiverAddress'"));
-            assertFalse(message.contains("'facilitatorUrl'"));
+            assertFalse(message.contains("mogami.default-receiver-address"));
+            assertFalse(message.contains("mogami.facilitator-url"));
         }
     }
 
@@ -166,11 +166,11 @@ public class ParametersTest extends BaseTest {
             var message = ExceptionUtils.getRootCause(e).getMessage();
             // Fields with errors.
             assertTrue(message.contains("'network'"));
-            assertTrue(message.contains("null"));
-            assertFalse(message.contains("Invalid network (must be something like base-sepolia)"));
+            assertTrue(message.contains("Parameter mogami.network must be set"));
+            assertFalse(message.contains("Invalid mogami.network value (must be something like base-sepolia)"));
             // Fields without errors.
-            assertFalse(message.contains("'defaultReceiverAddress'"));
-            assertFalse(message.contains("'facilitatorUrl'"));
+            assertFalse(message.contains("mogami.default-receiver-address"));
+            assertFalse(message.contains("mogami.facilitator-url"));
         }
     }
 
@@ -186,11 +186,11 @@ public class ParametersTest extends BaseTest {
             var message = ExceptionUtils.getRootCause(e).getMessage();
             // Fields with errors.
             assertTrue(message.contains("'network'"));
-            assertTrue(message.contains("null"));
-            assertFalse(message.contains("Invalid network (must be something like base-sepolia)"));
+            assertTrue(message.contains("Parameter mogami.network must be set"));
+            assertFalse(message.contains("Invalid mogami.network value (must be something like base-sepolia)"));
             // Fields without errors.
-            assertFalse(message.contains("'defaultReceiverAddress'"));
-            assertFalse(message.contains("'facilitatorUrl'"));
+            assertFalse(message.contains("mogami.default-receiver-address"));
+            assertFalse(message.contains("mogami.facilitator-url"));
         }
     }
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import tech.mogami.spring.autoconfigure.annotation.X402;
 import tech.mogami.spring.autoconfigure.parameters.MogamiParameters;
 import tech.mogami.spring.autoconfigure.payload.Accept;
+import tech.mogami.spring.autoconfigure.payload.PaymentHeader;
 import tech.mogami.spring.autoconfigure.payload.PaymentRequiredBody;
 
 import java.util.HashMap;
@@ -26,6 +28,7 @@ import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402
 /**
  * Interceptor for x402.
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 @SuppressWarnings("checkstyle:DesignForExtension")
@@ -42,7 +45,7 @@ public class X402Interceptor implements HandlerInterceptor {
                              @NonNull final HttpServletResponse response,
                              @NonNull final Object handler) throws Exception {
 
-
+        // We check if the handler is a HandlerMethod (spring method).
         if (handler instanceof HandlerMethod hm) {
             // We check if we have the annotation.
             final X402 annotation = AnnotationUtils.findAnnotation(hm.getMethod(), X402.class);
@@ -58,7 +61,10 @@ public class X402Interceptor implements HandlerInterceptor {
                     objectMapper.writeValue(response.getWriter(), buildPaymentRequiredBody(request, annotation));
                     return false; // We stop the chain.
                 } else {
-                    // The payment is present, we check it.
+                    // The payment is present, we keep it.
+                    PaymentHeader paymentHeader = PaymentHeader.fromHeader(request.getHeader(X402_X_PAYMENT_HEADER), objectMapper);
+                    request.setAttribute(PaymentHeader.class.getName(), paymentHeader);
+                    log.info("Payment received: {}", paymentHeader);
                     // TODO Implement payment verification.
                     return true;
                 }

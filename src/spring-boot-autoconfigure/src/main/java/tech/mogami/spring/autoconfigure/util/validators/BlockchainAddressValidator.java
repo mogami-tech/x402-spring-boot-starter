@@ -5,7 +5,7 @@ import jakarta.validation.ConstraintValidatorContext;
 import org.apache.commons.lang3.StringUtils;
 
 import static tech.mogami.spring.autoconfigure.util.constants.BlockchainConstants.BLOCKCHAIN_ADDRESS_LENGTH;
-import static tech.mogami.spring.autoconfigure.util.constants.BlockchainConstants.ETHEREUM_ADDRESS_PREFIX;
+import static tech.mogami.spring.autoconfigure.util.constants.BlockchainConstants.BLOCKCHAIN_ADDRESS_PREFIX;
 
 /**
  * Blockchain address validator.
@@ -20,12 +20,12 @@ public class BlockchainAddressValidator implements ConstraintValidator<Blockchai
 
         // Check the length of the address and if it starts with "0x".
         if (blockchainAddress.length() != BLOCKCHAIN_ADDRESS_LENGTH
-                || !blockchainAddress.startsWith(ETHEREUM_ADDRESS_PREFIX)) {
+                || !blockchainAddress.startsWith(BLOCKCHAIN_ADDRESS_PREFIX)) {
             return false;
         }
 
         // Check if the address contains only hexadecimal characters.
-        return blockchainAddress.substring(ETHEREUM_ADDRESS_PREFIX.length()).matches("^[0-9a-fA-F]+$");
+        return blockchainAddress.substring(BLOCKCHAIN_ADDRESS_PREFIX.length()).matches("^[0-9a-fA-F]+$");
     }
 
 }

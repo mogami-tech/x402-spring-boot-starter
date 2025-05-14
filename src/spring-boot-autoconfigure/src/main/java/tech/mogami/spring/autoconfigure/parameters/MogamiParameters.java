@@ -9,6 +9,7 @@ import tech.mogami.spring.autoconfigure.util.validators.BlockchainNetwork;
 
 /**
  * Mogami Parameters.
+ * TODO Change all parameters to being default parameters
  *
  * @param defaultReceiverAddress default receiver address
  * @param facilitatorUrl         facilitator URL

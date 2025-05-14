@@ -3,12 +3,15 @@ package tech.mogami.spring.autoconfigure.util.enums;
 import lombok.Getter;
 
 /**
- * Blockchain Network Enum.
+ * Blockchain networks.
  */
 public enum Network {
 
     /** Base Sepolia. */
-    BASE_SEPOLIA("base-sepolia");
+    BASE_SEPOLIA("base-sepolia"),
+
+    /** Base Mainnet. */
+    BASE_MAINNET("base-mainnet");
 
     /** Network name. */
     @Getter

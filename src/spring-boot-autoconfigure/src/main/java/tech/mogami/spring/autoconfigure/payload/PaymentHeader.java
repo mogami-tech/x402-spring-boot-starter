@@ -2,6 +2,8 @@ package tech.mogami.spring.autoconfigure.payload;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Builder;
 import lombok.extern.jackson.Jacksonized;
 
@@ -19,6 +21,7 @@ import java.math.BigInteger;
 @Jacksonized
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record PaymentHeader(
         int x402Version,
         String scheme,
@@ -29,6 +32,7 @@ public record PaymentHeader(
     @Jacksonized
     @Builder
     @JsonIgnoreProperties(ignoreUnknown = true)
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public record Payload(
             String signature,
             Authorization authorization
@@ -37,6 +41,7 @@ public record PaymentHeader(
         @Jacksonized
         @Builder
         @JsonIgnoreProperties(ignoreUnknown = true)
+        @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
         public record Authorization(
                 String from,
                 String to,
@@ -59,7 +64,7 @@ public record PaymentHeader(
         try {
             return mapper.readValue(rawJson, PaymentHeader.class);
         } catch (IOException e) {
-            throw new IllegalArgumentException("X-PAYMENT header invalid", e);
+            throw new IllegalArgumentException("Invalid X-PAYMENT header", e);
         }
     }
 

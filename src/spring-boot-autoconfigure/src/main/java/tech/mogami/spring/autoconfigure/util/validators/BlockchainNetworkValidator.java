@@ -20,7 +20,7 @@ public class BlockchainNetworkValidator implements ConstraintValidator<Blockchai
 
         return Arrays
                 .stream(Network.values())
-                .map(Network::getValue)
+                .map(Network::getName)
                 .anyMatch(networkName -> StringUtils.equalsIgnoreCase(networkName, blockchainNetwork));
     }
 

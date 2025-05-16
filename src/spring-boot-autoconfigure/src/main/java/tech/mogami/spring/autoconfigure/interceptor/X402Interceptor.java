@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import tech.mogami.spring.autoconfigure.annotation.X402;
-import tech.mogami.spring.autoconfigure.parameters.MogamiParameters;
+import tech.mogami.spring.autoconfigure.parameters.X402Parameters;
 import tech.mogami.spring.autoconfigure.payload.Accept;
 import tech.mogami.spring.autoconfigure.payload.PaymentHeader;
 import tech.mogami.spring.autoconfigure.payload.PaymentRequiredBody;
@@ -38,7 +38,7 @@ public class X402Interceptor implements HandlerInterceptor {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /** Mogami parameters. */
-    private final MogamiParameters mogamiParameters;
+    private final X402Parameters x402Parameters;
 
     @Override
     public boolean preHandle(@NonNull final HttpServletRequest request,
@@ -94,7 +94,7 @@ public class X402Interceptor implements HandlerInterceptor {
                 .error(X402_PAYMENT_REQUIRED_MESSAGE)
                 .accept(Accept.builder()
                         .scheme("exact")        // TODO Replace with a constant after knowing what is it ?
-                        .network(mogamiParameters.network())
+                        .network(annotation.network())
                         .maxAmountRequired(annotation.maximumAmountRequired())
                         .resource(request.getRequestURL().toString())
                         .description("")        // TODO Add description in the annotation.

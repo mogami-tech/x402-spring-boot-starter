@@ -1,4 +1,4 @@
-package tech.mogami.spring.autoconfigure.provider.facilitator;
+package tech.mogami.spring.autoconfigure.provider.facilitator.supported;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

@@ -10,18 +10,21 @@ import static tech.mogami.spring.test.constants.TestData.SERVER_ADDRESS;
 @RestController
 public class WeatherController {
 
+
+    @GetMapping("/weather/without-payment")
+    public String weatherWithoutPayment() {
+        return "It's rainy!";
+    }
+
     @X402(
             payTo = SERVER_ADDRESS,
             asset = ASSET_CONTRACT_ADDRESS,
-            maximumAmountRequired = "1000"
+            maximumAmountRequired = "1000",
+            network = "base-sepolia"
     )
     @GetMapping("/weather")
     public String weather() {
         return "It's sunny!";
     }
 
-    @GetMapping("/weather/without-payment")
-    public String weatherWithoutPayment() {
-        return "It's rainy!";
-    }
 }

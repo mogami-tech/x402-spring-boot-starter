@@ -1,8 +1,8 @@
 package tech.mogami.spring.autoconfigure.configuration;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import tech.mogami.spring.autoconfigure.interceptor.X402Interceptor;
-import tech.mogami.spring.autoconfigure.parameters.MogamiParameters;
+import tech.mogami.spring.autoconfigure.parameters.X402Parameters;
 import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorClient;
 
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_SUPPORTED_VERSION;
@@ -19,34 +19,37 @@ import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402
  * Mogami Spring Boot Auto-Configuration.
  */
 @Slf4j
-@SuppressWarnings("checkstyle:DesignForExtension")
 @AutoConfiguration
 @ConditionalOnClass(WebMvcConfigurer.class)
-@EnableConfigurationProperties(MogamiParameters.class)
+@EnableConfigurationProperties({
+        X402Parameters.class,
+        X402Parameters.Facilitator.class
+})
 @RequiredArgsConstructor
+@SuppressWarnings("checkstyle:DesignForExtension")
 public class MogamiAutoConfiguration implements WebMvcConfigurer {
 
     /** Mogami parameters. */
-    private final MogamiParameters mogamiParameters;
+    private final X402Parameters x402Parameters;
 
     /**
-     * Runner.
-     *
-     * @return ApplicationRunner
+     * Mogami init method.
      */
-    @Bean
-    ApplicationRunner runner() {
-        return args -> log.info("Using Mogami spring boot starter for x402");
+    @PostConstruct
+    public void init() {
+        log.info("Using Mogami spring boot starter for x402");
     }
 
     @Bean
     public FacilitatorClient facilitatorClient() {
-        return new FacilitatorClient(mogamiParameters.facilitatorUrl(), X402_SUPPORTED_VERSION);
+        return new FacilitatorClient(
+                X402_SUPPORTED_VERSION,
+                x402Parameters.facilitator());
     }
 
     @Bean
     public X402Interceptor x402Interceptor() {
-        return new X402Interceptor(mogamiParameters);
+        return new X402Interceptor(x402Parameters);
     }
 
     @Override

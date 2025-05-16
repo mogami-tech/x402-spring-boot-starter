@@ -15,15 +15,15 @@ public enum Network {
 
     /** Network name. */
     @Getter
-    private final String value;
+    private final String name;
 
     /**
      * Constructor.
      *
-     * @param newValue the network name
+     * @param newName the network name
      */
-    Network(final String newValue) {
-        this.value = newValue;
+    Network(final String newName) {
+        this.name = newName;
     }
 
 }

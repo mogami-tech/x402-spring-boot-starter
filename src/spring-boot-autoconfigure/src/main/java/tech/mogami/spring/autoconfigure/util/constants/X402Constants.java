@@ -15,6 +15,9 @@ public class X402Constants {
     /** X402 payment required header. */
     public static final String X402_X_PAYMENT_HEADER = "X-PAYMENT";
 
+    /** X402 payment required header decoded - This is the added by the server to the response. */
+    public static final String X402_X_PAYMENT_HEADER_DECODED = "X-PAYMENT-DECODED";
+
     /** X402 payment required message. */
     public static final String X402_PAYMENT_REQUIRED_MESSAGE = "Payment required";
 

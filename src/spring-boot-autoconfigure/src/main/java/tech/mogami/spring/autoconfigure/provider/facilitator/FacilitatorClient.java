@@ -8,8 +8,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
+import tech.mogami.spring.autoconfigure.dto.ExactSchemePayment;
 import tech.mogami.spring.autoconfigure.parameters.X402Parameters;
-import tech.mogami.spring.autoconfigure.payload.PaymentHeader;
 import tech.mogami.spring.autoconfigure.provider.facilitator.supported.SupportedResponse;
 import tech.mogami.spring.autoconfigure.provider.facilitator.verify.PaymentRequirements;
 import tech.mogami.spring.autoconfigure.provider.facilitator.verify.VerifyRequest;
@@ -60,18 +60,18 @@ public class FacilitatorClient {
     /**
      * Verify the payment with the facilitator service.
      *
-     * @param paymentHeader       payment received from the user
+     * @param exactSchemePayment  payment received from the user
      * @param paymentRequirements payment requirements
      * @return status
      */
-    public Mono<VerifyResponse> verify(final PaymentHeader paymentHeader,
+    public Mono<VerifyResponse> verify(final ExactSchemePayment exactSchemePayment,
                                        final PaymentRequirements paymentRequirements) throws JsonProcessingException {
         String encodedHeader = Base64.getUrlEncoder()
                 .withoutPadding()
-                .encodeToString(new ObjectMapper().writeValueAsBytes(paymentHeader));
+                .encodeToString(new ObjectMapper().writeValueAsBytes(exactSchemePayment));
 
         VerifyRequest body = VerifyRequest.builder()
-                .x402Version(paymentHeader.x402Version())
+                .x402Version(exactSchemePayment.x402Version())
                 .paymentHeader(encodedHeader)
                 .paymentRequirements(paymentRequirements)
                 .build();

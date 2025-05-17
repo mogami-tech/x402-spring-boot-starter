@@ -1,9 +1,6 @@
-package tech.mogami.spring.autoconfigure.payload;
+package tech.mogami.spring.autoconfigure.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Builder;
 import lombok.extern.jackson.Jacksonized;
 
@@ -11,7 +8,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 
 /**
- * The payment header we will receive from the client.
+ * The payment the client will save.
  *
  * @param x402Version the version of the x402 protocol
  * @param scheme      the scheme used for the payment
@@ -20,9 +17,7 @@ import java.math.BigInteger;
  */
 @Jacksonized
 @Builder
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public record PaymentHeader(
+public record ExactSchemePayment(
         int x402Version,
         String scheme,
         String network,
@@ -31,8 +26,6 @@ public record PaymentHeader(
 
     @Jacksonized
     @Builder
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public record Payload(
             String signature,
             Authorization authorization
@@ -40,8 +33,6 @@ public record PaymentHeader(
 
         @Jacksonized
         @Builder
-        @JsonIgnoreProperties(ignoreUnknown = true)
-        @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
         public record Authorization(
                 String from,
                 String to,
@@ -51,6 +42,7 @@ public record PaymentHeader(
                 String nonce
         ) {
         }
+
     }
 
     /**
@@ -60,9 +52,9 @@ public record PaymentHeader(
      * @param mapper  the ObjectMapper to use for deserialization
      * @return the PaymentHeader object
      */
-    public static PaymentHeader fromHeader(final String rawJson, final ObjectMapper mapper) {
+    public static ExactSchemePayment fromHeader(final String rawJson, final ObjectMapper mapper) {
         try {
-            return mapper.readValue(rawJson, PaymentHeader.class);
+            return mapper.readValue(rawJson, ExactSchemePayment.class);
         } catch (IOException e) {
             throw new IllegalArgumentException("Invalid X-PAYMENT header", e);
         }

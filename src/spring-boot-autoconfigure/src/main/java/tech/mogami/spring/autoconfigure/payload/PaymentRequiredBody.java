@@ -1,7 +1,7 @@
 package tech.mogami.spring.autoconfigure.payload;
 
 import lombok.Builder;
-import lombok.Singular;
+import tech.mogami.spring.autoconfigure.dto.ExactSchemePaymentRequirement;
 
 import java.util.List;
 
@@ -16,6 +16,6 @@ import java.util.List;
 public record PaymentRequiredBody(
         int x402Version,
         String error,
-        @Singular List<Accept> accepts
+        List<ExactSchemePaymentRequirement> accepts
 ) {
 }

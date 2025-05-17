@@ -19,15 +19,17 @@ public class WeatherController {
 
     @X402ExactScheme(
             network = BASE_SEPOLIA,
+            maximumAmountRequired = "1000",
             payTo = SERVER_WALLET_ADDRESS_1,
-            asset = ASSET_CONTRACT_ADDRESS,
-            maximumAmountRequired = "1000"
+            asset = ASSET_CONTRACT_ADDRESS
+
     )
     @X402ExactScheme(
             network = BASE_SEPOLIA,
+            maximumAmountRequired = "2000",
+            description = "Description number 2",
             payTo = SERVER_WALLET_ADDRESS_2,
-            asset = ASSET_CONTRACT_ADDRESS,
-            maximumAmountRequired = "2000"
+            asset = ASSET_CONTRACT_ADDRESS
     )
     @GetMapping("/weather")
     public String weather() {

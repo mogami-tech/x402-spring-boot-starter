@@ -1,18 +1,18 @@
-package tech.mogami.spring.autoconfigure.util.constants;
+package tech.mogami.spring.autoconfigure.util.constants.schemes;
 
 import lombok.experimental.UtilityClass;
 
 /**
- * Scheme constants.
+ * Exact scheme constants.
  */
 @UtilityClass
 @SuppressWarnings("checkstyle:HideUtilityClassConstructor")
-public class SchemeConstants {
+public class ExactSchemeConstants {
 
     /**
      * "Exact" scheme.
      * "exact" is a scheme that transfers a specific amount from a client to a resource server.
      */
-    public static final String EXACT_SCHEME = "exact";
+    public static final String EXACT_SCHEME_NAME = "exact";
 
 }

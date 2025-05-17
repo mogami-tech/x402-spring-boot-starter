@@ -11,23 +11,27 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import tech.mogami.spring.autoconfigure.annotation.X402ExactScheme;
+import tech.mogami.spring.autoconfigure.dto.ExactSchemePayment;
+import tech.mogami.spring.autoconfigure.dto.ExactSchemePaymentRequirement;
 import tech.mogami.spring.autoconfigure.parameters.X402Parameters;
-import tech.mogami.spring.autoconfigure.payload.Accept;
-import tech.mogami.spring.autoconfigure.payload.PaymentHeader;
 import tech.mogami.spring.autoconfigure.payload.PaymentRequiredBody;
 
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static jakarta.servlet.http.HttpServletResponse.SC_PAYMENT_REQUIRED;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 import static tech.mogami.spring.autoconfigure.util.constants.BlockchainConstants.DEFAULT_MAX_TIMEOUT_SECONDS;
-import static tech.mogami.spring.autoconfigure.util.constants.SchemeConstants.EXACT_SCHEME;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_PAYMENT_REQUIRED_MESSAGE;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_SUPPORTED_VERSION;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_X_PAYMENT_HEADER;
+import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_X_PAYMENT_HEADER_DECODED;
+import static tech.mogami.spring.autoconfigure.util.constants.schemes.ExactSchemeConstants.EXACT_SCHEME_NAME;
 
 /**
  * Interceptor for x402.
@@ -62,15 +66,26 @@ public class X402Interceptor implements HandlerInterceptor {
                 if (request.getHeader(X402_X_PAYMENT_HEADER) == null) {
                     response.setStatus(SC_PAYMENT_REQUIRED);
                     response.setContentType(APPLICATION_JSON_VALUE);
-                    objectMapper.writeValue(response.getWriter(), buildPaymentRequiredBody(request,
-                            exactSchemes));
+                    objectMapper.writeValue(response.getWriter(), buildPaymentRequiredBody(request, exactSchemes));
                     return false; // We stop the chain.
                 } else {
-                    // The payment is present, we keep it.
-                    PaymentHeader paymentHeader = PaymentHeader.fromHeader(request.getHeader(X402_X_PAYMENT_HEADER), objectMapper);
-                    request.setAttribute(PaymentHeader.class.getName(), paymentHeader);
-                    log.info("Payment received: {}", paymentHeader);
-                    return true;
+                    try {
+                        // The payment is present, we decode it (base64).
+                        String paymentHeaderString = new String(
+                                Base64.getMimeDecoder()
+                                        .decode(request.getHeader(X402_X_PAYMENT_HEADER)), UTF_8);
+                        System.out.println("=> " + paymentHeaderString);
+
+                        // We transform it as an object and also add itn decoded, to the response.
+                        ExactSchemePayment exactSchemePayment = ExactSchemePayment.fromHeader(paymentHeaderString, objectMapper);
+                        request.setAttribute(X402_X_PAYMENT_HEADER_DECODED, exactSchemePayment);
+
+                        log.info("Payment received: {}", exactSchemePayment);
+                        return true;
+                    } catch (IllegalArgumentException e) {
+                        response.sendError(SC_BAD_REQUEST, "Base64 invalide");
+                        return false;
+                    }
                 }
                 // =====================================================================================================
 
@@ -94,12 +109,12 @@ public class X402Interceptor implements HandlerInterceptor {
     private PaymentRequiredBody buildPaymentRequiredBody(final HttpServletRequest request,
                                                          final Set<X402ExactScheme> exactSchemes) {
         // List of all accepts
-        List<Accept> accepts = new LinkedList<>();
+        List<ExactSchemePaymentRequirement> exactSchemePaymentRequirements = new LinkedList<>();
 
         // We build the "accepts" part of the response with X402ExactScheme.
         exactSchemes.forEach(x402ExactScheme ->
-                accepts.add(Accept.builder()
-                        .scheme(EXACT_SCHEME)
+                exactSchemePaymentRequirements.add(ExactSchemePaymentRequirement.builder()
+                        .scheme(EXACT_SCHEME_NAME)
                         .network(x402ExactScheme.network())
                         .maxAmountRequired(x402ExactScheme.maximumAmountRequired())
                         .resource(request.getRequestURL().toString())
@@ -115,7 +130,7 @@ public class X402Interceptor implements HandlerInterceptor {
         return PaymentRequiredBody.builder()
                 .x402Version(X402_SUPPORTED_VERSION)
                 .error(X402_PAYMENT_REQUIRED_MESSAGE)
-                .accepts(accepts)
+                .accepts(exactSchemePaymentRequirements)
                 .build();
     }
 

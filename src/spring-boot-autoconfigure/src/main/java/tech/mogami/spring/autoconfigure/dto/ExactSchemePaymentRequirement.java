@@ -1,4 +1,4 @@
-package tech.mogami.spring.autoconfigure.payload;
+package tech.mogami.spring.autoconfigure.dto;
 
 import lombok.Builder;
 import lombok.Singular;
@@ -6,7 +6,7 @@ import lombok.Singular;
 import java.util.Map;
 
 /**
- * Reply when an access request is made to a x402 protected URL.
+ * Payment requirement returned to the client when he tries to access a resource without.
  *
  * @param scheme            A structured definition that specifies the format, validation rules and processing logic for a specific type of transaction
  * @param network           Blockchain network identifier (e.g., ”base-mainnet”)
@@ -20,7 +20,7 @@ import java.util.Map;
  * @param extra             Extra parameters (e.g., { ”USDC”: ”2”, ”key2”: ”value2” })
  */
 @Builder
-public record Accept(
+public record ExactSchemePaymentRequirement(
         String scheme,
         String network,
         String maxAmountRequired,

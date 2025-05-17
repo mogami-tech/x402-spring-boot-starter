@@ -19,10 +19,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_SUPPORTED_VERSION;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_X_PAYMENT_HEADER;
-import static tech.mogami.spring.autoconfigure.util.enums.Network.BASE_SEPOLIA;
+import static tech.mogami.spring.autoconfigure.util.constants.networks.BaseNetworks.BASE_SEPOLIA;
 import static tech.mogami.spring.test.constants.TestData.ASSET_CONTRACT_ADDRESS;
 import static tech.mogami.spring.test.constants.TestData.SERVER_ADDRESS;
-
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -49,7 +48,7 @@ public class WeatherControllerTest {
                 .andExpect(jsonPath("$.x402Version").value(X402_SUPPORTED_VERSION))
                 .andExpect(jsonPath("$.error").value(X402Constants.X402_PAYMENT_REQUIRED_MESSAGE))
                 .andExpect(jsonPath("$.accepts[0].scheme").value("exact"))
-                .andExpect(jsonPath("$.accepts[0].network").value(BASE_SEPOLIA.getName()))
+                .andExpect(jsonPath("$.accepts[0].network").value(BASE_SEPOLIA))
                 .andExpect(jsonPath("$.accepts[0].maxAmountRequired").value("1000"))
                 .andExpect(jsonPath("$.accepts[0].resource").value("http://localhost/weather"))
                 .andExpect(jsonPath("$.accepts[0].payTo").value(SERVER_ADDRESS))
@@ -91,7 +90,7 @@ public class WeatherControllerTest {
                 .satisfies(paymentHeader1 -> {
                     assertThat(paymentHeader1.x402Version()).isEqualTo(1);
                     assertThat(paymentHeader1.scheme()).isEqualTo("exact");
-                    assertThat(paymentHeader1.network()).isEqualTo(BASE_SEPOLIA.getName());
+                    assertThat(paymentHeader1.network()).isEqualTo(BASE_SEPOLIA);
                     assertThat(paymentHeader1.payload().signature()).isEqualTo("0x2d6a7588d6acca505cbf0d9a4a227e0c52c6c34008c8e8986a1283259764173608a2ce6496642e377d6da8dbbf5836e9bd15092f9ecab05ded3d6293af148b571c");
                     assertThat(paymentHeader1.payload().authorization().from()).isEqualTo("0x857b06519E91e3A54538791bDbb0E22373e36b66");
                     assertThat(paymentHeader1.payload().authorization().to()).isEqualTo("0x209693Bc6afc0C5328bA36FaF03C514EF312287C");

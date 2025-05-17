@@ -13,7 +13,7 @@ import tech.mogami.spring.autoconfigure.provider.facilitator.verify.PaymentRequi
 import java.math.BigInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static tech.mogami.spring.autoconfigure.util.enums.Network.BASE_SEPOLIA;
+import static tech.mogami.spring.autoconfigure.util.constants.networks.BaseNetworks.BASE_SEPOLIA;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -31,7 +31,7 @@ public class FacilitatorClientTest {
                 .satisfies(supportedResponse -> {
                     assertThat(supportedResponse.kinds()).isNotEmpty();
                     assertThat(supportedResponse.kinds().getFirst().scheme()).isEqualTo("exact");
-                    assertThat(supportedResponse.kinds().getFirst().network()).isEqualTo(BASE_SEPOLIA.getName());
+                    assertThat(supportedResponse.kinds().getFirst().network()).isEqualTo(BASE_SEPOLIA);
                 });
     }
 

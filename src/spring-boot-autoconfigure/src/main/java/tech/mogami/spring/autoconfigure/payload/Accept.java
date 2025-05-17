@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * Reply when an access request is made to a x402 protected URL.
  *
- * @param scheme            the scheme TODO What is that?
+ * @param scheme            A structured definition that specifies the format, validation rules and processing logic for a specific type of transaction
  * @param network           Blockchain network identifier (e.g., ”base-mainnet”)
  * @param maxAmountRequired Maximum payment amount required (e.g., ”0.10”)
  * @param resource          URL to access

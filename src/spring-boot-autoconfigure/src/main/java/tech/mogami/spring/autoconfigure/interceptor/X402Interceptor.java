@@ -5,22 +5,26 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
-import tech.mogami.spring.autoconfigure.annotation.X402;
+import tech.mogami.spring.autoconfigure.annotation.X402ExactScheme;
 import tech.mogami.spring.autoconfigure.parameters.X402Parameters;
 import tech.mogami.spring.autoconfigure.payload.Accept;
 import tech.mogami.spring.autoconfigure.payload.PaymentHeader;
 import tech.mogami.spring.autoconfigure.payload.PaymentRequiredBody;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_PAYMENT_REQUIRED;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 import static tech.mogami.spring.autoconfigure.util.constants.BlockchainConstants.DEFAULT_MAX_TIMEOUT_SECONDS;
+import static tech.mogami.spring.autoconfigure.util.constants.SchemeConstants.EXACT_SCHEME;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_PAYMENT_REQUIRED_MESSAGE;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_SUPPORTED_VERSION;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_X_PAYMENT_HEADER;
@@ -47,9 +51,9 @@ public class X402Interceptor implements HandlerInterceptor {
 
         // We check if the handler is a HandlerMethod (spring method).
         if (handler instanceof HandlerMethod hm) {
-            // We check if we have the annotation.
-            final X402 annotation = AnnotationUtils.findAnnotation(hm.getMethod(), X402.class);
-            if (annotation != null) {
+            // We retrieve all schemes.
+            Set<X402ExactScheme> exactSchemes = AnnotatedElementUtils.findMergedRepeatableAnnotations(hm.getMethod(), X402ExactScheme.class);
+            if (!exactSchemes.isEmpty()) {
 
                 // =====================================================================================================
                 // The method is annotated with @X402.
@@ -58,14 +62,14 @@ public class X402Interceptor implements HandlerInterceptor {
                 if (request.getHeader(X402_X_PAYMENT_HEADER) == null) {
                     response.setStatus(SC_PAYMENT_REQUIRED);
                     response.setContentType(APPLICATION_JSON_VALUE);
-                    objectMapper.writeValue(response.getWriter(), buildPaymentRequiredBody(request, annotation));
+                    objectMapper.writeValue(response.getWriter(), buildPaymentRequiredBody(request,
+                            exactSchemes));
                     return false; // We stop the chain.
                 } else {
                     // The payment is present, we keep it.
                     PaymentHeader paymentHeader = PaymentHeader.fromHeader(request.getHeader(X402_X_PAYMENT_HEADER), objectMapper);
                     request.setAttribute(PaymentHeader.class.getName(), paymentHeader);
                     log.info("Payment received: {}", paymentHeader);
-                    // TODO Implement payment verification.
                     return true;
                 }
                 // =====================================================================================================
@@ -83,27 +87,35 @@ public class X402Interceptor implements HandlerInterceptor {
     /**
      * Builds the body for the payment required response.
      *
-     * @param request    request
-     * @param annotation annotation
+     * @param request      request
+     * @param exactSchemes the exact schemes
      * @return the body to return
      */
     private PaymentRequiredBody buildPaymentRequiredBody(final HttpServletRequest request,
-                                                         final X402 annotation) {
+                                                         final Set<X402ExactScheme> exactSchemes) {
+        // List of all accepts
+        List<Accept> accepts = new LinkedList<>();
+
+        // We build the "accepts" part of the response with X402ExactScheme.
+        exactSchemes.forEach(x402ExactScheme ->
+                accepts.add(Accept.builder()
+                        .scheme(EXACT_SCHEME)
+                        .network(x402ExactScheme.network())
+                        .maxAmountRequired(x402ExactScheme.maximumAmountRequired())
+                        .resource(request.getRequestURL().toString())
+                        .description(x402ExactScheme.description())
+                        .mimeType("")   // TODO Manage mime type
+                        .payTo(x402ExactScheme.payTo())
+                        .maxTimeoutSeconds(DEFAULT_MAX_TIMEOUT_SECONDS)
+                        .asset(x402ExactScheme.asset())
+                        .extra(new HashMap<>())
+                        .build()));
+
+        // Return the payment required body.
         return PaymentRequiredBody.builder()
                 .x402Version(X402_SUPPORTED_VERSION)
                 .error(X402_PAYMENT_REQUIRED_MESSAGE)
-                .accept(Accept.builder()
-                        .scheme("exact")        // TODO Replace with a constant after knowing what is it ?
-                        .network(annotation.network())
-                        .maxAmountRequired(annotation.maximumAmountRequired())
-                        .resource(request.getRequestURL().toString())
-                        .description("")        // TODO Add description in the annotation.
-                        .mimeType("")           // TODO Manage mime type but I don't know how yet.
-                        .payTo(annotation.payTo())
-                        .maxTimeoutSeconds(DEFAULT_MAX_TIMEOUT_SECONDS)
-                        .asset(annotation.asset())
-                        .extra(new HashMap<>())
-                        .build())
+                .accepts(accepts)
                 .build();
     }
 

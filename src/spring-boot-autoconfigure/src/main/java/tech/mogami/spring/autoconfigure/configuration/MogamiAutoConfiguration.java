@@ -13,8 +13,6 @@ import tech.mogami.spring.autoconfigure.interceptor.X402Interceptor;
 import tech.mogami.spring.autoconfigure.parameters.X402Parameters;
 import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorClient;
 
-import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_SUPPORTED_VERSION;
-
 /**
  * Mogami Spring Boot Auto-Configuration.
  */
@@ -42,9 +40,7 @@ public class MogamiAutoConfiguration implements WebMvcConfigurer {
 
     @Bean
     public FacilitatorClient facilitatorClient() {
-        return new FacilitatorClient(
-                X402_SUPPORTED_VERSION,
-                x402Parameters.facilitator());
+        return new FacilitatorClient(x402Parameters.facilitator());
     }
 
     @Bean

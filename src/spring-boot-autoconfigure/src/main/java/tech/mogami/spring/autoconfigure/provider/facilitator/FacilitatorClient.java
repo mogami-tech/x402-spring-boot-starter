@@ -20,6 +20,8 @@ import java.util.Base64;
 import static org.springframework.http.HttpHeaders.ACCEPT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorURLs.SUPPORTED_URL;
+import static tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorURLs.VERIFY_URL;
 
 /**
  * FacilitatorClient is a client for the facilitator service.
@@ -27,21 +29,15 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Slf4j
 public class FacilitatorClient {
 
-    /** X402 version. */
-    private final int x402Version;
-
     /** Web client. */
     private final WebClient client;
 
     /**
      * Constructor for FacilitatorClient.
      *
-     * @param newX402Version        the version of the x402 protocol
      * @param facilitatorParameters facilitator parameters
      */
-    public FacilitatorClient(final int newX402Version,  // TODO Is it useful?
-                             final X402Parameters.Facilitator facilitatorParameters) {
-        this.x402Version = newX402Version;
+    public FacilitatorClient(final X402Parameters.Facilitator facilitatorParameters) {
         this.client = WebClient.builder()
                 .baseUrl(facilitatorParameters.baseUrl())
                 .clientConnector(new ReactorClientHttpConnector(HttpClient.create().followRedirect(true)))
@@ -55,7 +51,7 @@ public class FacilitatorClient {
      */
     public Mono<SupportedResponse> supported() {
         return client.get()
-                .uri("/supported")  // TODO Use constant
+                .uri(SUPPORTED_URL)
                 .header(ACCEPT, APPLICATION_JSON_VALUE)
                 .retrieve()
                 .bodyToMono(SupportedResponse.class);
@@ -75,13 +71,13 @@ public class FacilitatorClient {
                 .encodeToString(new ObjectMapper().writeValueAsBytes(paymentHeader));
 
         VerifyRequest body = VerifyRequest.builder()
-                .x402Version(x402Version)
+                .x402Version(paymentHeader.x402Version())
                 .paymentHeader(encodedHeader)
                 .paymentRequirements(paymentRequirements)
                 .build();
 
         return client.post()
-                .uri("/verify")
+                .uri(VERIFY_URL)
                 .contentType(APPLICATION_JSON)
                 .bodyValue(body)
                 .retrieve()

@@ -1,4 +1,4 @@
-package tech.mogami.spring.autoconfigure.annotation;
+package tech.mogami.spring.autoconfigure.schemes;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

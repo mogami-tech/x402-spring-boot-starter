@@ -1,4 +1,4 @@
-package tech.mogami.spring.autoconfigure.annotation;
+package tech.mogami.spring.autoconfigure.schemes.exact;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

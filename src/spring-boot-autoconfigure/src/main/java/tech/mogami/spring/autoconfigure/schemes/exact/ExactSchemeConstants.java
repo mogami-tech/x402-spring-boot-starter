@@ -1,4 +1,4 @@
-package tech.mogami.spring.autoconfigure.util.constants.schemes;
+package tech.mogami.spring.autoconfigure.schemes.exact;
 
 import lombok.experimental.UtilityClass;
 

@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
-import tech.mogami.spring.autoconfigure.dto.ExactSchemePayment;
+import tech.mogami.spring.autoconfigure.schemes.exact.ExactSchemePayment;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -18,12 +18,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
+import static tech.mogami.spring.autoconfigure.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_NAME;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_PAYMENT_REQUIRED_MESSAGE;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_SUPPORTED_VERSION;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_X_PAYMENT_HEADER;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_X_PAYMENT_HEADER_DECODED;
 import static tech.mogami.spring.autoconfigure.util.constants.networks.BaseNetworks.BASE_SEPOLIA;
-import static tech.mogami.spring.autoconfigure.util.constants.schemes.ExactSchemeConstants.EXACT_SCHEME_NAME;
 import static tech.mogami.spring.test.constants.TestData.ASSET_CONTRACT_ADDRESS;
 import static tech.mogami.spring.test.constants.TestData.SERVER_WALLET_ADDRESS_1;
 import static tech.mogami.spring.test.constants.TestData.SERVER_WALLET_ADDRESS_2;

@@ -1,4 +1,6 @@
-package tech.mogami.spring.autoconfigure.annotation;
+package tech.mogami.spring.autoconfigure.schemes.exact;
+
+import tech.mogami.spring.autoconfigure.schemes.X402;
 
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;

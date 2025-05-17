@@ -8,12 +8,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
-import tech.mogami.spring.autoconfigure.dto.ExactSchemePayment;
-import tech.mogami.spring.autoconfigure.parameters.X402Parameters;
+import tech.mogami.spring.autoconfigure.parameter.X402Parameters;
 import tech.mogami.spring.autoconfigure.provider.facilitator.supported.SupportedResponse;
 import tech.mogami.spring.autoconfigure.provider.facilitator.verify.PaymentRequirements;
 import tech.mogami.spring.autoconfigure.provider.facilitator.verify.VerifyRequest;
 import tech.mogami.spring.autoconfigure.provider.facilitator.verify.VerifyResponse;
+import tech.mogami.spring.autoconfigure.schemes.exact.ExactSchemePayment;
 
 import java.util.Base64;
 
@@ -82,8 +82,8 @@ public class FacilitatorClient {
                 .bodyValue(body)
                 .retrieve()
                 .bodyToMono(VerifyResponse.class)
-                .doOnError(WebClientResponseException.class, err ->
-                        log.error("Facilitator body: '{}'", err.getResponseBodyAsString()));
+                .doOnError(WebClientResponseException.class, error ->
+                        log.error("Facilitator body: '{}'", error.getResponseBodyAsString()));
     }
 
 }

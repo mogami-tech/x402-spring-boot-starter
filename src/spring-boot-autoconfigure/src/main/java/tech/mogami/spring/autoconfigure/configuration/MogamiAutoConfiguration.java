@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import tech.mogami.spring.autoconfigure.interceptor.X402Interceptor;
-import tech.mogami.spring.autoconfigure.parameters.X402Parameters;
+import tech.mogami.spring.autoconfigure.parameter.X402Parameters;
 import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorClient;
 
 /**

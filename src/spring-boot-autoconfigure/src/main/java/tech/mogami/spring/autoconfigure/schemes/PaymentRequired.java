@@ -1,7 +1,7 @@
-package tech.mogami.spring.autoconfigure.payload;
+package tech.mogami.spring.autoconfigure.schemes;
 
 import lombok.Builder;
-import tech.mogami.spring.autoconfigure.dto.ExactSchemePaymentRequirement;
+import tech.mogami.spring.autoconfigure.schemes.exact.ExactSchemePaymentRequirement;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ import java.util.List;
  * @param accepts     list of Accept objects
  */
 @Builder
-public record PaymentRequiredBody(
+public record PaymentRequired(
         int x402Version,
         String error,
         List<ExactSchemePaymentRequirement> accepts

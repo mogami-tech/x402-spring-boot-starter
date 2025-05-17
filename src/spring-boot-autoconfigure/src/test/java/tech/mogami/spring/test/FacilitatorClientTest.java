@@ -6,13 +6,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import tech.mogami.spring.autoconfigure.dto.ExactSchemePayment;
 import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorClient;
 import tech.mogami.spring.autoconfigure.provider.facilitator.verify.PaymentRequirements;
+import tech.mogami.spring.autoconfigure.schemes.exact.ExactSchemePayment;
 
 import java.math.BigInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static tech.mogami.spring.autoconfigure.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_NAME;
 import static tech.mogami.spring.autoconfigure.util.constants.networks.BaseNetworks.BASE_SEPOLIA;
 
 @SpringBootTest
@@ -30,7 +31,7 @@ public class FacilitatorClientTest {
                 .isNotNull()
                 .satisfies(supportedResponse -> {
                     assertThat(supportedResponse.kinds()).isNotEmpty();
-                    assertThat(supportedResponse.kinds().getFirst().scheme()).isEqualTo("exact");
+                    assertThat(supportedResponse.kinds().getFirst().scheme()).isEqualTo(EXACT_SCHEME_NAME);
                     assertThat(supportedResponse.kinds().getFirst().network()).isEqualTo(BASE_SEPOLIA);
                 });
     }
@@ -39,10 +40,10 @@ public class FacilitatorClientTest {
     @Disabled
     @DisplayName("Verify response test")
     void verifyResponse() throws Exception {
-        ExactSchemePayment exactSchemePayment = ExactSchemePayment.builder()
+        var exactSchemePayment = ExactSchemePayment.builder()
                 .x402Version(1)
-                .scheme("exact")
-                .network("base-sepolia")
+                .scheme(EXACT_SCHEME_NAME)
+                .network(BASE_SEPOLIA)
                 .payload(ExactSchemePayment.Payload.builder()
                         .signature("0x00a16572b50047a9e772127fe684e2a8bfed31ab1857962fd702b021c45a8fe6249a211769aeec05e4667093cb186f15b13c683dc1c475c509190decb9ac4de01c")
                         .authorization(ExactSchemePayment.Payload.Authorization.builder()
@@ -56,9 +57,9 @@ public class FacilitatorClientTest {
                         .build())
                 .build();
 
-        PaymentRequirements paymentRequirements = PaymentRequirements.builder()
-                .scheme("exact")
-                .network("base-sepolia")
+        var paymentRequirements = PaymentRequirements.builder()
+                .scheme(EXACT_SCHEME_NAME)
+                .network(BASE_SEPOLIA)
                 .payTo("0x209693Bc6afc0C5328bA36FaF03C514EF312287C")
                 .asset("0x036CbD53842c5426634e7929541eC2318f3dCF7e")
                 .maxAmountRequired(BigInteger.valueOf(1000))

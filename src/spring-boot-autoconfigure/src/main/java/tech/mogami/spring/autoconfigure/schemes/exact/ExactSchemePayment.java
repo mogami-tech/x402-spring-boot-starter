@@ -1,4 +1,4 @@
-package tech.mogami.spring.autoconfigure.dto;
+package tech.mogami.spring.autoconfigure.schemes.exact;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Builder;

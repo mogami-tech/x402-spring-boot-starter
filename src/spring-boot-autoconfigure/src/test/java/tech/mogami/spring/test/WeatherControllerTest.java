@@ -8,7 +8,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import tech.mogami.spring.autoconfigure.payload.PaymentHeader;
-import tech.mogami.spring.autoconfigure.util.constants.X402Constants;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -17,11 +16,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
+import static tech.mogami.spring.autoconfigure.util.constants.SchemeConstants.EXACT_SCHEME;
+import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_PAYMENT_REQUIRED_MESSAGE;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_SUPPORTED_VERSION;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_X_PAYMENT_HEADER;
 import static tech.mogami.spring.autoconfigure.util.constants.networks.BaseNetworks.BASE_SEPOLIA;
 import static tech.mogami.spring.test.constants.TestData.ASSET_CONTRACT_ADDRESS;
-import static tech.mogami.spring.test.constants.TestData.SERVER_ADDRESS;
+import static tech.mogami.spring.test.constants.TestData.SERVER_WALLET_ADDRESS_1;
+import static tech.mogami.spring.test.constants.TestData.SERVER_WALLET_ADDRESS_2;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -46,13 +48,22 @@ public class WeatherControllerTest {
                 .andExpect(status().isPaymentRequired())
                 .andExpect(content().contentType(APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.x402Version").value(X402_SUPPORTED_VERSION))
-                .andExpect(jsonPath("$.error").value(X402Constants.X402_PAYMENT_REQUIRED_MESSAGE))
-                .andExpect(jsonPath("$.accepts[0].scheme").value("exact"))
+                .andExpect(jsonPath("$.error").value(X402_PAYMENT_REQUIRED_MESSAGE))
+                .andExpect(jsonPath("$.accepts.length()").value(2))
+                // First scheme.
+                .andExpect(jsonPath("$.accepts[0].scheme").value(EXACT_SCHEME))
                 .andExpect(jsonPath("$.accepts[0].network").value(BASE_SEPOLIA))
                 .andExpect(jsonPath("$.accepts[0].maxAmountRequired").value("1000"))
                 .andExpect(jsonPath("$.accepts[0].resource").value("http://localhost/weather"))
-                .andExpect(jsonPath("$.accepts[0].payTo").value(SERVER_ADDRESS))
-                .andExpect(jsonPath("$.accepts[0].asset").value(ASSET_CONTRACT_ADDRESS));
+                .andExpect(jsonPath("$.accepts[0].payTo").value(SERVER_WALLET_ADDRESS_1))
+                .andExpect(jsonPath("$.accepts[0].asset").value(ASSET_CONTRACT_ADDRESS))
+                // Second scheme.
+                .andExpect(jsonPath("$.accepts[1].scheme").value(EXACT_SCHEME))
+                .andExpect(jsonPath("$.accepts[1].network").value(BASE_SEPOLIA))
+                .andExpect(jsonPath("$.accepts[1].maxAmountRequired").value("2000"))
+                .andExpect(jsonPath("$.accepts[1].resource").value("http://localhost/weather"))
+                .andExpect(jsonPath("$.accepts[1].payTo").value(SERVER_WALLET_ADDRESS_2))
+                .andExpect(jsonPath("$.accepts[1].asset").value(ASSET_CONTRACT_ADDRESS));
     }
 
     @Test

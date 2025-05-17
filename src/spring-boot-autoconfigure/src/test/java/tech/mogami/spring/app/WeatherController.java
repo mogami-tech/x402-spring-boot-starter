@@ -6,7 +6,8 @@ import tech.mogami.spring.autoconfigure.annotation.X402ExactScheme;
 
 import static tech.mogami.spring.autoconfigure.util.constants.networks.BaseNetworks.BASE_SEPOLIA;
 import static tech.mogami.spring.test.constants.TestData.ASSET_CONTRACT_ADDRESS;
-import static tech.mogami.spring.test.constants.TestData.SERVER_ADDRESS;
+import static tech.mogami.spring.test.constants.TestData.SERVER_WALLET_ADDRESS_1;
+import static tech.mogami.spring.test.constants.TestData.SERVER_WALLET_ADDRESS_2;
 
 @RestController
 public class WeatherController {
@@ -18,9 +19,15 @@ public class WeatherController {
 
     @X402ExactScheme(
             network = BASE_SEPOLIA,
-            payTo = SERVER_ADDRESS,
+            payTo = SERVER_WALLET_ADDRESS_1,
             asset = ASSET_CONTRACT_ADDRESS,
             maximumAmountRequired = "1000"
+    )
+    @X402ExactScheme(
+            network = BASE_SEPOLIA,
+            payTo = SERVER_WALLET_ADDRESS_2,
+            asset = ASSET_CONTRACT_ADDRESS,
+            maximumAmountRequired = "2000"
     )
     @GetMapping("/weather")
     public String weather() {

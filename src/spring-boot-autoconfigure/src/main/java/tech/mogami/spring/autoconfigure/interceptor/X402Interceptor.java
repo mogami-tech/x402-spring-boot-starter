@@ -10,23 +10,22 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
+import tech.mogami.spring.autoconfigure.annotation.X402PaymentRequirement;
+import tech.mogami.spring.autoconfigure.dto.PaymentRequired;
+import tech.mogami.spring.autoconfigure.dto.PaymentRequirement;
+import tech.mogami.spring.autoconfigure.dto.schemes.ExactSchemePayment;
 import tech.mogami.spring.autoconfigure.parameter.X402Parameters;
-import tech.mogami.spring.autoconfigure.schemes.PaymentRequired;
-import tech.mogami.spring.autoconfigure.schemes.exact.ExactSchemePayment;
-import tech.mogami.spring.autoconfigure.schemes.exact.ExactSchemePaymentRequirement;
-import tech.mogami.spring.autoconfigure.schemes.exact.X402ExactScheme;
 
+import java.util.Arrays;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static jakarta.servlet.http.HttpServletResponse.SC_PAYMENT_REQUIRED;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
-import static tech.mogami.spring.autoconfigure.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_NAME;
 import static tech.mogami.spring.autoconfigure.util.constants.BlockchainConstants.DEFAULT_MAX_TIMEOUT_SECONDS;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_PAYMENT_REQUIRED_MESSAGE;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_SUPPORTED_VERSION;
@@ -56,34 +55,32 @@ public class X402Interceptor implements HandlerInterceptor {
         // We check if the handler is a HandlerMethod (spring method).
         if (handler instanceof HandlerMethod hm) {
             // We retrieve all schemes.
-            Set<X402ExactScheme> exactSchemes = AnnotatedElementUtils.findMergedRepeatableAnnotations(hm.getMethod(), X402ExactScheme.class);
-            if (!exactSchemes.isEmpty()) {
+            Set<X402PaymentRequirement> paymentRequirements = AnnotatedElementUtils.findMergedRepeatableAnnotations(hm.getMethod(), X402PaymentRequirement.class);
+            if (!paymentRequirements.isEmpty()) {
 
                 // =====================================================================================================
                 // The method is annotated with @X402.
 
                 // We check if the payment is present or not.
                 if (request.getHeader(X402_X_PAYMENT_HEADER) == null) {
+                    // The payment is not present, we build the response by listing the payment requirements.
                     response.setStatus(SC_PAYMENT_REQUIRED);
                     response.setContentType(APPLICATION_JSON_VALUE);
-                    objectMapper.writeValue(response.getWriter(), buildPaymentRequiredBody(request, exactSchemes));
+                    objectMapper.writeValue(response.getWriter(), buildPaymentRequiredBody(request, paymentRequirements));
                     return false; // We stop the chain.
                 } else {
                     try {
-                        // The payment is present, we decode it (base64).
-                        String paymentHeaderString = new String(
-                                Base64.getMimeDecoder()
-                                        .decode(request.getHeader(X402_X_PAYMENT_HEADER)), UTF_8);
-                        System.out.println("=> " + paymentHeaderString);
-
-                        // We transform it as an object and also add itn decoded, to the response.
+                        // The payment is present, we decode it (base64) and add it to the response.
+                        String paymentHeaderString = new String(Base64.getMimeDecoder().decode(request.getHeader(X402_X_PAYMENT_HEADER)), UTF_8);
                         ExactSchemePayment exactSchemePayment = ExactSchemePayment.fromHeader(paymentHeaderString, objectMapper);
                         request.setAttribute(X402_X_PAYMENT_HEADER_DECODED, exactSchemePayment);
-
                         log.info("Payment received: {}", exactSchemePayment);
+
+                        // Now, we use the facilitator to check if the payment is valid.
+
                         return true;
                     } catch (IllegalArgumentException e) {
-                        response.sendError(SC_BAD_REQUEST, "Base64 invalide");
+                        response.sendError(SC_BAD_REQUEST, "Invalid Base64");
                         return false;
                     }
                 }
@@ -97,40 +94,39 @@ public class X402Interceptor implements HandlerInterceptor {
             // The handler is not a HandlerMethod (spring method), so we skip it.
             return true;
         }
+
     }
 
     /**
      * Builds the body for the payment required response.
      *
-     * @param request      request
-     * @param exactSchemes the exact schemes
-     * @return the body to return
+     * @param request                        The HTTP request
+     * @param paymentRequirementsAnnotations The list of payment requirements annotations
+     * @return The payment required body
      */
     private PaymentRequired buildPaymentRequiredBody(final HttpServletRequest request,
-                                                     final Set<X402ExactScheme> exactSchemes) {
-        // List of all accepts
-        List<ExactSchemePaymentRequirement> exactSchemePaymentRequirements = new LinkedList<>();
-
-        // We build the "accepts" part of the response with X402ExactScheme.
-        exactSchemes.forEach(x402ExactScheme ->
-                exactSchemePaymentRequirements.add(ExactSchemePaymentRequirement.builder()
-                        .scheme(EXACT_SCHEME_NAME)
-                        .network(x402ExactScheme.network())
-                        .maxAmountRequired(x402ExactScheme.maximumAmountRequired())
-                        .resource(request.getRequestURL().toString())
-                        .description(x402ExactScheme.description())
-                        .mimeType("")   // TODO Manage mime type
-                        .payTo(x402ExactScheme.payTo())
-                        .maxTimeoutSeconds(DEFAULT_MAX_TIMEOUT_SECONDS)
-                        .asset(x402ExactScheme.asset())
-                        .extra(new HashMap<>())
-                        .build()));
-
-        // Return the payment required body.
+                                                     final Set<X402PaymentRequirement> paymentRequirementsAnnotations) {
         return PaymentRequired.builder()
                 .x402Version(X402_SUPPORTED_VERSION)
                 .error(X402_PAYMENT_REQUIRED_MESSAGE)
-                .accepts(exactSchemePaymentRequirements)
+                .accepts(paymentRequirementsAnnotations
+                        .stream()
+                        .map(paymentRequirement -> PaymentRequirement.builder()
+                                .scheme(paymentRequirement.scheme())
+                                .network(paymentRequirement.network())
+                                .maxAmountRequired(paymentRequirement.maximumAmountRequired())
+                                .resource(request.getRequestURL().toString())
+                                .description(paymentRequirement.description())
+                                .mimeType("")   // TODO Manage mime type
+                                .payTo(paymentRequirement.payTo())
+                                .maxTimeoutSeconds(DEFAULT_MAX_TIMEOUT_SECONDS)
+                                .asset(paymentRequirement.asset())
+                                .extra(Arrays.stream(paymentRequirement.extra())
+                                        .collect(Collectors.toMap(
+                                                X402PaymentRequirement.ExtraEntry::key,
+                                                X402PaymentRequirement.ExtraEntry::value)))
+                                .build())
+                        .collect(Collectors.toCollection(LinkedList::new)))
                 .build();
     }
 

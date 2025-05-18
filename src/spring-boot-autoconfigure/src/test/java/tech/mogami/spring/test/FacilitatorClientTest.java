@@ -6,14 +6,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import tech.mogami.spring.autoconfigure.dto.schemes.ExactSchemePayment;
 import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorClient;
 import tech.mogami.spring.autoconfigure.provider.facilitator.verify.PaymentRequirements;
-import tech.mogami.spring.autoconfigure.schemes.exact.ExactSchemePayment;
 
 import java.math.BigInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static tech.mogami.spring.autoconfigure.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_NAME;
+import static tech.mogami.spring.autoconfigure.dto.schemes.ExactSchemeConstants.EXACT_SCHEME_NAME;
 import static tech.mogami.spring.autoconfigure.util.constants.networks.BaseNetworks.BASE_SEPOLIA;
 
 @SpringBootTest

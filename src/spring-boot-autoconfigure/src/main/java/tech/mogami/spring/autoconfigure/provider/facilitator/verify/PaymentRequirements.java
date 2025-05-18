@@ -1,7 +1,5 @@
 package tech.mogami.spring.autoconfigure.provider.facilitator.verify;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Builder;
@@ -20,7 +18,6 @@ import java.math.BigInteger;
  */
 @Jacksonized
 @Builder
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record PaymentRequirements(
         String scheme,
         String network,

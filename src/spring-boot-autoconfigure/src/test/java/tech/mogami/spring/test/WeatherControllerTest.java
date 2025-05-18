@@ -6,11 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
-import tech.mogami.spring.autoconfigure.schemes.exact.ExactSchemePayment;
+import tech.mogami.spring.autoconfigure.dto.schemes.ExactSchemePayment;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
-import static tech.mogami.spring.autoconfigure.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_NAME;
+import static tech.mogami.spring.autoconfigure.dto.schemes.ExactSchemeConstants.EXACT_SCHEME_NAME;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_PAYMENT_REQUIRED_MESSAGE;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_SUPPORTED_VERSION;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_X_PAYMENT_HEADER;
@@ -61,6 +61,8 @@ public class WeatherControllerTest {
                 .andExpect(jsonPath("$.accepts[0].resource").value("http://localhost/weather"))
                 .andExpect(jsonPath("$.accepts[0].payTo").value(SERVER_WALLET_ADDRESS_1))
                 .andExpect(jsonPath("$.accepts[0].asset").value(ASSET_CONTRACT_ADDRESS))
+                .andExpect(jsonPath("$.accepts[0].extra.name").value("USDC"))
+                .andExpect(jsonPath("$.accepts[0].extra.version").value("2"))
                 // Second scheme.
                 .andExpect(jsonPath("$.accepts[1].scheme").value(EXACT_SCHEME_NAME))
                 .andExpect(jsonPath("$.accepts[1].network").value(BASE_SEPOLIA))
@@ -68,7 +70,8 @@ public class WeatherControllerTest {
                 .andExpect(jsonPath("$.accepts[1].description").value("Description number 2"))
                 .andExpect(jsonPath("$.accepts[1].resource").value("http://localhost/weather"))
                 .andExpect(jsonPath("$.accepts[1].payTo").value(SERVER_WALLET_ADDRESS_2))
-                .andExpect(jsonPath("$.accepts[1].asset").value(ASSET_CONTRACT_ADDRESS));
+                .andExpect(jsonPath("$.accepts[1].asset").value(ASSET_CONTRACT_ADDRESS))
+                .andExpect(jsonPath("$.accepts[1].extra").isEmpty());
     }
 
     @Test
@@ -92,10 +95,11 @@ public class WeatherControllerTest {
                         "nonce": "0xa4f160b60eae4968ba966abf1836fb51a38da88f7749fbc1df8cf2701c7561c2"
                       }
                     }
-                  }""".replaceAll("\\s+", "");
+                  }""";
         String encodedPaymentHeader = Base64
                 .getEncoder()
-                .encodeToString(paymentHeader.getBytes(StandardCharsets.UTF_8));
+                .withoutPadding()
+                .encodeToString(paymentHeader.getBytes(UTF_8));
 
         // Calling the API with the payment header.
         var result = mockMvc.perform(get("/weather").header(X402_X_PAYMENT_HEADER, encodedPaymentHeader))

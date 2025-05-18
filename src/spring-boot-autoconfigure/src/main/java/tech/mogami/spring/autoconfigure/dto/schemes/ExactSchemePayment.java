@@ -1,4 +1,4 @@
-package tech.mogami.spring.autoconfigure.schemes.exact;
+package tech.mogami.spring.autoconfigure.dto.schemes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Builder;
@@ -46,17 +46,17 @@ public record ExactSchemePayment(
     }
 
     /**
-     * Convert the raw JSON string to a PaymentHeader object.
+     * Convert the raw JSON string to an "exact" scheme X-PAYMENT object.
      *
      * @param rawJson the raw JSON string
      * @param mapper  the ObjectMapper to use for deserialization
-     * @return the PaymentHeader object
+     * @return the exact scheme X-PAYMENT payment object
      */
     public static ExactSchemePayment fromHeader(final String rawJson, final ObjectMapper mapper) {
         try {
             return mapper.readValue(rawJson, ExactSchemePayment.class);
         } catch (IOException e) {
-            throw new IllegalArgumentException("Invalid X-PAYMENT header", e);
+            throw new IllegalArgumentException("Invalid exact scheme X-PAYMENT header", e);
         }
     }
 

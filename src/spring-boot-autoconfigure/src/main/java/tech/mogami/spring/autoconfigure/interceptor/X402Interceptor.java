@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import tech.mogami.spring.autoconfigure.annotation.X402PaymentRequirement;
+import tech.mogami.spring.autoconfigure.dto.PaymentPayload;
 import tech.mogami.spring.autoconfigure.dto.PaymentRequired;
 import tech.mogami.spring.autoconfigure.dto.PaymentRequirement;
-import tech.mogami.spring.autoconfigure.dto.schemes.ExactSchemePayment;
 import tech.mogami.spring.autoconfigure.parameter.X402Parameters;
 
 import java.util.Arrays;
@@ -71,12 +71,13 @@ public class X402Interceptor implements HandlerInterceptor {
                 } else {
                     try {
                         // The payment is present, we decode it (base64) and add it to the response.
-                        String paymentHeaderString = new String(Base64.getMimeDecoder().decode(request.getHeader(X402_X_PAYMENT_HEADER)), UTF_8);
-                        ExactSchemePayment exactSchemePayment = ExactSchemePayment.fromHeader(paymentHeaderString, objectMapper);
-                        request.setAttribute(X402_X_PAYMENT_HEADER_DECODED, exactSchemePayment);
-                        log.info("Payment received: {}", exactSchemePayment);
+                        final String paymentHeaderString = new String(Base64.getMimeDecoder().decode(request.getHeader(X402_X_PAYMENT_HEADER)), UTF_8);
+                        PaymentPayload paymentPayload = PaymentPayload.fromJSONString(paymentHeaderString, objectMapper);
+                        request.setAttribute(X402_X_PAYMENT_HEADER_DECODED, paymentPayload);
+                        log.info("Payment received: {}", paymentPayload);
 
                         // Now, we use the facilitator to check if the payment is valid.
+
 
                         return true;
                     } catch (IllegalArgumentException e) {
@@ -117,7 +118,7 @@ public class X402Interceptor implements HandlerInterceptor {
                                 .maxAmountRequired(paymentRequirement.maximumAmountRequired())
                                 .resource(request.getRequestURL().toString())
                                 .description(paymentRequirement.description())
-                                .mimeType("")   // TODO Manage mime type
+                                .mimeType("")
                                 .payTo(paymentRequirement.payTo())
                                 .maxTimeoutSeconds(DEFAULT_MAX_TIMEOUT_SECONDS)
                                 .asset(paymentRequirement.asset())

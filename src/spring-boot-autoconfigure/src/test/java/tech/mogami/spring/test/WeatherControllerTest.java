@@ -1,7 +1,10 @@
 package tech.mogami.spring.test;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockserver.integration.ClientAndServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,6 +16,10 @@ import java.util.Base64;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
+import static org.mockserver.model.MediaType.APPLICATION_JSON;
+import static org.mockserver.model.StringBody.subString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -29,13 +36,55 @@ import static tech.mogami.spring.test.util.TestData.ASSET_CONTRACT_ADDRESS;
 import static tech.mogami.spring.test.util.TestData.SERVER_WALLET_ADDRESS_1;
 import static tech.mogami.spring.test.util.TestData.SERVER_WALLET_ADDRESS_2;
 
-@SpringBootTest
+@SpringBootTest(
+        properties = {
+                "x402.facilitator.base-url=http://localhost:10000/facilitator",
+        })
 @AutoConfigureMockMvc
 @DisplayName("Weather controller tests")
 public class WeatherControllerTest {
 
+    private static ClientAndServer mockServer;
+
     @Autowired
     private MockMvc mockMvc;
+
+    @BeforeEach
+    public void setup() {
+        mockServer = ClientAndServer.startClientAndServer(10000);
+        mockServer.when(request()
+                .withPath("/facilitator/verify")
+                .withBody(subString("isValidFalse"))
+        ).respond(response()
+                .withStatusCode(200)
+                .withContentType(APPLICATION_JSON)
+                .withBody("""
+                        {
+                          "isValid": false,
+                          "invalidReason": "invalid_scheme",
+                          "payer": "0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F71"
+                        }
+                        """)
+        );
+        mockServer.when(request()
+                .withPath("/facilitator/verify")
+                .withBody(subString("isValidTrue"))
+        ).respond(response()
+                .withStatusCode(200)
+                .withContentType(APPLICATION_JSON)
+                .withBody("""
+                        {
+                          "isValid": true,
+                          "payer": "0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F72"
+                        }
+                        """)
+        );
+    }
+
+    @AfterEach
+    public void tearDown() {
+        mockServer.stop();
+    }
 
     @Test
     @DisplayName("get /weather/without-payment test")
@@ -95,7 +144,7 @@ public class WeatherControllerTest {
                         "value": "1000",
                         "validAfter": "1747486410",
                         "validBefore": "1747486530",
-                        "nonce": "0xa4f160b60eae4968ba966abf1836fb51a38da88f7749fbc1df8cf2701c7561c2"
+                        "nonce": "isValidFalse"
                       }
                     }
                   }""";
@@ -131,10 +180,66 @@ public class WeatherControllerTest {
                                 assertThat(payload.authorization().value()).isEqualTo("1000");
                                 assertThat(payload.authorization().validAfter()).isEqualTo("1747486410");
                                 assertThat(payload.authorization().validBefore()).isEqualTo("1747486530");
-                                assertThat(payload.authorization().nonce()).isEqualTo("0xa4f160b60eae4968ba966abf1836fb51a38da88f7749fbc1df8cf2701c7561c2");
+                                assertThat(payload.authorization().nonce()).isEqualTo("isValidFalse");
                             });
                 });
 
+    }
+
+    @Test
+    @DisplayName("get /weather with isValid payment header test")
+    void getWeatherWithValidPaymentHeader() throws Exception {
+
+        // We create the header and encode it to Base64.
+        String paymentHeader = """
+                {
+                    "x402Version": 1,
+                    "scheme": "exact",
+                    "network": "base-sepolia",
+                    "payload": {
+                      "signature": "0x1c7e56451968cc2c2816fc776c6f75483815408b2e087d568ce7e8509c59911b3c9353dbdff8b565680e9defd52336eb2213dfd83f1a07c20625e53d8fda2b951b",
+                      "authorization": {
+                        "from": "0x857b06519E91e3A54538791bDbb0E22373e36b66",
+                        "to": "0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F73",
+                        "value": "1000",
+                        "validAfter": "1747486410",
+                        "validBefore": "1747486530",
+                        "nonce": "isValidTrue"
+                      }
+                    }
+                  }""";
+        String encodedPaymentHeader = Base64
+                .getEncoder()
+                .withoutPadding()
+                .encodeToString(paymentHeader.getBytes(UTF_8));
+
+        // Calling the API with the payment header.
+        var result = mockMvc.perform(get("/weather").header(X402_X_PAYMENT_HEADER, encodedPaymentHeader))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string("It's sunny!"))
+                .andReturn();
+
+        // Testing the decoded payment payload received in the response.
+        assertThat((PaymentPayload) result.getRequest().getAttribute(X402_X_PAYMENT_HEADER_DECODED))
+                .isNotNull()
+                .satisfies(paymentPayload -> {
+                    assertThat(paymentPayload.x402Version()).isEqualTo(1);
+                    assertThat(paymentPayload.scheme()).isEqualTo(EXACT_SCHEME_NAME);
+                    assertThat(paymentPayload.network()).isEqualTo(BASE_SEPOLIA);
+                    assertThat((ExactSchemePayload) paymentPayload.payload())
+                            .isNotNull()
+                            .satisfies(payload -> {
+                                assertThat(payload).isInstanceOf(ExactSchemePayload.class);
+                                assertThat(payload.signature()).isEqualTo("0x1c7e56451968cc2c2816fc776c6f75483815408b2e087d568ce7e8509c59911b3c9353dbdff8b565680e9defd52336eb2213dfd83f1a07c20625e53d8fda2b951b");
+                                assertThat(payload.authorization().from()).isEqualTo("0x857b06519E91e3A54538791bDbb0E22373e36b66");
+                                assertThat(payload.authorization().to()).isEqualTo("0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F73");
+                                assertThat(payload.authorization().value()).isEqualTo("1000");
+                                assertThat(payload.authorization().validAfter()).isEqualTo("1747486410");
+                                assertThat(payload.authorization().validBefore()).isEqualTo("1747486530");
+                                assertThat(payload.authorization().nonce()).isEqualTo("isValidTrue");
+                            });
+                });
     }
 
 }

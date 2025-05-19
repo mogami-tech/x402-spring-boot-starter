@@ -73,7 +73,7 @@ public class FacilitatorServiceTest {
         assertThat(facilitatorService.verify(paymentPayload, paymentRequirements).block())
                 .isNotNull()
                 .satisfies(verifyResponse -> {
-                    assertThat(verifyResponse.valid()).isFalse();
+                    assertThat(verifyResponse.isValid()).isFalse();
                     assertThat(verifyResponse.invalidReason()).isEqualTo("invalid_scheme");
                     assertThat(verifyResponse.payer()).isEqualTo("0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F73");
                 });

@@ -6,14 +6,14 @@ import lombok.extern.jackson.Jacksonized;
 /**
  * VerifyResponse is a response from the facilitator service.
  *
- * @param valid         verification status
- * @param invalidReason di
+ * @param isValid       verification status
+ * @param invalidReason reason why the verification failed
  * @param payer         payer address
  */
 @Jacksonized
 @Builder
 public record VerifyResponse(
-        boolean valid,
+        boolean isValid,
         String invalidReason,
         String payer) {
 }

@@ -75,6 +75,7 @@
 
         <!-- Tests -->
         <awaitility.version>4.3.0</awaitility.version>
+        <mockserver.version>5.15.0</mockserver.version>
 
         <!-- Maven -->
         <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>

@@ -22,8 +22,8 @@ public record ExactSchemePayload(
      * @param from        the address of the sender
      * @param to          the address of the recipient
      * @param value       the number of tokens to be transferred
-     * @param validAfter  the timestamp after which the authorization is valid
-     * @param validBefore the timestamp before which the authorization is valid
+     * @param validAfter  the timestamp after which the authorization is isValid
+     * @param validBefore the timestamp before which the authorization is isValid
      * @param nonce       a unique identifier for the authorization
      */
     @Jacksonized

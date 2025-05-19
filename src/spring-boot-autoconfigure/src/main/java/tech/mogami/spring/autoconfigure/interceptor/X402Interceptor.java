@@ -77,7 +77,7 @@ public class X402Interceptor implements HandlerInterceptor {
                         request.setAttribute(X402_X_PAYMENT_HEADER_DECODED, paymentPayload);
                         log.info("Payment received: {}", paymentPayload);
 
-                        // Now, we use the facilitator to check if the payment is valid.
+                        // Now, we use the facilitator to check if the payment is isValid.
                         X402PaymentRequirement test = paymentRequirementsList.stream()
                                 .findFirst()
                                 .orElseThrow(() -> new IllegalArgumentException("No payment requirements found"));
@@ -88,10 +88,11 @@ public class X402Interceptor implements HandlerInterceptor {
                             response.sendError(SC_BAD_REQUEST, "Serveur error calling the facilitator");
                             return false;
                         }
-                        if (verifyResult.valid()) {
-                            // If the Verification Response is valid, the resource server performs the work to fulfill
+                        System.out.println("verifyResult = " + verifyResult);
+                        if (verifyResult.isValid()) {
+                            // If the Verification Response is isValid, the resource server performs the work to fulfill
                             // the request.
-                            log.info("Payment is valid: {}", verifyResult);
+                            log.info("Payment is isValid: {}", verifyResult);
                             return true;
                         } else {
                             // If the Verification Response is invalid, the resource server returns a 402-Payment

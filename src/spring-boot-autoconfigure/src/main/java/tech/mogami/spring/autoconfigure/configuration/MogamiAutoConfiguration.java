@@ -12,6 +12,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import tech.mogami.spring.autoconfigure.interceptor.X402Interceptor;
 import tech.mogami.spring.autoconfigure.parameter.X402Parameters;
 import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorClient;
+import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorClientImplementation;
 
 /**
  * Mogami Spring Boot Auto-Configuration.
@@ -20,8 +21,7 @@ import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorClient;
 @AutoConfiguration
 @ConditionalOnClass(WebMvcConfigurer.class)
 @EnableConfigurationProperties({
-        X402Parameters.class,
-        X402Parameters.Facilitator.class
+        X402Parameters.class
 })
 @RequiredArgsConstructor
 @SuppressWarnings("checkstyle:DesignForExtension")
@@ -40,7 +40,7 @@ public class MogamiAutoConfiguration implements WebMvcConfigurer {
 
     @Bean
     public FacilitatorClient facilitatorClient() {
-        return new FacilitatorClient(x402Parameters.facilitator());
+        return new FacilitatorClientImplementation(x402Parameters.facilitator());
     }
 
     @Bean

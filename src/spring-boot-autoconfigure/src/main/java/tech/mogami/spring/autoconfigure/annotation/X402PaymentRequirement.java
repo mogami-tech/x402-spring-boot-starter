@@ -63,7 +63,7 @@ public @interface X402PaymentRequirement {
 
     /**
      * Extra information about the payment details specific to the scheme.
-     * For `exact` scheme on a EVM network, expect extra to contain the records `name` and `version`
+     * For `exact` scheme on an EVM network, expect extra to contain the records `name` and `version`
      * pertaining to asset
      *
      * @return Extra information about the payment details specific to the scheme

@@ -1,5 +1,6 @@
 package tech.mogami.spring.autoconfigure.parameter;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.URL;
@@ -15,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties(prefix = "x402")
 public record X402Parameters(
 
+        @Valid
         @NotNull(message = "{validation.facilitator.empty}")
         Facilitator facilitator
 
@@ -25,8 +27,6 @@ public record X402Parameters(
      *
      * @param baseUrl the base URL of the facilitator
      */
-    @Validated
-    @ConfigurationProperties(prefix = "x402.facilitator")
     public record Facilitator(
 
             @NotEmpty(message = "{validation.facilitator.base-url.empty}")

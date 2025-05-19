@@ -6,9 +6,9 @@ import tech.mogami.spring.autoconfigure.annotation.X402PaymentRequirement;
 
 import static tech.mogami.spring.autoconfigure.dto.schemes.ExactSchemeConstants.EXACT_SCHEME_NAME;
 import static tech.mogami.spring.autoconfigure.util.constants.networks.BaseNetworks.BASE_SEPOLIA;
-import static tech.mogami.spring.test.constants.TestData.ASSET_CONTRACT_ADDRESS;
-import static tech.mogami.spring.test.constants.TestData.SERVER_WALLET_ADDRESS_1;
-import static tech.mogami.spring.test.constants.TestData.SERVER_WALLET_ADDRESS_2;
+import static tech.mogami.spring.test.util.TestData.ASSET_CONTRACT_ADDRESS;
+import static tech.mogami.spring.test.util.TestData.SERVER_WALLET_ADDRESS_1;
+import static tech.mogami.spring.test.util.TestData.SERVER_WALLET_ADDRESS_2;
 
 @RestController
 public class WeatherController {

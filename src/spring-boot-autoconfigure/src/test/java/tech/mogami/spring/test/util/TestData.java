@@ -1,4 +1,4 @@
-package tech.mogami.spring.test.constants;
+package tech.mogami.spring.test.util;
 
 import lombok.experimental.UtilityClass;
 

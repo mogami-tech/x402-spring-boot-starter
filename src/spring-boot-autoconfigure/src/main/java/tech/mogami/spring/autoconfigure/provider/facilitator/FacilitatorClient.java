@@ -9,13 +9,11 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import tech.mogami.spring.autoconfigure.dto.PaymentPayload;
+import tech.mogami.spring.autoconfigure.dto.PaymentRequirements;
 import tech.mogami.spring.autoconfigure.parameter.X402Parameters;
 import tech.mogami.spring.autoconfigure.provider.facilitator.supported.SupportedResponse;
-import tech.mogami.spring.autoconfigure.provider.facilitator.verify.PaymentRequirements;
 import tech.mogami.spring.autoconfigure.provider.facilitator.verify.VerifyRequest;
 import tech.mogami.spring.autoconfigure.provider.facilitator.verify.VerifyResponse;
-
-import java.util.Base64;
 
 import static org.springframework.http.HttpHeaders.ACCEPT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -65,16 +63,19 @@ public class FacilitatorClient {
      * @return status
      */
     public Mono<VerifyResponse> verify(final PaymentPayload paymentPayload,
-                                       final PaymentRequirements paymentRequirements) throws JsonProcessingException {
-        String encodedHeader = Base64.getUrlEncoder()
-                .withoutPadding()
-                .encodeToString(new ObjectMapper().writeValueAsBytes(paymentPayload));
-
+                                       final PaymentRequirements paymentRequirements) {
         VerifyRequest body = VerifyRequest.builder()
                 .x402Version(paymentPayload.x402Version())
-                .paymentHeader(encodedHeader)
+                .paymentPayload(paymentPayload)
                 .paymentRequirements(paymentRequirements)
                 .build();
+        String json = null;
+        try {
+            json = new ObjectMapper().writeValueAsString(body);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("→ Requête JSON: " + body.toJSON());
 
         return client.post()
                 .uri(VERIFY_URL)

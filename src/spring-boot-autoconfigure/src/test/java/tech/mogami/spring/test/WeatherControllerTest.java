@@ -26,9 +26,9 @@ import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_X_PAYMENT_HEADER;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_X_PAYMENT_HEADER_DECODED;
 import static tech.mogami.spring.autoconfigure.util.constants.networks.BaseNetworks.BASE_SEPOLIA;
-import static tech.mogami.spring.test.constants.TestData.ASSET_CONTRACT_ADDRESS;
-import static tech.mogami.spring.test.constants.TestData.SERVER_WALLET_ADDRESS_1;
-import static tech.mogami.spring.test.constants.TestData.SERVER_WALLET_ADDRESS_2;
+import static tech.mogami.spring.test.util.TestData.ASSET_CONTRACT_ADDRESS;
+import static tech.mogami.spring.test.util.TestData.SERVER_WALLET_ADDRESS_1;
+import static tech.mogami.spring.test.util.TestData.SERVER_WALLET_ADDRESS_2;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -127,8 +127,8 @@ public class WeatherControllerTest {
                                 assertThat(payload.authorization().from()).isEqualTo("0x857b06519E91e3A54538791bDbb0E22373e36b66");
                                 assertThat(payload.authorization().to()).isEqualTo("0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F73");
                                 assertThat(payload.authorization().value()).isEqualTo("1000");
-                                assertThat(payload.authorization().validAfter()).isEqualTo(1747486410);
-                                assertThat(payload.authorization().validBefore()).isEqualTo(1747486530);
+                                assertThat(payload.authorization().validAfter()).isEqualTo("1747486410");
+                                assertThat(payload.authorization().validBefore()).isEqualTo("1747486530");
                                 assertThat(payload.authorization().nonce()).isEqualTo("0xa4f160b60eae4968ba966abf1836fb51a38da88f7749fbc1df8cf2701c7561c2");
                             });
                 });

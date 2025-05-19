@@ -13,7 +13,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import tech.mogami.spring.autoconfigure.annotation.X402PaymentRequirement;
 import tech.mogami.spring.autoconfigure.dto.PaymentPayload;
 import tech.mogami.spring.autoconfigure.dto.PaymentRequired;
-import tech.mogami.spring.autoconfigure.dto.PaymentRequirement;
+import tech.mogami.spring.autoconfigure.dto.PaymentRequirements;
 import tech.mogami.spring.autoconfigure.parameter.X402Parameters;
 
 import java.util.Arrays;
@@ -72,7 +72,7 @@ public class X402Interceptor implements HandlerInterceptor {
                     try {
                         // The payment is present, we decode it (base64) and add it to the response.
                         final String paymentHeaderString = new String(Base64.getMimeDecoder().decode(request.getHeader(X402_X_PAYMENT_HEADER)), UTF_8);
-                        PaymentPayload paymentPayload = PaymentPayload.fromJSONString(paymentHeaderString, objectMapper);
+                        PaymentPayload paymentPayload = PaymentPayload.loadFromJSONString(paymentHeaderString, objectMapper);
                         request.setAttribute(X402_X_PAYMENT_HEADER_DECODED, paymentPayload);
                         log.info("Payment received: {}", paymentPayload);
 
@@ -112,7 +112,7 @@ public class X402Interceptor implements HandlerInterceptor {
                 .error(X402_PAYMENT_REQUIRED_MESSAGE)
                 .accepts(paymentRequirementsAnnotations
                         .stream()
-                        .map(paymentRequirement -> PaymentRequirement.builder()
+                        .map(paymentRequirement -> PaymentRequirements.builder()
                                 .scheme(paymentRequirement.scheme())
                                 .network(paymentRequirement.network())
                                 .maxAmountRequired(paymentRequirement.maximumAmountRequired())

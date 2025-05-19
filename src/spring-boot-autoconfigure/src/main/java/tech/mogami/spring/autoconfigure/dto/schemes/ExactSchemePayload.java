@@ -3,8 +3,6 @@ package tech.mogami.spring.autoconfigure.dto.schemes;
 import lombok.Builder;
 import lombok.extern.jackson.Jacksonized;
 
-import java.math.BigInteger;
-
 /**
  * Exact scheme payload.
  *
@@ -33,9 +31,9 @@ public record ExactSchemePayload(
     public record Authorization(
             String from,
             String to,
-            BigInteger value,
-            long validAfter,
-            long validBefore,
+            String value,
+            String validAfter,
+            String validBefore,
             String nonce
     ) {
     }

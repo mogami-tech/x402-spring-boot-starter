@@ -1,6 +1,7 @@
 package tech.mogami.spring.autoconfigure.dto;
 
 import lombok.Builder;
+import lombok.Singular;
 
 import java.util.Map;
 
@@ -23,7 +24,7 @@ import java.util.Map;
  *                          `version` pertaining to asset
  */
 @Builder
-public record PaymentRequirement(
+public record PaymentRequirements(
         String scheme,
         String network,
         String maxAmountRequired,
@@ -33,6 +34,6 @@ public record PaymentRequirement(
         String payTo,
         int maxTimeoutSeconds,
         String asset,
-        Map<String, String> extra
+        @Singular("extra") Map<String, String> extra
 ) {
 }

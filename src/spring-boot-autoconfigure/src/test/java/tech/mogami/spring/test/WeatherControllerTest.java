@@ -13,7 +13,6 @@ import java.util.Base64;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -108,8 +107,11 @@ public class WeatherControllerTest {
         // Calling the API with the payment header.
         var result = mockMvc.perform(get("/weather").header(X402_X_PAYMENT_HEADER, encodedPaymentHeader))
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().string(containsString("It's sunny!")))
+                .andExpect(status().isPaymentRequired())
+                .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.x402Version").value(X402_SUPPORTED_VERSION))
+                .andExpect(jsonPath("$.error").value(X402_PAYMENT_REQUIRED_MESSAGE))
+                .andExpect(jsonPath("$.accepts.length()").value(2))
                 .andReturn();
 
         // Testing the decoded payment payload received in the response.

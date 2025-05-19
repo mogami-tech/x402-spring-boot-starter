@@ -14,7 +14,8 @@ import tech.mogami.spring.autoconfigure.annotation.X402PaymentRequirement;
 import tech.mogami.spring.autoconfigure.dto.PaymentPayload;
 import tech.mogami.spring.autoconfigure.dto.PaymentRequired;
 import tech.mogami.spring.autoconfigure.dto.PaymentRequirements;
-import tech.mogami.spring.autoconfigure.parameter.X402Parameters;
+import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorService;
+import tech.mogami.spring.autoconfigure.provider.facilitator.verify.VerifyResponse;
 
 import java.util.Arrays;
 import java.util.Base64;
@@ -44,8 +45,8 @@ public class X402Interceptor implements HandlerInterceptor {
     /** Object mapper. */
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    /** Mogami parameters. */
-    private final X402Parameters x402Parameters;
+    /** Facilitator service. */
+    private final FacilitatorService facilitatorService;
 
     @Override
     public boolean preHandle(@NonNull final HttpServletRequest request,
@@ -55,8 +56,8 @@ public class X402Interceptor implements HandlerInterceptor {
         // We check if the handler is a HandlerMethod (spring method).
         if (handler instanceof HandlerMethod hm) {
             // We retrieve all schemes.
-            Set<X402PaymentRequirement> paymentRequirements = AnnotatedElementUtils.findMergedRepeatableAnnotations(hm.getMethod(), X402PaymentRequirement.class);
-            if (!paymentRequirements.isEmpty()) {
+            Set<X402PaymentRequirement> paymentRequirementsList = AnnotatedElementUtils.findMergedRepeatableAnnotations(hm.getMethod(), X402PaymentRequirement.class);
+            if (!paymentRequirementsList.isEmpty()) {
 
                 // =====================================================================================================
                 // The method is annotated with @X402.
@@ -66,7 +67,7 @@ public class X402Interceptor implements HandlerInterceptor {
                     // The payment is not present, we build the response by listing the payment requirements.
                     response.setStatus(SC_PAYMENT_REQUIRED);
                     response.setContentType(APPLICATION_JSON_VALUE);
-                    objectMapper.writeValue(response.getWriter(), buildPaymentRequiredBody(request, paymentRequirements));
+                    objectMapper.writeValue(response.getWriter(), buildPaymentRequirementsBody(request, paymentRequirementsList));
                     return false; // We stop the chain.
                 } else {
                     try {
@@ -77,9 +78,29 @@ public class X402Interceptor implements HandlerInterceptor {
                         log.info("Payment received: {}", paymentPayload);
 
                         // Now, we use the facilitator to check if the payment is valid.
+                        X402PaymentRequirement test = paymentRequirementsList.stream()
+                                .findFirst()
+                                .orElseThrow(() -> new IllegalArgumentException("No payment requirements found"));
+                        final PaymentRequirements paymentRequirement = buildPaymentRequirements(request, test);
 
-
-                        return true;
+                        final VerifyResponse verifyResult = facilitatorService.verify(paymentPayload, paymentRequirement).block();
+                        if (verifyResult == null) {
+                            response.sendError(SC_BAD_REQUEST, "Serveur error calling the facilitator");
+                            return false;
+                        }
+                        if (verifyResult.valid()) {
+                            // If the Verification Response is valid, the resource server performs the work to fulfill
+                            // the request.
+                            log.info("Payment is valid: {}", verifyResult);
+                            return true;
+                        } else {
+                            // If the Verification Response is invalid, the resource server returns a 402-Payment
+                            // Required status and a Payment Required Response JSON object in the response body.
+                            response.setStatus(SC_PAYMENT_REQUIRED);
+                            response.setContentType(APPLICATION_JSON_VALUE);
+                            objectMapper.writeValue(response.getWriter(), buildPaymentRequirementsBody(request, paymentRequirementsList));
+                            return false;
+                        }
                     } catch (IllegalArgumentException e) {
                         response.sendError(SC_BAD_REQUEST, "Invalid Base64");
                         return false;
@@ -88,7 +109,7 @@ public class X402Interceptor implements HandlerInterceptor {
                 // =====================================================================================================
 
             } else {
-                // Our annotation is not present, so we skip it.
+                // Our annotation is not present, so we skip it, it's free!
                 return true;
             }
         } else {
@@ -105,29 +126,41 @@ public class X402Interceptor implements HandlerInterceptor {
      * @param paymentRequirementsAnnotations The list of payment requirements annotations
      * @return The payment required body
      */
-    private PaymentRequired buildPaymentRequiredBody(final HttpServletRequest request,
-                                                     final Set<X402PaymentRequirement> paymentRequirementsAnnotations) {
+    private PaymentRequired buildPaymentRequirementsBody(final HttpServletRequest request,
+                                                         final Set<X402PaymentRequirement> paymentRequirementsAnnotations) {
         return PaymentRequired.builder()
                 .x402Version(X402_SUPPORTED_VERSION)
                 .error(X402_PAYMENT_REQUIRED_MESSAGE)
                 .accepts(paymentRequirementsAnnotations
                         .stream()
-                        .map(paymentRequirement -> PaymentRequirements.builder()
-                                .scheme(paymentRequirement.scheme())
-                                .network(paymentRequirement.network())
-                                .maxAmountRequired(paymentRequirement.maximumAmountRequired())
-                                .resource(request.getRequestURL().toString())
-                                .description(paymentRequirement.description())
-                                .mimeType("")
-                                .payTo(paymentRequirement.payTo())
-                                .maxTimeoutSeconds(DEFAULT_MAX_TIMEOUT_SECONDS)
-                                .asset(paymentRequirement.asset())
-                                .extra(Arrays.stream(paymentRequirement.extra())
-                                        .collect(Collectors.toMap(
-                                                X402PaymentRequirement.ExtraEntry::key,
-                                                X402PaymentRequirement.ExtraEntry::value)))
-                                .build())
+                        .map(paymentRequirement -> buildPaymentRequirements(request, paymentRequirement))
                         .collect(Collectors.toCollection(LinkedList::new)))
+                .build();
+    }
+
+    /**
+     * Builds a payment requirement.
+     *
+     * @param request                       The HTTP request
+     * @param paymentRequirementsAnnotation The payment requirements annotation
+     * @return The payment required body
+     */
+    private PaymentRequirements buildPaymentRequirements(final HttpServletRequest request,
+                                                         final X402PaymentRequirement paymentRequirementsAnnotation) {
+        return PaymentRequirements.builder()
+                .scheme(paymentRequirementsAnnotation.scheme())
+                .network(paymentRequirementsAnnotation.network())
+                .maxAmountRequired(paymentRequirementsAnnotation.maximumAmountRequired())
+                .resource(request.getRequestURL().toString())
+                .description(paymentRequirementsAnnotation.description())
+                .mimeType("")
+                .payTo(paymentRequirementsAnnotation.payTo())
+                .maxTimeoutSeconds(DEFAULT_MAX_TIMEOUT_SECONDS)
+                .asset(paymentRequirementsAnnotation.asset())
+                .extra(Arrays.stream(paymentRequirementsAnnotation.extra())
+                        .collect(Collectors.toMap(
+                                X402PaymentRequirement.ExtraEntry::key,
+                                X402PaymentRequirement.ExtraEntry::value)))
                 .build();
     }
 

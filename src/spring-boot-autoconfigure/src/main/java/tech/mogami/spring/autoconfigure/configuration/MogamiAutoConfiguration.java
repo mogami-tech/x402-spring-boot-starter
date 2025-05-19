@@ -11,8 +11,8 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import tech.mogami.spring.autoconfigure.interceptor.X402Interceptor;
 import tech.mogami.spring.autoconfigure.parameter.X402Parameters;
-import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorClient;
-import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorClientImplementation;
+import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorService;
+import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorServiceImplementation;
 
 /**
  * Mogami Spring Boot Auto-Configuration.
@@ -39,13 +39,13 @@ public class MogamiAutoConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public FacilitatorClient facilitatorClient() {
-        return new FacilitatorClientImplementation(x402Parameters.facilitator());
+    public FacilitatorService facilitatorClient() {
+        return new FacilitatorServiceImplementation(x402Parameters.facilitator());
     }
 
     @Bean
     public X402Interceptor x402Interceptor() {
-        return new X402Interceptor(x402Parameters);
+        return new X402Interceptor(facilitatorClient());
     }
 
     @Override

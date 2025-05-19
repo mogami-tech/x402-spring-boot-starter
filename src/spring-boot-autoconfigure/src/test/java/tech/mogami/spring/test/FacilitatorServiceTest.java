@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import tech.mogami.spring.autoconfigure.dto.PaymentPayload;
 import tech.mogami.spring.autoconfigure.dto.PaymentRequirements;
 import tech.mogami.spring.autoconfigure.dto.schemes.ExactSchemePayload;
-import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorClient;
+import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorService;
 
 import java.util.Map;
 
@@ -19,15 +19,15 @@ import static tech.mogami.spring.autoconfigure.util.constants.networks.BaseNetwo
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("Facilitator client tests")
-public class FacilitatorClientTest {
+public class FacilitatorServiceTest {
 
     @Autowired
-    private FacilitatorClient facilitatorClient;
+    private FacilitatorService facilitatorService;
 
     @Test
     @DisplayName("Supported response test")
     void supportedResponse() {
-        assertThat(facilitatorClient.supported().block())
+        assertThat(facilitatorService.supported().block())
                 .isNotNull()
                 .satisfies(supportedResponse -> {
                     assertThat(supportedResponse.kinds()).isNotEmpty();
@@ -70,7 +70,7 @@ public class FacilitatorClientTest {
                 .extra(Map.of("version", "2"))
                 .build();
 
-        assertThat(facilitatorClient.verify(paymentPayload, paymentRequirements).block())
+        assertThat(facilitatorService.verify(paymentPayload, paymentRequirements).block())
                 .isNotNull()
                 .satisfies(verifyResponse -> {
                     assertThat(verifyResponse.valid()).isFalse();

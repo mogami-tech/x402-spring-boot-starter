@@ -1,7 +1,5 @@
 package tech.mogami.spring.autoconfigure.provider.facilitator;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -22,11 +20,11 @@ import static tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorU
 import static tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorURLs.VERIFY_URL;
 
 /**
- * {@link FacilitatorClient} implementation.
+ * {@link FacilitatorService} implementation.
  */
 @Slf4j
 @SuppressWarnings({"checkstyle:DesignForExtension", "unused"})
-public class FacilitatorClientImplementation implements FacilitatorClient {
+public class FacilitatorServiceImplementation implements FacilitatorService {
 
     /** Web client. */
     private final WebClient client;
@@ -36,7 +34,7 @@ public class FacilitatorClientImplementation implements FacilitatorClient {
      *
      * @param facilitatorParameters facilitator parameters
      */
-    public FacilitatorClientImplementation(final X402Parameters.Facilitator facilitatorParameters) {
+    public FacilitatorServiceImplementation(final X402Parameters.Facilitator facilitatorParameters) {
         this.client = WebClient.builder()
                 .baseUrl(facilitatorParameters.baseUrl())
                 .clientConnector(new ReactorClientHttpConnector(HttpClient.create().followRedirect(true)))
@@ -60,13 +58,6 @@ public class FacilitatorClientImplementation implements FacilitatorClient {
                 .paymentPayload(paymentPayload)
                 .paymentRequirements(paymentRequirements)
                 .build();
-        String json = null;
-        try {
-            json = new ObjectMapper().writeValueAsString(body);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        System.out.println("→ Requête JSON: " + body.toJSON());
 
         return client.post()
                 .uri(VERIFY_URL)

@@ -7,9 +7,9 @@ import tech.mogami.spring.autoconfigure.provider.facilitator.supported.Supported
 import tech.mogami.spring.autoconfigure.provider.facilitator.verify.VerifyResponse;
 
 /**
- * FacilitatorClient is a client for the facilitator service.
+ * FacilitatorClient is a client for the external facilitator.
  */
-public interface FacilitatorClient {
+public interface FacilitatorService {
 
     /**
      * Retrieve the supported payment methods from the facilitator service.

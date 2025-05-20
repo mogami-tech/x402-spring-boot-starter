@@ -3,6 +3,7 @@ package tech.mogami.spring.autoconfigure.provider.facilitator;
 import reactor.core.publisher.Mono;
 import tech.mogami.spring.autoconfigure.dto.PaymentPayload;
 import tech.mogami.spring.autoconfigure.dto.PaymentRequirements;
+import tech.mogami.spring.autoconfigure.provider.facilitator.settle.SettleResult;
 import tech.mogami.spring.autoconfigure.provider.facilitator.supported.SupportedResponse;
 import tech.mogami.spring.autoconfigure.provider.facilitator.verify.VerifyResponse;
 
@@ -27,5 +28,16 @@ public interface FacilitatorService {
      */
     Mono<VerifyResponse> verify(PaymentPayload paymentPayload,
                                 PaymentRequirements paymentRequirements);
+
+    /**
+     * Settle the payment with the facilitator service.
+     *
+     * @param paymentPayload      payment payload received from the user
+     * @param paymentRequirements payment requirements
+     * @return status
+     */
+    Mono<SettleResult> settle(PaymentPayload paymentPayload,
+                              PaymentRequirements paymentRequirements);
+
 
 }

@@ -9,6 +9,8 @@ import reactor.netty.http.client.HttpClient;
 import tech.mogami.spring.autoconfigure.dto.PaymentPayload;
 import tech.mogami.spring.autoconfigure.dto.PaymentRequirements;
 import tech.mogami.spring.autoconfigure.parameter.X402Parameters;
+import tech.mogami.spring.autoconfigure.provider.facilitator.settle.SettleRequest;
+import tech.mogami.spring.autoconfigure.provider.facilitator.settle.SettleResult;
 import tech.mogami.spring.autoconfigure.provider.facilitator.supported.SupportedResponse;
 import tech.mogami.spring.autoconfigure.provider.facilitator.verify.VerifyRequest;
 import tech.mogami.spring.autoconfigure.provider.facilitator.verify.VerifyResponse;
@@ -16,6 +18,7 @@ import tech.mogami.spring.autoconfigure.provider.facilitator.verify.VerifyRespon
 import static org.springframework.http.HttpHeaders.ACCEPT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorURLs.SETTLE_URL;
 import static tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorURLs.SUPPORTED_URL;
 import static tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorURLs.VERIFY_URL;
 
@@ -47,7 +50,9 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
                 .uri(SUPPORTED_URL)
                 .header(ACCEPT, APPLICATION_JSON_VALUE)
                 .retrieve()
-                .bodyToMono(SupportedResponse.class);
+                .bodyToMono(SupportedResponse.class)
+                .doOnError(WebClientResponseException.class, error ->
+                        log.error("Facilitator support error : '{}'", error.getResponseBodyAsString()));
     }
 
     @Override
@@ -66,7 +71,26 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
                 .retrieve()
                 .bodyToMono(VerifyResponse.class)
                 .doOnError(WebClientResponseException.class, error ->
-                        log.error("Facilitator body: '{}'", error.getResponseBodyAsString()));
+                        log.error("Facilitator verify error: '{}'", error.getResponseBodyAsString()));
+    }
+
+    @Override
+    public Mono<SettleResult> settle(final PaymentPayload paymentPayload,
+                                     final PaymentRequirements paymentRequirements) {
+        SettleRequest body = SettleRequest.builder()
+                .x402Version(paymentPayload.x402Version())
+                .paymentPayload(paymentPayload)
+                .paymentRequirements(paymentRequirements)
+                .build();
+
+        return client.post()
+                .uri(SETTLE_URL)
+                .contentType(APPLICATION_JSON)
+                .bodyValue(body)
+                .retrieve()
+                .bodyToMono(SettleResult.class)
+                .doOnError(WebClientResponseException.class, error ->
+                        log.error("Facilitator settle error : '{}'", error.getResponseBodyAsString()));
     }
 
 }

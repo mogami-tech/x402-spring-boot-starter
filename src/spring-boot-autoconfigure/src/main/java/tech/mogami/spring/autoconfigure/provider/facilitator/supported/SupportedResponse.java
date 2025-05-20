@@ -1,12 +1,14 @@
 package tech.mogami.spring.autoconfigure.provider.facilitator.supported;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Builder;
 import lombok.extern.jackson.Jacksonized;
 
 import java.util.List;
 
 /**
- * Facilitator → client payload for GET /supported.
+ * Supported response for GET /supported.
  *
  * @param kinds list of supported (scheme, network) pairs
  */
@@ -27,6 +29,19 @@ public record SupportedResponse(
             int x402Version,
             String scheme,
             String network) {
+    }
+
+    /**
+     * Convert the SupportedResponse to an encoded JSON string.
+     *
+     * @return the JSON string
+     */
+    public String toJSON() {
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Cannot serialize SupportedResponse to JSON", e);
+        }
     }
 
 }

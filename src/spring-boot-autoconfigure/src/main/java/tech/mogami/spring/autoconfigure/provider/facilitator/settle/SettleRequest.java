@@ -1,4 +1,4 @@
-package tech.mogami.spring.autoconfigure.provider.facilitator.verify;
+package tech.mogami.spring.autoconfigure.provider.facilitator.settle;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -9,7 +9,7 @@ import tech.mogami.spring.autoconfigure.dto.PaymentPayload;
 import tech.mogami.spring.autoconfigure.dto.PaymentRequirements;
 
 /**
- * Verify request is a request to the facilitator service.
+ * Settle request is a request to the facilitator service.
  *
  * @param x402Version         x402 version
  * @param paymentPayload      paument payload
@@ -17,13 +17,13 @@ import tech.mogami.spring.autoconfigure.dto.PaymentRequirements;
  */
 @Jacksonized
 @Builder
-public record VerifyRequest(
+public record SettleRequest(
         int x402Version,
         PaymentPayload paymentPayload,
         PaymentRequirements paymentRequirements) {
 
     /**
-     * Convert the VerifyRequest to an encoded JSON string.
+     * Convert the SettleRequest to an encoded JSON string.
      *
      * @return the JSON string
      */
@@ -31,7 +31,7 @@ public record VerifyRequest(
         try {
             return new ObjectMapper().writeValueAsString(this);
         } catch (JsonProcessingException e) {
-            throw new IllegalStateException("Cannot serialize VerifyRequest to JSON", e);
+            throw new IllegalStateException("Cannot serialize SettleRequest to JSON", e);
         }
     }
 

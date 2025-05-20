@@ -1,5 +1,7 @@
 package tech.mogami.spring.autoconfigure.provider.facilitator.verify;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Builder;
 import lombok.extern.jackson.Jacksonized;
 
@@ -16,4 +18,19 @@ public record VerifyResponse(
         boolean isValid,
         String invalidReason,
         String payer) {
+
+
+    /**
+     * Convert the VerifyResponse to an encoded JSON string.
+     *
+     * @return the JSON string
+     */
+    public String toJSON() {
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Cannot serialize VerifyResponse to JSON", e);
+        }
+    }
+
 }

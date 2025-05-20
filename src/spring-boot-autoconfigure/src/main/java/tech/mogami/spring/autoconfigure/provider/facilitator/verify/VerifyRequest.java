@@ -15,8 +15,9 @@ import tech.mogami.spring.autoconfigure.dto.PaymentRequirements;
  * @param paymentPayload      paument payload
  * @param paymentRequirements payment requirements
  */
-@Jacksonized
 @Builder
+@Jacksonized
+@SuppressWarnings("unused")
 public record VerifyRequest(
         int x402Version,
         PaymentPayload paymentPayload,

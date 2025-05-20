@@ -97,6 +97,7 @@ public @interface X402PaymentRequirement {
     @Target(METHOD)
     @Retention(RUNTIME)
     @interface List {
+        @SuppressWarnings("UnusedReturnValue")
         X402PaymentRequirement[] value();
     }
 

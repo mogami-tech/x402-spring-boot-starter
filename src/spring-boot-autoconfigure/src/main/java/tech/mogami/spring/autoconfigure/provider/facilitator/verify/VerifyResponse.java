@@ -12,8 +12,9 @@ import lombok.extern.jackson.Jacksonized;
  * @param invalidReason reason why the verification failed
  * @param payer         payer address
  */
-@Jacksonized
 @Builder
+@Jacksonized
+@SuppressWarnings("unused")
 public record VerifyResponse(
         boolean isValid,
         String invalidReason,

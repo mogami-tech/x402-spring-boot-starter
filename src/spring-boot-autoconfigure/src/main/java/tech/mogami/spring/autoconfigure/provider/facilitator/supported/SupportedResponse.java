@@ -12,8 +12,9 @@ import java.util.List;
  *
  * @param kinds list of supported (scheme, network) pairs
  */
-@Jacksonized
 @Builder
+@Jacksonized
+@SuppressWarnings("unused")
 public record SupportedResponse(
         List<SupportedKind> kinds
 ) {

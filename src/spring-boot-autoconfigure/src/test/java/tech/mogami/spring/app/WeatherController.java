@@ -10,6 +10,7 @@ import static tech.mogami.spring.test.util.TestData.ASSET_CONTRACT_ADDRESS;
 import static tech.mogami.spring.test.util.TestData.SERVER_WALLET_ADDRESS_1;
 import static tech.mogami.spring.test.util.TestData.SERVER_WALLET_ADDRESS_2;
 
+@SuppressWarnings("SameReturnValue")
 @RestController
 public class WeatherController {
 

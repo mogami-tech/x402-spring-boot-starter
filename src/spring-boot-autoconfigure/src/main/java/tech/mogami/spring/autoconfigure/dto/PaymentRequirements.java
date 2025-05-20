@@ -2,6 +2,7 @@ package tech.mogami.spring.autoconfigure.dto;
 
 import lombok.Builder;
 import lombok.Singular;
+import lombok.extern.jackson.Jacksonized;
 
 import java.util.Map;
 
@@ -20,10 +21,12 @@ import java.util.Map;
  * @param maxTimeoutSeconds Maximum time in seconds for the resource server to respond (e.g., 60)
  * @param asset             Address of the EIP-3009 compliant ERC20 contract (example: an ERC20 contract address).
  * @param extra             Extra information about the payment details specific to the scheme
- *                          For `exact` scheme on a EVM network, expects extra to contain the records `name` and
- *                          `version` pertaining to asset
+ *                          For `exact` scheme on the EVM network,
+ *                          expects extra to contain the records `name` and `version` pertaining to asset
  */
 @Builder
+@Jacksonized
+@SuppressWarnings("unused")
 public record PaymentRequirements(
         String scheme,
         String network,

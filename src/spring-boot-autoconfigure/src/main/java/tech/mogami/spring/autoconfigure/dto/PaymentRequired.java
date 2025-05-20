@@ -1,6 +1,7 @@
 package tech.mogami.spring.autoconfigure.dto;
 
 import lombok.Builder;
+import lombok.extern.jackson.Jacksonized;
 
 import java.util.List;
 
@@ -13,6 +14,8 @@ import java.util.List;
  * @param error       Message from the resource server to the client to communicate errors in processing payment
  */
 @Builder
+@Jacksonized
+@SuppressWarnings("unused")
 public record PaymentRequired(
         int x402Version,
         List<PaymentRequirements> accepts,

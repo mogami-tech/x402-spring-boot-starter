@@ -26,8 +26,9 @@ public record ExactSchemePayload(
      * @param validBefore the timestamp before which the authorization is isValid
      * @param nonce       a unique identifier for the authorization
      */
-    @Jacksonized
     @Builder
+    @Jacksonized
+    @SuppressWarnings("unused")
     public record Authorization(
             String from,
             String to,

@@ -6,7 +6,7 @@ import lombok.experimental.UtilityClass;
  * Test data.
  */
 @UtilityClass
-@SuppressWarnings("checkstyle:HideUtilityClassConstructor")
+@SuppressWarnings({"checkstyle:HideUtilityClassConstructor", "unused"})
 public class TestData {
 
     /** Client (buyer) address. */

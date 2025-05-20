@@ -6,7 +6,7 @@ import lombok.experimental.UtilityClass;
  * Existing base networks.
  */
 @UtilityClass
-@SuppressWarnings("checkstyle:HideUtilityClassConstructor")
+@SuppressWarnings({"checkstyle:HideUtilityClassConstructor", "unused"})
 public class BaseNetworks {
 
     /** Base sepolia network. */

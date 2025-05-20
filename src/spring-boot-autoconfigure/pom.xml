@@ -170,7 +170,7 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
-            <!-- Jar (classes, sources & documentation)-->
+            <!-- Jar (classes, sources and documentation)-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>

@@ -13,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
  * @param facilitator facilitator parameters
  */
 @Validated
+@SuppressWarnings("unused")
 @ConfigurationProperties(prefix = "x402")
 public record X402Parameters(
 

@@ -98,9 +98,15 @@ public class X402Interceptor implements HandlerInterceptor {
                                 // the request.
                                 log.info("Payment is isValid: {}", verifyResult);
 
-                                // Calling /settle.
+                                // Calling /settle and setting the response header.
                                 final SettleResult settleResult = facilitatorService.settle(paymentPayload, paymentRequirement).block();
-                                log.info("Settle result: {}", settleResult);
+                                if (settleResult != null) {
+                                    log.info("Settle result: {}", settleResult);
+                                } else {
+                                    log.error("Error calling the settle facilitator - null result");
+                                    response.sendError(SC_BAD_REQUEST, "Serveur error calling the facilitator");
+                                    return false;
+                                }
                                 response.setHeader(X402_X_PAYMENT_RESPONSE, Base64
                                         .getEncoder()
                                         .withoutPadding()

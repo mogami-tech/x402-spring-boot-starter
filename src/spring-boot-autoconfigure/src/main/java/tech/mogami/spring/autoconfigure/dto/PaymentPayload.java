@@ -22,8 +22,9 @@ import static tech.mogami.spring.autoconfigure.dto.schemes.ExactSchemeConstants.
  * @param network     network is the network id of the accepted `paymentRequirements` the client is using to pay
  * @param payload     payload is scheme dependent
  */
-@Jacksonized
 @Builder
+@Jacksonized
+@SuppressWarnings("unused")
 public record PaymentPayload(
         int x402Version,
         String scheme,

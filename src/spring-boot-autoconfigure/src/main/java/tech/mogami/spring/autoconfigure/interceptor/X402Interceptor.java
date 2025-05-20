@@ -15,6 +15,7 @@ import tech.mogami.spring.autoconfigure.dto.PaymentPayload;
 import tech.mogami.spring.autoconfigure.dto.PaymentRequired;
 import tech.mogami.spring.autoconfigure.dto.PaymentRequirements;
 import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorService;
+import tech.mogami.spring.autoconfigure.provider.facilitator.settle.SettleResult;
 import tech.mogami.spring.autoconfigure.provider.facilitator.verify.VerifyResponse;
 
 import java.util.Arrays;
@@ -32,6 +33,7 @@ import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_SUPPORTED_VERSION;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_X_PAYMENT_HEADER;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_X_PAYMENT_HEADER_DECODED;
+import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_X_PAYMENT_RESPONSE;
 
 /**
  * Interceptor for x402.
@@ -83,25 +85,38 @@ public class X402Interceptor implements HandlerInterceptor {
                                 .orElseThrow(() -> new IllegalArgumentException("No payment requirements found"));
                         final PaymentRequirements paymentRequirement = buildPaymentRequirements(request, test);
 
+                        // We do the verification.
                         final VerifyResponse verifyResult = facilitatorService.verify(paymentPayload, paymentRequirement).block();
                         if (verifyResult == null) {
+                            log.error("Error calling the verifyResult facilitator - null result");
                             response.sendError(SC_BAD_REQUEST, "Serveur error calling the facilitator");
                             return false;
-                        }
-                        System.out.println("verifyResult = " + verifyResult);
-                        if (verifyResult.isValid()) {
-                            // If the Verification Response is isValid, the resource server performs the work to fulfill
-                            // the request.
-                            log.info("Payment is isValid: {}", verifyResult);
-                            return true;
                         } else {
-                            // If the Verification Response is invalid, the resource server returns a 402-Payment
-                            // Required status and a Payment Required Response JSON object in the response body.
-                            response.setStatus(SC_PAYMENT_REQUIRED);
-                            response.setContentType(APPLICATION_JSON_VALUE);
-                            objectMapper.writeValue(response.getWriter(), buildPaymentRequirementsBody(request, paymentRequirementsList));
-                            return false;
+                            log.info("Verify result: {}", verifyResult);
+                            if (verifyResult.isValid()) {
+                                // If the Verification Response is isValid, the resource server performs the work to fulfill
+                                // the request.
+                                log.info("Payment is isValid: {}", verifyResult);
+
+                                // Calling /settle.
+                                final SettleResult settleResult = facilitatorService.settle(paymentPayload, paymentRequirement).block();
+                                log.info("Settle result: {}", settleResult);
+                                response.setHeader(X402_X_PAYMENT_RESPONSE, Base64
+                                        .getEncoder()
+                                        .withoutPadding()
+                                        .encodeToString(settleResult.toJSON().getBytes(UTF_8)));
+                                return true;
+                            } else {
+                                // If the Verification Response is invalid, the resource server returns a 402-Payment
+                                // Required status and a Payment Required Response JSON object in the response body.
+                                response.setStatus(SC_PAYMENT_REQUIRED);
+                                response.setContentType(APPLICATION_JSON_VALUE);
+                                objectMapper.writeValue(response.getWriter(), buildPaymentRequirementsBody(request, paymentRequirementsList));
+                                return false;
+                            }
+
                         }
+
                     } catch (IllegalArgumentException e) {
                         response.sendError(SC_BAD_REQUEST, "Invalid Base64");
                         return false;

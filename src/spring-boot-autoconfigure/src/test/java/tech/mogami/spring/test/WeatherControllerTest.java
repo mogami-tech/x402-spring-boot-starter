@@ -1,5 +1,6 @@
 package tech.mogami.spring.test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,11 +12,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import tech.mogami.spring.autoconfigure.dto.PaymentPayload;
 import tech.mogami.spring.autoconfigure.dto.schemes.ExactSchemePayload;
+import tech.mogami.spring.autoconfigure.provider.facilitator.settle.SettleResult;
+import tech.mogami.spring.test.util.BaseTest;
 
+import java.io.IOException;
 import java.util.Base64;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 import static org.mockserver.model.MediaType.APPLICATION_JSON;
@@ -31,6 +36,7 @@ import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_SUPPORTED_VERSION;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_X_PAYMENT_HEADER;
 import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_X_PAYMENT_HEADER_DECODED;
+import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_X_PAYMENT_RESPONSE;
 import static tech.mogami.spring.autoconfigure.util.constants.networks.BaseNetworks.BASE_SEPOLIA;
 import static tech.mogami.spring.test.util.TestData.ASSET_CONTRACT_ADDRESS;
 import static tech.mogami.spring.test.util.TestData.SERVER_WALLET_ADDRESS_1;
@@ -42,7 +48,7 @@ import static tech.mogami.spring.test.util.TestData.SERVER_WALLET_ADDRESS_2;
         })
 @AutoConfigureMockMvc
 @DisplayName("Weather controller tests")
-public class WeatherControllerTest {
+public class WeatherControllerTest extends BaseTest {
 
     private static ClientAndServer mockServer;
 
@@ -52,12 +58,10 @@ public class WeatherControllerTest {
     @BeforeEach
     public void setup() {
         mockServer = ClientAndServer.startClientAndServer(10000);
-        mockServer.when(request()
-                .withPath("/facilitator/verify")
-                .withBody(subString("isValidFalse"))
+        // get /weather with invalid payment header test
+        mockServer.when(request().withPath("/facilitator/verify").withBody(subString("isValidFalse"))
         ).respond(response()
-                .withStatusCode(200)
-                .withContentType(APPLICATION_JSON)
+                .withStatusCode(200).withContentType(APPLICATION_JSON)
                 .withBody("""
                         {
                           "isValid": false,
@@ -66,16 +70,27 @@ public class WeatherControllerTest {
                         }
                         """)
         );
-        mockServer.when(request()
-                .withPath("/facilitator/verify")
-                .withBody(subString("isValidTrue"))
+        mockServer.when(request().withPath("/facilitator/verify").withBody(subString("isValidTrue"))
         ).respond(response()
-                .withStatusCode(200)
-                .withContentType(APPLICATION_JSON)
+                .withStatusCode(200).withContentType(APPLICATION_JSON)
                 .withBody("""
                         {
                           "isValid": true,
                           "payer": "0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F72"
+                        }
+                        """)
+        );
+        // get /weather with valid payment header test
+        mockServer.when(request().withPath("/facilitator/settle").withBody(subString("isValidTrue"))
+        ).respond(response()
+                .withStatusCode(200).withContentType(APPLICATION_JSON)
+                .withBody("""
+                        {
+                          "success": true,
+                          "network": "base-sepolia",
+                          "transaction": "0x7cbf21c639f7bcd8e68ba02b83b34187f686577a0cead0d7c6f0f57183a84b51",
+                          "errorReason": "invalid_scheme",
+                          "payer": "0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F73"
                         }
                         """)
         );
@@ -129,32 +144,8 @@ public class WeatherControllerTest {
     @Test
     @DisplayName("get /weather with invalid payment header test")
     void getWeatherWithInvalidPaymentHeader() throws Exception {
-
-        // We create the header and encode it to Base64.
-        String paymentHeader = """
-                {
-                    "x402Version": 1,
-                    "scheme": "exact",
-                    "network": "base-sepolia",
-                    "payload": {
-                      "signature": "0x1c7e56451968cc2c2816fc776c6f75483815408b2e087d568ce7e8509c59911b3c9353dbdff8b565680e9defd52336eb2213dfd83f1a07c20625e53d8fda2b951b",
-                      "authorization": {
-                        "from": "0x857b06519E91e3A54538791bDbb0E22373e36b66",
-                        "to": "0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F73",
-                        "value": "1000",
-                        "validAfter": "1747486410",
-                        "validBefore": "1747486530",
-                        "nonce": "isValidFalse"
-                      }
-                    }
-                  }""";
-        String encodedPaymentHeader = Base64
-                .getEncoder()
-                .withoutPadding()
-                .encodeToString(paymentHeader.getBytes(UTF_8));
-
         // Calling the API with the payment header.
-        var result = mockMvc.perform(get("/weather").header(X402_X_PAYMENT_HEADER, encodedPaymentHeader))
+        var result = mockMvc.perform(get("/weather").header(X402_X_PAYMENT_HEADER, getSampleEncodedPaymentHeader("isValidFalse")))
                 .andDo(print())
                 .andExpect(status().isPaymentRequired())
                 .andExpect(content().contentType(APPLICATION_JSON_VALUE))
@@ -187,34 +178,10 @@ public class WeatherControllerTest {
     }
 
     @Test
-    @DisplayName("get /weather with isValid payment header test")
+    @DisplayName("get /weather with valid payment header test")
     void getWeatherWithValidPaymentHeader() throws Exception {
-
-        // We create the header and encode it to Base64.
-        String paymentHeader = """
-                {
-                    "x402Version": 1,
-                    "scheme": "exact",
-                    "network": "base-sepolia",
-                    "payload": {
-                      "signature": "0x1c7e56451968cc2c2816fc776c6f75483815408b2e087d568ce7e8509c59911b3c9353dbdff8b565680e9defd52336eb2213dfd83f1a07c20625e53d8fda2b951b",
-                      "authorization": {
-                        "from": "0x857b06519E91e3A54538791bDbb0E22373e36b66",
-                        "to": "0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F73",
-                        "value": "1000",
-                        "validAfter": "1747486410",
-                        "validBefore": "1747486530",
-                        "nonce": "isValidTrue"
-                      }
-                    }
-                  }""";
-        String encodedPaymentHeader = Base64
-                .getEncoder()
-                .withoutPadding()
-                .encodeToString(paymentHeader.getBytes(UTF_8));
-
         // Calling the API with the payment header.
-        var result = mockMvc.perform(get("/weather").header(X402_X_PAYMENT_HEADER, encodedPaymentHeader))
+        var result = mockMvc.perform(get("/weather").header(X402_X_PAYMENT_HEADER, getSampleEncodedPaymentHeader("isValidTrue")))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string("It's sunny!"))
@@ -240,6 +207,23 @@ public class WeatherControllerTest {
                                 assertThat(payload.authorization().nonce()).isEqualTo("isValidTrue");
                             });
                 });
+
+        // Testing that the response contains the X-PAYMENT-RESPONSE header.
+        try {
+            final String decodeSettleString = new String(Base64.getMimeDecoder().decode(result.getResponse().getHeader(X402_X_PAYMENT_RESPONSE)), UTF_8);
+            final SettleResult settleResult = new ObjectMapper().readValue(decodeSettleString, SettleResult.class);
+            assertThat(settleResult)
+                    .isNotNull()
+                    .satisfies(resultSettle -> {
+                        assertThat(resultSettle.success()).isTrue();
+                        assertThat(resultSettle.network()).isEqualTo(BASE_SEPOLIA);
+                        assertThat(resultSettle.transaction()).isEqualTo("0x7cbf21c639f7bcd8e68ba02b83b34187f686577a0cead0d7c6f0f57183a84b51");
+                        assertThat(resultSettle.errorReason()).isEqualTo("invalid_scheme");
+                        assertThat(resultSettle.payer()).isEqualTo("0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F73");
+                    });
+        } catch (IOException e) {
+            fail("Invalid X-PAYMENT-RESPONSE header", e);
+        }
     }
 
 }

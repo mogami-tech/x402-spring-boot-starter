@@ -6,11 +6,18 @@ on:
       - development
 
 jobs:
+
   snapshot:
     name: Deploy snapshot to Maven Central
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
-      - uses: actions/checkout@v4
+
+      - name: Retrieve the sources
+        uses: actions/checkout@v4
+
       - uses: ./.github/actions/setup
         with:
           central-username: ${{ secrets.CENTRAL_USERNAME }}

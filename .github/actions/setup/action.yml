@@ -2,8 +2,8 @@ name: "Environment setup"
 description: "Install tools like Java, Maven, Docker, Just, etc."
 
 inputs:
-  ossrh-username: { required: true, description: "Sonatype username" }
-  ossrh-token: { required: true, description: "Sonatype token" }
+  ossrh-username: { required: true, description: "Sonatype OSSRH username" }
+  ossrh-token: { required: true, description: "Sonatype OSSRH token" }
   gpg-private-key: { required: false, description: "GPG private key" }
   gpg-passphrase: { required: false, description: "GPG passphrase" }
 
@@ -18,10 +18,17 @@ runs:
         java-version: '21'
         cache: 'maven'
         server-id: central
-        server-username: ${{ inputs.ossrh-username }}
-        server-password: ${{ inputs.ossrh-token }}
+        server-username: MAVEN_USERNAME
+        server-password: MAVEN_PASSWORD
         gpg-private-key: ${{ inputs.gpg-private-key }}
-        gpg-passphrase: ${{ inputs.gpg-passphrase }}
+        gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
+    - name: Set environment variables
+      shell: bash
+      run: |
+        echo "MAVEN_USERNAME=${{ inputs.ossrh-username }}" >> $GITHUB_ENV
+        echo "MAVEN_PASSWORD=${{ inputs.ossrh-token }}" >> $GITHUB_ENV
+        echo "MAVEN_GPG_PASSPHRASE=${{ inputs.gpg-passphrase }}" >> $GITHUB_ENV
 
     - name: Just Setup
       uses: taiki-e/install-action@just

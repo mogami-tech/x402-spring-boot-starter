@@ -89,7 +89,7 @@
         <maven.archetype-packaging.version>3.2.1</maven.archetype-packaging.version>
         <maven-surefire-junit5-tree-reporter.version>1.4.0</maven-surefire-junit5-tree-reporter.version>
         <maven-maven-gpg-plugin>3.1.0</maven-maven-gpg-plugin>
-        <maven-nexus-staging-maven-plugin>1.6.13</maven-nexus-staging-maven-plugin>
+        <maven.central-publishing-maven-plugin>0.7.0</maven.central-publishing-maven-plugin>
     </properties>
     <!-- =========================================================================================================== -->
 
@@ -182,20 +182,30 @@
                                         <arg>--pinentry-mode</arg>
                                         <arg>loopback</arg>
                                     </gpgArguments>
-                                    <passphrase>${env.MAVEN_GPG_PASSPHRASE}</passphrase>
                                 </configuration>
                             </execution>
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>${maven-nexus-staging-maven-plugin}</version>
-                        <extensions>true</extensions>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${maven.central-publishing-maven-plugin}</version>
+                        <executions>
+                            <execution>
+                                <id>publish-snapshots-and-releases</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>publish</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                         <configuration>
-                            <serverId>ossrh</serverId>
-                            <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                            <publishingServerId>central</publishingServerId>
+                            <autoPublish>true</autoPublish>
+                            <autoRelease>true</autoRelease>
+                            <excludeArtifacts>
+                                <excludeArtifact>x402-example-server</excludeArtifact>
+                            </excludeArtifacts>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -205,16 +215,11 @@
     <!-- =========================================================================================================== -->
 
     <!-- =========================================================================================================== -->
-    <!-- Distribution management -->
     <distributionManagement>
         <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+            <id>central</id>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
         </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
     </distributionManagement>
     <!-- =========================================================================================================== -->
 

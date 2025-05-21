@@ -4,8 +4,8 @@ description: "Install tools like Java, Maven, Docker, Just, etc."
 inputs:
   ossrh-username: { required: true, description: "Sonatype OSSRH username" }
   ossrh-token: { required: true, description: "Sonatype OSSRH token" }
-  gpg-private-key: { required: true, description: "GPG private key" }
-  gpg-passphrase: { required: true, description: "GPG passphrase" }
+  gpg-private-key: { required: false, description: "GPG private key" }
+  gpg-passphrase: { required: false, description: "GPG passphrase" }
 
 runs:
   using: "composite"

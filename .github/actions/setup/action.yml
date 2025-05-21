@@ -18,11 +18,11 @@ runs:
         java-version: '21'
         # Sonatype credentials
         server-id: ossrh
-        server-username: ${{ secrets.OSSRH_USERNAME }}
-        server-password: ${{ secrets.OSSRH_TOKEN }}
+        server-username: ${{ inputs.ossrh-username }}
+        server-password: ${{ inputs.ossrh-token }}
         # GPG signing
-        gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
-        gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
+        gpg-private-key: ${{ inputs.gpg-private-key }}
+        gpg-passphrase: ${{ inputs.gpg-passphrase }}
 
     - name: Just Setup
       uses: taiki-e/install-action@just

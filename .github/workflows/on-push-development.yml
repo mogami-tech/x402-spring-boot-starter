@@ -1,4 +1,4 @@
-name: Push on development - Build, test, create spring boot starter
+name: Push on development - Build, test, create and publish spring boot starter snapshot
 
 on:
   push:

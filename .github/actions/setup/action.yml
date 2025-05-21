@@ -2,8 +2,8 @@ name: "Environment setup"
 description: "Install tools like Java, Maven, Docker, Just, etc."
 
 inputs:
-  ossrh-username: { required: true, description: "Sonatype OSSRH username" }
-  ossrh-token: { required: true, description: "Sonatype OSSRH token" }
+  central-username: { required: true, description: "Central username" }
+  central-token: { required: true, description: "Central token" }
   gpg-private-key: { required: false, description: "GPG private key" }
   gpg-passphrase: { required: false, description: "GPG passphrase" }
 
@@ -26,8 +26,8 @@ runs:
     - name: Set environment variables
       shell: bash
       run: |
-        echo "MAVEN_USERNAME=${{ inputs.ossrh-username }}" >> $GITHUB_ENV
-        echo "MAVEN_PASSWORD=${{ inputs.ossrh-token }}" >> $GITHUB_ENV
+        echo "MAVEN_USERNAME=${{ inputs.central-username }}" >> $GITHUB_ENV
+        echo "MAVEN_PASSWORD=${{ inputs.central-token }}" >> $GITHUB_ENV
         echo "MAVEN_GPG_PASSPHRASE=${{ inputs.gpg-passphrase }}" >> $GITHUB_ENV
 
     - name: Just Setup

@@ -19,6 +19,11 @@ jobs:
 
       - name: Set up environment
         uses: ./.github/actions/setup
+        with:
+          ossrh-username: ${{ secrets.OSSRH_USERNAME }}
+          ossrh-token: ${{ secrets.OSSRH_TOKEN }}
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Deploy
         run: |

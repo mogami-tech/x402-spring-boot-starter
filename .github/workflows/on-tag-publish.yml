@@ -1,0 +1,25 @@
+name: Push on tag - Publish to Maven Central
+
+on:
+  push:
+    tags: [ '*' ]
+
+jobs:
+
+  release:
+    name: Release to Maven Central
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+    steps:
+
+      - name: Retrieve the sources
+        uses: actions/checkout@v4
+
+      - name: Set up environment
+        uses: ./.github/actions/setup
+
+      - name: Deploy
+        run: |
+          mvn -B -Prelease -DskipTests deploy

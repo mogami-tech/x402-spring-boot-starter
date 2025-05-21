@@ -37,7 +37,7 @@
     <!-- Source Code Management -->
     <scm>
         <url>https://github.com/mogami-tech/x402-spring-boot-starter</url>
-        <connection>scm:git:git://github.com/mogami-tech/x402-spring-boot-starter</connection>
+        <connection>scm:git:git://github.com/mogami-tech/x402-spring-boot-starter.git</connection>
         <developerConnection>scm:git:git@github.com:mogami-tech/x402-spring-boot-starter.git</developerConnection>
     </scm>
     <!-- =========================================================================================================== -->
@@ -88,6 +88,8 @@
         <maven.jar.plugin.version>3.4.2</maven.jar.plugin.version>
         <maven.archetype-packaging.version>3.2.1</maven.archetype-packaging.version>
         <maven-surefire-junit5-tree-reporter.version>1.4.0</maven-surefire-junit5-tree-reporter.version>
+        <maven-maven-gpg-plugin>3.1.0</maven-maven-gpg-plugin>
+        <maven-nexus-staging-maven-plugin>1.6.13</maven-nexus-staging-maven-plugin>
     </properties>
     <!-- =========================================================================================================== -->
 
@@ -149,8 +151,45 @@
                     </commitMessages>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>${maven-maven-gpg-plugin}</version>
+                <executions>
+                    <execution>
+                        <id>sign-release</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>${maven-nexus-staging-maven-plugin}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+    <!-- =========================================================================================================== -->
+
+    <!-- =========================================================================================================== -->
+    <!-- Profiles -->
+    <profiles>
+        <profile>
+            <id>release</id>
+            <properties>
+                <gpg.keyname>E0DD5818315C8CF0DD4B20532DEEE03FA733B1CE</gpg.keyname>
+            </properties>
+        </profile>
+    </profiles>
     <!-- =========================================================================================================== -->
 
     <!-- =========================================================================================================== -->

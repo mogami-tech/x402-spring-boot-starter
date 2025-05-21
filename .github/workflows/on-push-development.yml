@@ -5,8 +5,6 @@ on:
 
 jobs:
 
-  # ====================================================================================================================
-  # Run unit tests.
   unit_tests:
     name: Unit tests
     runs-on: ubuntu-latest
@@ -24,3 +22,23 @@ jobs:
       - name: build and run tests
         run: |
           just run_tests
+
+  snapshot:
+    name: Deploy SNAPSHOT to OSSRH
+    needs: unit_tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+    if: github.ref_type == 'branch' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/development')
+    steps:
+
+      - name: Retrieve the sources
+        uses: actions/checkout@v4
+
+      - name: Set up environment
+        uses: ./.github/actions/setup
+
+      - name: Deploy SNAPSHOT
+        run: |
+          mvn -B -DskipTests deploy

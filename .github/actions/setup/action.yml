@@ -10,14 +10,13 @@ runs:
       with:
         distribution: 'temurin'
         java-version: '21'
-
-    - name: Cache Maven dependencies
-      uses: actions/cache@v4
-      with:
-        path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-maven-
+        # Sonatype credentials
+        server-id: ossrh
+        server-username: ${{ secrets.OSSRH_USERNAME }}
+        server-password: ${{ secrets.OSSRH_TOKEN }}
+        # GPG signing
+        gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+        gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
 
     - name: Just Setup
       uses: taiki-e/install-action@just

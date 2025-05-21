@@ -23,6 +23,7 @@ runs:
         # GPG signing
         gpg-private-key: ${{ inputs.gpg-private-key }}
         gpg-passphrase: ${{ inputs.gpg-passphrase }}
+        overwrite-settings: true
 
     - name: Just Setup
       uses: taiki-e/install-action@just

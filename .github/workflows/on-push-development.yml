@@ -51,4 +51,4 @@ jobs:
 
       - name: Deploy SNAPSHOT
         run: |
-          mvn -B -DskipTests deploy
+          just run_deploy

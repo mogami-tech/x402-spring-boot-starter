@@ -27,4 +27,4 @@ jobs:
 
       - name: Deploy
         run: |
-          mvn -B -Prelease -DskipTests deploy
+          just run_deploy

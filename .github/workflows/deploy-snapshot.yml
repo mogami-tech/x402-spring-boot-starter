@@ -1,4 +1,4 @@
-name: Deploy SNAPSHOT to Maven Central
+name: Deploy snapshot to Maven Central
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
 
 jobs:
   snapshot:
+    name: Deploy snapshot to Maven Central
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,7 +18,7 @@ jobs:
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
 
-      - name: Deploy SNAPSHOT
+      - name: Deploy snapshot
         run: |
           just run_tests
           just run_deploy

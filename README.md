@@ -1,9 +1,24 @@
-# Mogami x402 Spring Boot Starter
+<p align="center">
+    <a href="https://mogami.gitbook.io/mogami/spring-boot-starter/get-started">Quick Start</a> | 
+    <a href="https://mogami.gitbook.io/mogami">Documentation</a> | 
+    <a href="https://x.com/mogami_tech">Twitter</a>
+</p>
 
-## Quick start
+<p align="center">
+    <a href="https://mogami.gitbook.io/mogami/spring-boot-starter/get-started">
+        <img    src="https://mogami.tech/images/logo/logo_mogami_horitonzal.png"
+                alt="Mogami logo"/>
+    </a>
+</p>
 
-The Mogami x402 Spring Boot Starter adds a micropayment guard to any Spring Boot 3.2+ endpoint. Annotate a controller
-with @X402PaymentRequirement, set your payment information, done!
+<hr>
+
+<h3 align="center">Mogami X402 spring boot starter — one annotation, instant paywall.</h2>
+<br>
+
+The Mogami x402 Spring Boot Starter adds a micropayment guard to any Spring Boot endpoint. Just annotate a controller
+method with @X402PaymentRequirement, set your payment information, done!
+
 Here is how to do it:
 ```java
 
@@ -22,24 +37,3 @@ public String weather() {
     return "It's sunny!";
 }
 ```
-
-To use it in your Maven project :
-```xml
-
-<dependency>
-    <groupId>tech.mogami.spring</groupId>
-    <artifactId>mogami-x402-spring-boot-starter</artifactId>
-    <version>0.0.1</version>
-</dependency>
-```
-
-and in your Gradle project:
-```groovy
-dependencies {
-    implementation 'tech.mogami.spring:mogami-x402-spring-boot-starter:0.0.1'
-}
-```
-
-## Sample application
-
-TODO Write something here.

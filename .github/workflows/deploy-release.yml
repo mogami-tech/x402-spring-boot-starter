@@ -27,4 +27,4 @@ jobs:
 
       - name: Deploy
         run: |
-          just run_deploy
+          just run_deploy_release

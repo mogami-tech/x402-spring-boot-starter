@@ -28,4 +28,4 @@ jobs:
       - name: Deploy snapshot
         run: |
           just run_tests
-          just run_deploy
+          just run_deploy_snapshot

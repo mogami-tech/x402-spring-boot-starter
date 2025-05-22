@@ -4,8 +4,11 @@ run_install:
 run_tests:
     mvn clean install
 
-run_deploy:
+run_deploy_snapshot:
     mvn -B -DskipTests clean deploy
+
+run_deploy_release:
+    mvn -B -Prelease -DskipTests clean deploy
 
 # Release ==============================================================================================================
 start_release:

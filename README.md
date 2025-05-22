@@ -1,6 +1,7 @@
 <p align="center">
     <a href="https://mogami.gitbook.io/mogami/spring-boot-starter/get-started">Quick Start</a> | 
     <a href="https://mogami.gitbook.io/mogami">Documentation</a> | 
+    <a href="https://github.com/mogami-tech/x402-examples">Example</a> | 
     <a href="https://x.com/mogami_tech">Twitter</a>
 </p>
 
@@ -37,3 +38,10 @@ public String weather() {
     return "It's sunny!";
 }
 ```
+
+<p align="center">
+    <a href="https://mogami.gitbook.io/mogami/spring-boot-starter/get-started">Quick Start</a> | 
+    <a href="https://mogami.gitbook.io/mogami">Documentation</a> | 
+    <a href="https://github.com/mogami-tech/x402-examples">Example</a> | 
+    <a href="https://x.com/mogami_tech">Twitter</a>
+</p>

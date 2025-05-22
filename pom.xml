@@ -98,7 +98,6 @@
     <modules>
         <module>src/spring-boot-autoconfigure</module>
         <module>src/spring-boot-starter</module>
-        <module>src-example-server</module>
     </modules>
     <!-- =========================================================================================================== -->
 
@@ -203,9 +202,6 @@
                             <publishingServerId>central</publishingServerId>
                             <autoPublish>true</autoPublish>
                             <autoRelease>true</autoRelease>
-                            <excludeArtifacts>
-                                <excludeArtifact>x402-example-server</excludeArtifact>
-                            </excludeArtifacts>
                         </configuration>
                     </plugin>
                 </plugins>

@@ -6,6 +6,3 @@ run_tests:
 
 run_deploy:
     mvn -B -DskipTests clean deploy
-
-run_example_server:
-    mvn spring-boot:run -DskipTests -f src-example-server/pom.xml

@@ -8,7 +8,7 @@
     <!-- Project information -->
     <groupId>tech.mogami.spring</groupId>
     <artifactId>mogami-x402-spring-boot-starter-project</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
     <packaging>pom</packaging>
     <name>Mogami x402 spring project</name>
     <url>https://github.com/mogami-tech/x402-spring-boot-starter</url>
@@ -129,6 +129,13 @@
             </plugin>
             <!-- Release -->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>com.amashchenko.maven.plugin</groupId>
                 <artifactId>gitflow-maven-plugin</artifactId>
                 <version>1.21.0</version>
@@ -166,13 +173,6 @@
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-deploy-plugin</artifactId>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
                         <version>${maven-maven-gpg-plugin}</version>
                         <executions>
@@ -197,19 +197,10 @@
                         <artifactId>central-publishing-maven-plugin</artifactId>
                         <version>${maven.central-publishing-maven-plugin}</version>
                         <extensions>true</extensions>
-                        <executions>
-                            <execution>
-                                <id>publish-snapshots-and-releases</id>
-                                <phase>deploy</phase>
-                                <goals>
-                                    <goal>publish</goal>
-                                </goals>
-                            </execution>
-                        </executions>
                         <configuration>
                             <publishingServerId>central</publishingServerId>
                             <autoPublish>true</autoPublish>
-                            <autoRelease>true</autoRelease>
+                            <waitUntil>published</waitUntil>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -226,7 +217,7 @@
         </repository>
         <snapshotRepository>
             <id>central</id>
-            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+            <url>https://central.sonatype.com/</url>
         </snapshotRepository>
     </distributionManagement>
     <!-- =========================================================================================================== -->

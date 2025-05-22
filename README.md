@@ -6,7 +6,7 @@
 
 <p align="center">
     <a href="https://mogami.gitbook.io/mogami/spring-boot-starter/get-started">
-        <img    src="https://mogami.tech/images/logo/logo_mogami_horitonzal.png"
+        <img    src="https://mogami.tech/images/logo/logo_mogami_vertical_small.png"
                 alt="Mogami logo"/>
     </a>
 </p>

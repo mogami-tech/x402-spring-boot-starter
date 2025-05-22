@@ -8,7 +8,7 @@
     <!-- Project information -->
     <groupId>tech.mogami.spring</groupId>
     <artifactId>mogami-x402-spring-boot-starter-project</artifactId>
-    <version>0.0.5</version>
+    <version>0.0.6</version>
     <packaging>pom</packaging>
     <name>Mogami x402 spring project</name>
     <url>https://github.com/mogami-tech/x402-spring-boot-starter</url>
@@ -194,7 +194,7 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
+                        <groupId>org.sonatype.central</groupId>
                         <artifactId>central-publishing-maven-plugin</artifactId>
                         <version>${maven.central-publishing-maven-plugin}</version>
                         <extensions>true</extensions>

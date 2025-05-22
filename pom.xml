@@ -135,6 +135,7 @@
                 <configuration>
                     <skipTestProject>true</skipTestProject>
                     <gitFlowConfig>
+                        <productionBranch>production</productionBranch>
                         <developmentBranch>development</developmentBranch>
                     </gitFlowConfig>
                     <commitMessages>

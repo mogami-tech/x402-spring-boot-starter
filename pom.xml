@@ -8,7 +8,7 @@
     <!-- Project information -->
     <groupId>tech.mogami.spring</groupId>
     <artifactId>mogami-x402-spring-boot-starter-project</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <packaging>pom</packaging>
     <name>Mogami x402 spring project</name>
     <url>https://github.com/mogami-tech/x402-spring-boot-starter</url>
@@ -166,6 +166,13 @@
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
                         <version>${maven-maven-gpg-plugin}</version>
                         <executions>
@@ -189,6 +196,7 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>central-publishing-maven-plugin</artifactId>
                         <version>${maven.central-publishing-maven-plugin}</version>
+                        <extensions>true</extensions>
                         <executions>
                             <execution>
                                 <id>publish-snapshots-and-releases</id>

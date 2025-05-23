@@ -10,7 +10,8 @@
     <artifactId>mogami-x402-spring-boot-starter-project</artifactId>
     <version>0.0.9-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>Mogami x402 spring project</name>
+    <name>Mogami x402 spring boot starter project</name>
+    <description>Mogami x402 spring boot starter project</description>
     <url>https://github.com/mogami-tech/x402-spring-boot-starter</url>
     <licenses>
         <license>

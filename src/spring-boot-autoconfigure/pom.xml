@@ -8,6 +8,7 @@
     <artifactId>mogami-x402-spring-boot-starter-autoconfigure</artifactId>
     <packaging>jar</packaging>
     <name>Mogami x402 spring boot starter autoconfigure</name>
+    <description>Mogami x402 spring boot starter autoconfigure</description>
     <!-- =========================================================================================================== -->
 
     <!-- =========================================================================================================== -->

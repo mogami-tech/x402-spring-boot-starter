@@ -8,6 +8,7 @@
     <!-- Project information -->
     <artifactId>mogami-x402-spring-boot-starter</artifactId>
     <name>Mogami x402 spring boot starter</name>
+    <description>Mogami x402 spring boot starter</description>
     <!-- =========================================================================================================== -->
 
     <!-- =========================================================================================================== -->

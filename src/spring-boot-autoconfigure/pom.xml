@@ -223,7 +223,7 @@
     <parent>
         <groupId>tech.mogami.spring</groupId>
         <artifactId>mogami-x402-spring-boot-starter-project</artifactId>
-        <version>0.0.9-SNAPSHOT</version>
+        <version>0.0.9</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <!-- =========================================================================================================== -->

@@ -6,6 +6,7 @@ on:
       - '*'
     branches-ignore:
       - development
+      - production
 
 jobs:
 

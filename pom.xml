@@ -8,7 +8,7 @@
     <!-- Project information -->
     <groupId>tech.mogami.spring</groupId>
     <artifactId>mogami-x402-spring-boot-starter-project</artifactId>
-    <version>0.0.8-SNAPSHOT</version>
+    <version>0.0.8</version>
     <packaging>pom</packaging>
     <name>Mogami x402 spring project</name>
     <url>https://github.com/mogami-tech/x402-spring-boot-starter</url>

@@ -8,7 +8,7 @@
     <!-- Project information -->
     <groupId>tech.mogami.spring</groupId>
     <artifactId>mogami-x402-spring-boot-starter-project</artifactId>
-    <version>0.0.6</version>
+    <version>0.0.7</version>
     <packaging>pom</packaging>
     <name>Mogami x402 spring project</name>
     <url>https://github.com/mogami-tech/x402-spring-boot-starter</url>
@@ -66,7 +66,7 @@
         <!-- Libraries releases -->
 
         <!-- Core -->
-        <spring.version>3.4.5</spring.version>
+        <spring.version>3.5.0</spring.version>
 
         <!-- Core utils -->
         <lombok.version>1.18.38</lombok.version>
@@ -79,7 +79,7 @@
 
         <!-- Maven -->
         <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
-        <maven.puppycrawl.checkstyle.version>10.23.1</maven.puppycrawl.checkstyle.version>
+        <maven.puppycrawl.checkstyle.version>10.24.0</maven.puppycrawl.checkstyle.version>
 
         <maven.source.plugin.version>3.3.1</maven.source.plugin.version>
         <maven.resources.plugin.version>3.3.1</maven.resources.plugin.version>
@@ -201,7 +201,6 @@
                         <configuration>
                             <publishingServerId>central</publishingServerId>
                             <autoPublish>true</autoPublish>
-                            <waitUntil>published</waitUntil>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -218,7 +217,7 @@
         </repository>
         <snapshotRepository>
             <id>central</id>
-            <url>https://central.sonatype.com/</url>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
     <!-- =========================================================================================================== -->
@@ -228,7 +227,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.5</version>
+        <version>3.5.0</version>
         <relativePath/>
     </parent>
     <!-- =========================================================================================================== -->

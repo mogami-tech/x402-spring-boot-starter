@@ -23,11 +23,6 @@ jobs:
 
       - name: Set up environment
         uses: ./.github/actions/setup
-        with:
-          central-username: ${{ secrets.CENTRAL_USERNAME }}
-          central-token: ${{ secrets.CENTRAL_TOKEN }}
-          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
-          gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: build and run tests
         run: |

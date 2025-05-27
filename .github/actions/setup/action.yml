@@ -2,8 +2,8 @@ name: "Environment setup"
 description: "Install tools like Java, Maven, Docker, Just, etc."
 
 inputs:
-  central-username: { required: true, description: "Central username" }
-  central-token: { required: true, description: "Central token" }
+  central-username: { required: false, description: "Central username" }
+  central-token: { required: false, description: "Central token" }
   gpg-private-key: { required: false, description: "GPG private key" }
   gpg-passphrase: { required: false, description: "GPG passphrase" }
 
@@ -16,7 +16,6 @@ runs:
       with:
         distribution: 'temurin'
         java-version: '21'
-        cache: 'maven'
         server-id: central
         server-username: MAVEN_USERNAME
         server-password: MAVEN_PASSWORD

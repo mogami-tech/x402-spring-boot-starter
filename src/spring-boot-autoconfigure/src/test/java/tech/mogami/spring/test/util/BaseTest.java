@@ -1,15 +1,15 @@
 package tech.mogami.spring.test.util;
 
-import tech.mogami.spring.autoconfigure.dto.PaymentPayload;
-import tech.mogami.spring.autoconfigure.dto.PaymentRequirements;
-import tech.mogami.spring.autoconfigure.dto.schemes.ExactSchemePayload;
+import tech.mogami.commons.header.payment.PaymentPayload;
+import tech.mogami.commons.header.payment.PaymentRequirements;
+import tech.mogami.commons.header.payment.schemes.ExactSchemePayload;
 
 import java.util.Base64;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static tech.mogami.spring.autoconfigure.dto.schemes.ExactSchemeConstants.EXACT_SCHEME_NAME;
-import static tech.mogami.spring.autoconfigure.util.constants.networks.BaseNetworks.BASE_SEPOLIA;
+import static tech.mogami.commons.constants.networks.BaseNetworks.BASE_SEPOLIA;
+import static tech.mogami.commons.header.payment.schemes.ExactSchemeConstants.EXACT_SCHEME_NAME;
 
 /**
  * Base test.

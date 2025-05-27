@@ -18,7 +18,8 @@ jobs:
       - name: Retrieve the sources
         uses: actions/checkout@v4
 
-      - uses: ./.github/actions/setup
+      - name: Set up environment
+        uses: ./.github/actions/setup
         with:
           central-username: ${{ secrets.CENTRAL_USERNAME }}
           central-token: ${{ secrets.CENTRAL_TOKEN }}

@@ -1,7 +1,7 @@
 <p align="center">
     <a href="https://mogami.gitbook.io/mogami/spring-boot-starter/get-started">Quick Start</a> | 
     <a href="https://mogami.gitbook.io/mogami">Documentation</a> | 
-    <a href="https://github.com/mogami-tech/x402-examples">Example</a> | 
+    <a href="https://github.com/mogami-tech/x402-examples">Examples</a> | 
     <a href="https://x.com/mogami_tech">Twitter</a>
 </p>
 
@@ -17,8 +17,8 @@
 <h3 align="center">Mogami X402 spring boot starter — one annotation, instant paywall.</h2>
 <br>
 
-The Mogami x402 Spring Boot Starter adds a micropayment guard to any Spring Boot endpoint. Just annotate a controller
-method with @X402PaymentRequirement, set your payment information, done!
+The Mogami x402 Spring Boot Starter adds a micropayment guard to any Spring Boot endpoint.
+Annotate your controller method with `@X402PaymentRequirement`, set your payment information, done!
 
 Here is how to do it:
 ```java
@@ -42,6 +42,6 @@ public String weather() {
 <p align="center">
     <a href="https://mogami.gitbook.io/mogami/spring-boot-starter/get-started">Quick Start</a> | 
     <a href="https://mogami.gitbook.io/mogami">Documentation</a> | 
-    <a href="https://github.com/mogami-tech/x402-examples">Example</a> | 
+    <a href="https://github.com/mogami-tech/x402-examples">Examples</a> | 
     <a href="https://x.com/mogami_tech">Twitter</a>
 </p>

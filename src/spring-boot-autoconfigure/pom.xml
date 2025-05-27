@@ -14,6 +14,13 @@
     <!-- =========================================================================================================== -->
     <!-- Dependencies -->
     <dependencies>
+        <!-- Mogami -->
+        <dependency>
+            <groupId>tech.mogami.commons</groupId>
+            <artifactId>mogami-x402-commons</artifactId>
+            <version>0.0.2</version>
+        </dependency>
+
         <!-- Spring dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

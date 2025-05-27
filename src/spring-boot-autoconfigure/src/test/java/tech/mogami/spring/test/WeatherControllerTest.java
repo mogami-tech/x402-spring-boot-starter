@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
-import tech.mogami.spring.autoconfigure.dto.PaymentPayload;
-import tech.mogami.spring.autoconfigure.dto.schemes.ExactSchemePayload;
-import tech.mogami.spring.autoconfigure.provider.facilitator.settle.SettleResult;
+import tech.mogami.commons.api.facilitator.settle.SettleResponse;
+import tech.mogami.commons.header.payment.PaymentPayload;
+import tech.mogami.commons.header.payment.schemes.ExactSchemePayload;
 import tech.mogami.spring.test.util.BaseTest;
 
 import java.io.IOException;
@@ -31,13 +31,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
-import static tech.mogami.spring.autoconfigure.dto.schemes.ExactSchemeConstants.EXACT_SCHEME_NAME;
-import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_PAYMENT_REQUIRED_MESSAGE;
-import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_SUPPORTED_VERSION;
-import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_X_PAYMENT_HEADER;
-import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_X_PAYMENT_HEADER_DECODED;
-import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_X_PAYMENT_RESPONSE;
-import static tech.mogami.spring.autoconfigure.util.constants.networks.BaseNetworks.BASE_SEPOLIA;
+import static tech.mogami.commons.constants.X402Constants.X402_PAYMENT_REQUIRED_MESSAGE;
+import static tech.mogami.commons.constants.X402Constants.X402_SUPPORTED_VERSION;
+import static tech.mogami.commons.constants.X402Constants.X402_X_PAYMENT_HEADER;
+import static tech.mogami.commons.constants.X402Constants.X402_X_PAYMENT_HEADER_DECODED;
+import static tech.mogami.commons.constants.X402Constants.X402_X_PAYMENT_RESPONSE;
+import static tech.mogami.commons.constants.networks.BaseNetworks.BASE_SEPOLIA;
+import static tech.mogami.commons.header.payment.schemes.ExactSchemeConstants.EXACT_SCHEME_NAME;
 import static tech.mogami.spring.test.util.TestData.ASSET_CONTRACT_ADDRESS;
 import static tech.mogami.spring.test.util.TestData.SERVER_WALLET_ADDRESS_1;
 import static tech.mogami.spring.test.util.TestData.SERVER_WALLET_ADDRESS_2;
@@ -211,8 +211,8 @@ public class WeatherControllerTest extends BaseTest {
         // Testing that the response contains the X-PAYMENT-RESPONSE header.
         try {
             final String decodeSettleString = new String(Base64.getMimeDecoder().decode(result.getResponse().getHeader(X402_X_PAYMENT_RESPONSE)), UTF_8);
-            final SettleResult settleResult = new ObjectMapper().readValue(decodeSettleString, SettleResult.class);
-            assertThat(settleResult)
+            final SettleResponse settleResponse = new ObjectMapper().readValue(decodeSettleString, SettleResponse.class);
+            assertThat(settleResponse)
                     .isNotNull()
                     .satisfies(resultSettle -> {
                         assertThat(resultSettle.success()).isTrue();

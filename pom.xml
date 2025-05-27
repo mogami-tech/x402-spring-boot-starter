@@ -81,16 +81,17 @@
         <!-- Maven -->
         <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
         <maven.puppycrawl.checkstyle.version>10.24.0</maven.puppycrawl.checkstyle.version>
-
         <maven.source.plugin.version>3.3.1</maven.source.plugin.version>
         <maven.resources.plugin.version>3.3.1</maven.resources.plugin.version>
         <maven.compiler.plugin.version>3.14.0</maven.compiler.plugin.version>
         <maven.javadoc.plugin.version>3.11.2</maven.javadoc.plugin.version>
         <maven.jar.plugin.version>3.4.2</maven.jar.plugin.version>
         <maven.archetype-packaging.version>3.2.1</maven.archetype-packaging.version>
+        <maven.surefire.plugin.version>3.5.3</maven.surefire.plugin.version>
         <maven.surefire-junit5-tree-reporter.version>1.4.0</maven.surefire-junit5-tree-reporter.version>
         <maven.maven-gpg-plugin>3.2.7</maven.maven-gpg-plugin>
         <maven.maven-deploy-plugin>3.1.4</maven.maven-deploy-plugin>
+        <maven.gitflow-maven-plugin>1.21.0</maven.gitflow-maven-plugin>
         <maven.central-publishing-maven-plugin>0.7.0</maven.central-publishing-maven-plugin>
     </properties>
     <!-- =========================================================================================================== -->
@@ -112,6 +113,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.plugin.version}</version>
                 <dependencies>
                     <dependency>
                         <groupId>me.fabriciorby</groupId>
@@ -133,6 +135,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
+                <version>${maven.maven-deploy-plugin}</version>
                 <configuration>
                     <skip>true</skip>
                 </configuration>
@@ -140,7 +143,7 @@
             <plugin>
                 <groupId>com.amashchenko.maven.plugin</groupId>
                 <artifactId>gitflow-maven-plugin</artifactId>
-                <version>1.21.0</version>
+                <version>${maven.gitflow-maven-plugin}</version>
                 <configuration>
                     <skipTestProject>true</skipTestProject>
                     <gitFlowConfig>

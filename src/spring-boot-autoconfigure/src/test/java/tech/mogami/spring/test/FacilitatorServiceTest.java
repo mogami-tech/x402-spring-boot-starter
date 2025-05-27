@@ -9,8 +9,8 @@ import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorService;
 import tech.mogami.spring.test.util.BaseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static tech.mogami.spring.autoconfigure.dto.schemes.ExactSchemeConstants.EXACT_SCHEME_NAME;
-import static tech.mogami.spring.autoconfigure.util.constants.networks.BaseNetworks.BASE_SEPOLIA;
+import static tech.mogami.commons.constants.networks.BaseNetworks.BASE_SEPOLIA;
+import static tech.mogami.commons.header.payment.schemes.ExactSchemeConstants.EXACT_SCHEME_NAME;
 
 @SpringBootTest
 @AutoConfigureMockMvc

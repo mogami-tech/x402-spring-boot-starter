@@ -14,13 +14,13 @@
 
 <hr>
 
-<h3 align="center">Mogami X402 spring boot starter — one annotation, instant paywall.</h2>
+<h3 align="center">Mogami X402 spring boot starter - one annotation, instant paywall.</h2>
 <br>
 
 The Mogami x402 Spring Boot Starter adds a micropayment guard to any Spring Boot endpoint.
 Annotate your controller method with `@X402PaymentRequirement`, set your payment information, done!
 
-Here is how to do it:
+Here is how to use it:
 ```java
 
 @X402PaymentRequirements(

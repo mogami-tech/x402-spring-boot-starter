@@ -35,7 +35,7 @@ public class MogamiAutoConfiguration implements WebMvcConfigurer {
      */
     @PostConstruct
     public void init() {
-        log.info("Using Mogami spring boot starter for x402");
+        log.info("Using Mogami x402 spring boot starter");
     }
 
     @Bean

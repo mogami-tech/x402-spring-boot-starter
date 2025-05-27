@@ -6,21 +6,21 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
-import tech.mogami.spring.autoconfigure.dto.PaymentPayload;
-import tech.mogami.spring.autoconfigure.dto.PaymentRequirements;
+import tech.mogami.commons.api.facilitator.settle.SettleRequest;
+import tech.mogami.commons.api.facilitator.settle.SettleResponse;
+import tech.mogami.commons.api.facilitator.supported.SupportedResponse;
+import tech.mogami.commons.api.facilitator.verify.VerifyRequest;
+import tech.mogami.commons.api.facilitator.verify.VerifyResponse;
+import tech.mogami.commons.header.payment.PaymentPayload;
+import tech.mogami.commons.header.payment.PaymentRequirements;
 import tech.mogami.spring.autoconfigure.parameter.X402Parameters;
-import tech.mogami.spring.autoconfigure.provider.facilitator.settle.SettleRequest;
-import tech.mogami.spring.autoconfigure.provider.facilitator.settle.SettleResult;
-import tech.mogami.spring.autoconfigure.provider.facilitator.supported.SupportedResponse;
-import tech.mogami.spring.autoconfigure.provider.facilitator.verify.VerifyRequest;
-import tech.mogami.spring.autoconfigure.provider.facilitator.verify.VerifyResponse;
 
 import static org.springframework.http.HttpHeaders.ACCEPT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorURLs.SETTLE_URL;
-import static tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorURLs.SUPPORTED_URL;
-import static tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorURLs.VERIFY_URL;
+import static tech.mogami.commons.api.facilitator.FacilitatorRoutes.SETTLE_URL;
+import static tech.mogami.commons.api.facilitator.FacilitatorRoutes.SUPPORTED_URL;
+import static tech.mogami.commons.api.facilitator.FacilitatorRoutes.VERIFY_URL;
 
 /**
  * {@link FacilitatorService} implementation.
@@ -52,7 +52,7 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
                 .retrieve()
                 .bodyToMono(SupportedResponse.class)
                 .doOnError(WebClientResponseException.class, error ->
-                        log.error("Facilitator support error : '{}'", error.getResponseBodyAsString()));
+                        log.error("Facilitator /support error : '{}'", error.getResponseBodyAsString()));
     }
 
     @Override
@@ -71,12 +71,12 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
                 .retrieve()
                 .bodyToMono(VerifyResponse.class)
                 .doOnError(WebClientResponseException.class, error ->
-                        log.error("Facilitator verify error: '{}'", error.getResponseBodyAsString()));
+                        log.error("Facilitator /verify error: '{}'", error.getResponseBodyAsString()));
     }
 
     @Override
-    public Mono<SettleResult> settle(final PaymentPayload paymentPayload,
-                                     final PaymentRequirements paymentRequirements) {
+    public Mono<SettleResponse> settle(final PaymentPayload paymentPayload,
+                                       final PaymentRequirements paymentRequirements) {
         SettleRequest body = SettleRequest.builder()
                 .x402Version(paymentPayload.x402Version())
                 .paymentPayload(paymentPayload)
@@ -88,9 +88,9 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
                 .contentType(APPLICATION_JSON)
                 .bodyValue(body)
                 .retrieve()
-                .bodyToMono(SettleResult.class)
+                .bodyToMono(SettleResponse.class)
                 .doOnError(WebClientResponseException.class, error ->
-                        log.error("Facilitator settle error : '{}'", error.getResponseBodyAsString()));
+                        log.error("Facilitator /settle error : '{}'", error.getResponseBodyAsString()));
     }
 
 }

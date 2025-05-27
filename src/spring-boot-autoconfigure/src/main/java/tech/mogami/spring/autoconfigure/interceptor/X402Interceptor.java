@@ -10,13 +10,15 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
+import tech.mogami.commons.api.facilitator.settle.SettleResponse;
+import tech.mogami.commons.api.facilitator.verify.VerifyResponse;
+import tech.mogami.commons.header.payment.PaymentPayload;
+import tech.mogami.commons.header.payment.PaymentRequired;
+import tech.mogami.commons.header.payment.PaymentRequirements;
+import tech.mogami.commons.util.Base64Util;
+import tech.mogami.commons.util.JsonUtil;
 import tech.mogami.spring.autoconfigure.annotation.X402PaymentRequirement;
-import tech.mogami.spring.autoconfigure.dto.PaymentPayload;
-import tech.mogami.spring.autoconfigure.dto.PaymentRequired;
-import tech.mogami.spring.autoconfigure.dto.PaymentRequirements;
 import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorService;
-import tech.mogami.spring.autoconfigure.provider.facilitator.settle.SettleResult;
-import tech.mogami.spring.autoconfigure.provider.facilitator.verify.VerifyResponse;
 
 import java.util.Arrays;
 import java.util.Base64;
@@ -28,12 +30,12 @@ import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static jakarta.servlet.http.HttpServletResponse.SC_PAYMENT_REQUIRED;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
-import static tech.mogami.spring.autoconfigure.util.constants.BlockchainConstants.DEFAULT_MAX_TIMEOUT_SECONDS;
-import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_PAYMENT_REQUIRED_MESSAGE;
-import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_SUPPORTED_VERSION;
-import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_X_PAYMENT_HEADER;
-import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_X_PAYMENT_HEADER_DECODED;
-import static tech.mogami.spring.autoconfigure.util.constants.X402Constants.X402_X_PAYMENT_RESPONSE;
+import static tech.mogami.commons.constants.BlockchainConstants.DEFAULT_MAX_TIMEOUT_SECONDS;
+import static tech.mogami.commons.constants.X402Constants.X402_PAYMENT_REQUIRED_MESSAGE;
+import static tech.mogami.commons.constants.X402Constants.X402_SUPPORTED_VERSION;
+import static tech.mogami.commons.constants.X402Constants.X402_X_PAYMENT_HEADER;
+import static tech.mogami.commons.constants.X402Constants.X402_X_PAYMENT_HEADER_DECODED;
+import static tech.mogami.commons.constants.X402Constants.X402_X_PAYMENT_RESPONSE;
 
 /**
  * Interceptor for x402.
@@ -75,7 +77,7 @@ public class X402Interceptor implements HandlerInterceptor {
                     try {
                         // The payment is present, we decode it (base64) and add it to the response.
                         final String paymentHeaderString = new String(Base64.getMimeDecoder().decode(request.getHeader(X402_X_PAYMENT_HEADER)), UTF_8);
-                        PaymentPayload paymentPayload = PaymentPayload.loadFromJSONString(paymentHeaderString, objectMapper);
+                        PaymentPayload paymentPayload = JsonUtil.fromJson(paymentHeaderString, PaymentPayload.class);
                         request.setAttribute(X402_X_PAYMENT_HEADER_DECODED, paymentPayload);
                         log.info("Payment received: {}", paymentPayload);
 
@@ -99,18 +101,15 @@ public class X402Interceptor implements HandlerInterceptor {
                                 log.info("Payment is isValid: {}", verifyResult);
 
                                 // Calling /settle and setting the response header.
-                                final SettleResult settleResult = facilitatorService.settle(paymentPayload, paymentRequirement).block();
-                                if (settleResult != null) {
-                                    log.info("Settle result: {}", settleResult);
+                                final SettleResponse settleResponse = facilitatorService.settle(paymentPayload, paymentRequirement).block();
+                                if (settleResponse != null) {
+                                    log.info("Settle result: {}", settleResponse);
                                 } else {
                                     log.error("Error calling the settle facilitator - null result");
                                     response.sendError(SC_BAD_REQUEST, "Serveur error calling the facilitator");
                                     return false;
                                 }
-                                response.setHeader(X402_X_PAYMENT_RESPONSE, Base64
-                                        .getEncoder()
-                                        .withoutPadding()
-                                        .encodeToString(settleResult.toJSON().getBytes(UTF_8)));
+                                response.setHeader(X402_X_PAYMENT_RESPONSE, Base64Util.encode(JsonUtil.toJson(settleResponse)));
                                 return true;
                             } else {
                                 // If the Verification Response is invalid, the resource server returns a 402-Payment

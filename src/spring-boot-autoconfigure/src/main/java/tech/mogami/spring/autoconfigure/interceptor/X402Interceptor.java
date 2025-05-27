@@ -17,7 +17,7 @@ import tech.mogami.commons.header.payment.PaymentRequired;
 import tech.mogami.commons.header.payment.PaymentRequirements;
 import tech.mogami.commons.util.Base64Util;
 import tech.mogami.commons.util.JsonUtil;
-import tech.mogami.spring.autoconfigure.annotation.X402PaymentRequirement;
+import tech.mogami.spring.autoconfigure.annotation.X402PaymentRequirements;
 import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorService;
 
 import java.util.Arrays;
@@ -60,7 +60,7 @@ public class X402Interceptor implements HandlerInterceptor {
         // We check if the handler is a HandlerMethod (spring method).
         if (handler instanceof HandlerMethod hm) {
             // We retrieve all schemes.
-            Set<X402PaymentRequirement> paymentRequirementsList = AnnotatedElementUtils.findMergedRepeatableAnnotations(hm.getMethod(), X402PaymentRequirement.class);
+            Set<X402PaymentRequirements> paymentRequirementsList = AnnotatedElementUtils.findMergedRepeatableAnnotations(hm.getMethod(), X402PaymentRequirements.class);
             if (!paymentRequirementsList.isEmpty()) {
 
                 // =====================================================================================================
@@ -82,7 +82,7 @@ public class X402Interceptor implements HandlerInterceptor {
                         log.info("Payment received: {}", paymentPayload);
 
                         // Now, we use the facilitator to check if the payment is isValid.
-                        X402PaymentRequirement test = paymentRequirementsList.stream()
+                        X402PaymentRequirements test = paymentRequirementsList.stream()
                                 .findFirst()
                                 .orElseThrow(() -> new IllegalArgumentException("No payment requirements found"));
                         final PaymentRequirements paymentRequirement = buildPaymentRequirements(request, test);
@@ -148,7 +148,7 @@ public class X402Interceptor implements HandlerInterceptor {
      * @return The payment required body
      */
     private PaymentRequired buildPaymentRequirementsBody(final HttpServletRequest request,
-                                                         final Set<X402PaymentRequirement> paymentRequirementsAnnotations) {
+                                                         final Set<X402PaymentRequirements> paymentRequirementsAnnotations) {
         return PaymentRequired.builder()
                 .x402Version(X402_SUPPORTED_VERSION)
                 .error(X402_PAYMENT_REQUIRED_MESSAGE)
@@ -167,7 +167,7 @@ public class X402Interceptor implements HandlerInterceptor {
      * @return The payment required body
      */
     private PaymentRequirements buildPaymentRequirements(final HttpServletRequest request,
-                                                         final X402PaymentRequirement paymentRequirementsAnnotation) {
+                                                         final X402PaymentRequirements paymentRequirementsAnnotation) {
         return PaymentRequirements.builder()
                 .scheme(paymentRequirementsAnnotation.scheme())
                 .network(paymentRequirementsAnnotation.network())
@@ -180,8 +180,8 @@ public class X402Interceptor implements HandlerInterceptor {
                 .asset(paymentRequirementsAnnotation.asset())
                 .extra(Arrays.stream(paymentRequirementsAnnotation.extra())
                         .collect(Collectors.toMap(
-                                X402PaymentRequirement.ExtraEntry::key,
-                                X402PaymentRequirement.ExtraEntry::value)))
+                                X402PaymentRequirements.ExtraEntry::key,
+                                X402PaymentRequirements.ExtraEntry::value)))
                 .build();
     }
 

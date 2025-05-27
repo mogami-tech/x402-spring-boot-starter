@@ -23,7 +23,7 @@ Annotate your controller method with `@X402PaymentRequirement`, set your payment
 Here is how to do it:
 ```java
 
-@X402PaymentRequirement(
+@X402PaymentRequirements(
         scheme = "exact",
         network = "base-sepolia",
         maximumAmountRequired = "1000",

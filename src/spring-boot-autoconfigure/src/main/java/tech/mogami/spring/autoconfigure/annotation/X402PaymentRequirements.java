@@ -8,14 +8,14 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * X402 Payment requirement annotation.
+ * X402 Payment requirements annotation.
  * TODO Treat "mimeType: string;" (MIME type of the resource response)
  * TODO Treat "outputSchema?: object | null;" (Output schema of the resource response)
  */
-@Repeatable(X402PaymentRequirement.List.class)
+@Repeatable(X402PaymentRequirements.List.class)
 @Retention(RUNTIME)
 @Target(METHOD)
-public @interface X402PaymentRequirement {
+public @interface X402PaymentRequirements {
 
     /**
      * Scheme of the payment protocol to use.
@@ -98,7 +98,7 @@ public @interface X402PaymentRequirement {
     @Retention(RUNTIME)
     @interface List {
         @SuppressWarnings("UnusedReturnValue")
-        X402PaymentRequirement[] value();
+        X402PaymentRequirements[] value();
     }
 
 }

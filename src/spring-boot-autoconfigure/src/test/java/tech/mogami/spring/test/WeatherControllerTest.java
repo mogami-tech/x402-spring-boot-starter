@@ -13,7 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import tech.mogami.commons.api.facilitator.settle.SettleResponse;
 import tech.mogami.commons.header.payment.PaymentPayload;
 import tech.mogami.commons.header.payment.schemes.ExactSchemePayload;
-import tech.mogami.spring.test.util.BaseTest;
+import tech.mogami.commons.test.BaseTest;
 
 import java.io.IOException;
 import java.util.Base64;
@@ -31,16 +31,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
-import static tech.mogami.commons.constants.X402Constants.X402_PAYMENT_REQUIRED_MESSAGE;
-import static tech.mogami.commons.constants.X402Constants.X402_SUPPORTED_VERSION;
-import static tech.mogami.commons.constants.X402Constants.X402_X_PAYMENT_HEADER;
-import static tech.mogami.commons.constants.X402Constants.X402_X_PAYMENT_HEADER_DECODED;
-import static tech.mogami.commons.constants.X402Constants.X402_X_PAYMENT_RESPONSE;
-import static tech.mogami.commons.constants.networks.BaseNetworks.BASE_SEPOLIA;
+import static tech.mogami.commons.constant.X402Constants.X402_PAYMENT_REQUIRED_MESSAGE;
+import static tech.mogami.commons.constant.X402Constants.X402_SUPPORTED_VERSION;
+import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_HEADER;
+import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_HEADER_DECODED;
+import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_RESPONSE;
+import static tech.mogami.commons.constant.networks.BaseNetworks.BASE_SEPOLIA;
 import static tech.mogami.commons.header.payment.schemes.ExactSchemeConstants.EXACT_SCHEME_NAME;
-import static tech.mogami.spring.test.util.TestData.ASSET_CONTRACT_ADDRESS;
-import static tech.mogami.spring.test.util.TestData.SERVER_WALLET_ADDRESS_1;
-import static tech.mogami.spring.test.util.TestData.SERVER_WALLET_ADDRESS_2;
 
 @SpringBootTest(
         properties = {
@@ -126,8 +123,8 @@ public class WeatherControllerTest extends BaseTest {
                 .andExpect(jsonPath("$.accepts[0].maxAmountRequired").value("1000"))
                 .andExpect(jsonPath("$.accepts[0].description").isEmpty())
                 .andExpect(jsonPath("$.accepts[0].resource").value("http://localhost/weather"))
-                .andExpect(jsonPath("$.accepts[0].payTo").value(SERVER_WALLET_ADDRESS_1))
-                .andExpect(jsonPath("$.accepts[0].asset").value(ASSET_CONTRACT_ADDRESS))
+                .andExpect(jsonPath("$.accepts[0].payTo").value(TEST_SERVER_WALLET_ADDRESS_1))
+                .andExpect(jsonPath("$.accepts[0].asset").value(TEST_ASSET_CONTRACT_ADDRESS))
                 .andExpect(jsonPath("$.accepts[0].extra.name").value("USDC"))
                 .andExpect(jsonPath("$.accepts[0].extra.version").value("2"))
                 // Second scheme.
@@ -136,8 +133,8 @@ public class WeatherControllerTest extends BaseTest {
                 .andExpect(jsonPath("$.accepts[1].maxAmountRequired").value("2000"))
                 .andExpect(jsonPath("$.accepts[1].description").value("Description number 2"))
                 .andExpect(jsonPath("$.accepts[1].resource").value("http://localhost/weather"))
-                .andExpect(jsonPath("$.accepts[1].payTo").value(SERVER_WALLET_ADDRESS_2))
-                .andExpect(jsonPath("$.accepts[1].asset").value(ASSET_CONTRACT_ADDRESS))
+                .andExpect(jsonPath("$.accepts[1].payTo").value(TEST_SERVER_WALLET_ADDRESS_2))
+                .andExpect(jsonPath("$.accepts[1].asset").value(TEST_ASSET_CONTRACT_ADDRESS))
                 .andExpect(jsonPath("$.accepts[1].extra").isEmpty());
     }
 
@@ -174,7 +171,6 @@ public class WeatherControllerTest extends BaseTest {
                                 assertThat(payload.authorization().nonce()).isEqualTo("isValidFalse");
                             });
                 });
-
     }
 
     @Test

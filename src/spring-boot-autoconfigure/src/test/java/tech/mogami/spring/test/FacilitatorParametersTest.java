@@ -4,8 +4,8 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringApplication;
+import tech.mogami.commons.test.BaseTest;
 import tech.mogami.spring.TestApplication;
-import tech.mogami.spring.test.util.BaseTest;
 
 import static org.assertj.core.api.Fail.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;

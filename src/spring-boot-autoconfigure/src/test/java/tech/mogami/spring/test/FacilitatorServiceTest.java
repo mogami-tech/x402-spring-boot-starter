@@ -9,7 +9,7 @@ import tech.mogami.commons.test.BaseTest;
 import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorService;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static tech.mogami.commons.constant.networks.BaseNetworks.BASE_SEPOLIA;
+import static tech.mogami.commons.constant.networks.Networks.BASE_SEPOLIA;
 import static tech.mogami.commons.header.payment.schemes.ExactSchemeConstants.EXACT_SCHEME_NAME;
 
 @SpringBootTest
@@ -28,7 +28,7 @@ public class FacilitatorServiceTest extends BaseTest {
                 .satisfies(supportedResponse -> {
                     assertThat(supportedResponse.kinds()).isNotEmpty();
                     assertThat(supportedResponse.kinds().getFirst().scheme()).isEqualTo(EXACT_SCHEME_NAME);
-                    assertThat(supportedResponse.kinds().getFirst().network()).isEqualTo(BASE_SEPOLIA);
+                    assertThat(supportedResponse.kinds().getFirst().network()).isEqualTo(BASE_SEPOLIA.name());
                 });
     }
 
@@ -51,7 +51,7 @@ public class FacilitatorServiceTest extends BaseTest {
                 .isNotNull()
                 .satisfies(settleResult -> {
                     assertThat(settleResult.success()).isFalse();
-                    assertThat(settleResult.network()).isEqualTo(BASE_SEPOLIA);
+                    assertThat(settleResult.network()).isEqualTo(BASE_SEPOLIA.name());
                     assertThat(settleResult.transaction()).isEmpty();
                     assertThat(settleResult.errorReason()).isEqualTo("invalid_scheme");
                     assertThat(settleResult.payer()).isEqualTo("0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F73");

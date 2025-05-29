@@ -36,7 +36,7 @@ import static tech.mogami.commons.constant.X402Constants.X402_SUPPORTED_VERSION;
 import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_HEADER;
 import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_HEADER_DECODED;
 import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_RESPONSE;
-import static tech.mogami.commons.constant.networks.BaseNetworks.BASE_SEPOLIA;
+import static tech.mogami.commons.constant.networks.Networks.BASE_SEPOLIA;
 import static tech.mogami.commons.header.payment.schemes.ExactSchemeConstants.EXACT_SCHEME_NAME;
 
 @SpringBootTest(
@@ -119,7 +119,7 @@ public class WeatherControllerTest extends BaseTest {
                 .andExpect(jsonPath("$.accepts.length()").value(2))
                 // First scheme.
                 .andExpect(jsonPath("$.accepts[0].scheme").value(EXACT_SCHEME_NAME))
-                .andExpect(jsonPath("$.accepts[0].network").value(BASE_SEPOLIA))
+                .andExpect(jsonPath("$.accepts[0].network").value(BASE_SEPOLIA.name()))
                 .andExpect(jsonPath("$.accepts[0].maxAmountRequired").value("1000"))
                 .andExpect(jsonPath("$.accepts[0].description").isEmpty())
                 .andExpect(jsonPath("$.accepts[0].resource").value("http://localhost/weather"))
@@ -129,7 +129,7 @@ public class WeatherControllerTest extends BaseTest {
                 .andExpect(jsonPath("$.accepts[0].extra.version").value("2"))
                 // Second scheme.
                 .andExpect(jsonPath("$.accepts[1].scheme").value(EXACT_SCHEME_NAME))
-                .andExpect(jsonPath("$.accepts[1].network").value(BASE_SEPOLIA))
+                .andExpect(jsonPath("$.accepts[1].network").value(BASE_SEPOLIA.name()))
                 .andExpect(jsonPath("$.accepts[1].maxAmountRequired").value("2000"))
                 .andExpect(jsonPath("$.accepts[1].description").value("Description number 2"))
                 .andExpect(jsonPath("$.accepts[1].resource").value("http://localhost/weather"))
@@ -157,7 +157,7 @@ public class WeatherControllerTest extends BaseTest {
                 .satisfies(paymentPayload -> {
                     assertThat(paymentPayload.x402Version()).isEqualTo(1);
                     assertThat(paymentPayload.scheme()).isEqualTo(EXACT_SCHEME_NAME);
-                    assertThat(paymentPayload.network()).isEqualTo(BASE_SEPOLIA);
+                    assertThat(paymentPayload.network()).isEqualTo(BASE_SEPOLIA.name());
                     assertThat((ExactSchemePayload) paymentPayload.payload())
                             .isNotNull()
                             .satisfies(payload -> {
@@ -189,7 +189,7 @@ public class WeatherControllerTest extends BaseTest {
                 .satisfies(paymentPayload -> {
                     assertThat(paymentPayload.x402Version()).isEqualTo(1);
                     assertThat(paymentPayload.scheme()).isEqualTo(EXACT_SCHEME_NAME);
-                    assertThat(paymentPayload.network()).isEqualTo(BASE_SEPOLIA);
+                    assertThat(paymentPayload.network()).isEqualTo(BASE_SEPOLIA.name());
                     assertThat((ExactSchemePayload) paymentPayload.payload())
                             .isNotNull()
                             .satisfies(payload -> {
@@ -212,7 +212,7 @@ public class WeatherControllerTest extends BaseTest {
                     .isNotNull()
                     .satisfies(resultSettle -> {
                         assertThat(resultSettle.success()).isTrue();
-                        assertThat(resultSettle.network()).isEqualTo(BASE_SEPOLIA);
+                        assertThat(resultSettle.network()).isEqualTo(BASE_SEPOLIA.name());
                         assertThat(resultSettle.transaction()).isEqualTo("0x7cbf21c639f7bcd8e68ba02b83b34187f686577a0cead0d7c6f0f57183a84b51");
                         assertThat(resultSettle.errorReason()).isEqualTo("invalid_scheme");
                         assertThat(resultSettle.payer()).isEqualTo("0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F73");

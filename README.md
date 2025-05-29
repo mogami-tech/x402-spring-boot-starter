@@ -18,7 +18,7 @@
 <br>
 
 The Mogami x402 Spring Boot Starter adds a micropayment guard to any Spring Boot endpoint.
-Annotate your controller method with `@X402PaymentRequirement`, set your payment information, done!
+Annotate your controller method with `@X402PaymentRequirements`, set your payment information, done!
 
 Here is how to use it:
 ```java

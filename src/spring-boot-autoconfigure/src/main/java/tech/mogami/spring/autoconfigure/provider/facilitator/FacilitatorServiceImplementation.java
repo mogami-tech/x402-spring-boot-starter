@@ -13,6 +13,7 @@ import tech.mogami.commons.api.facilitator.verify.VerifyRequest;
 import tech.mogami.commons.api.facilitator.verify.VerifyResponse;
 import tech.mogami.commons.header.payment.PaymentPayload;
 import tech.mogami.commons.header.payment.PaymentRequirements;
+import tech.mogami.commons.util.JsonUtil;
 import tech.mogami.spring.autoconfigure.parameter.X402Parameters;
 
 import static org.springframework.http.HttpHeaders.ACCEPT;
@@ -63,6 +64,7 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
                 .paymentPayload(paymentPayload)
                 .paymentRequirements(paymentRequirements)
                 .build();
+        log.info("Facilitator /verify request : '{}'", JsonUtil.toJson(body));
 
         return client.post()
                 .uri(VERIFY_URL)
@@ -82,6 +84,7 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
                 .paymentPayload(paymentPayload)
                 .paymentRequirements(paymentRequirements)
                 .build();
+        log.info("Facilitator /settle request : '{}'", JsonUtil.toJson(body));
 
         return client.post()
                 .uri(SETTLE_URL)

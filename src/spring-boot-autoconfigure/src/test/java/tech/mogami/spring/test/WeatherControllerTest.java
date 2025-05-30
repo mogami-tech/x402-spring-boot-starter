@@ -155,7 +155,7 @@ public class WeatherControllerTest extends BaseTest {
         assertThat((PaymentPayload) result.getRequest().getAttribute(X402_X_PAYMENT_HEADER_DECODED))
                 .isNotNull()
                 .satisfies(paymentPayload -> {
-                    assertThat(paymentPayload.x402Version()).isEqualTo(1);
+                    assertThat(paymentPayload.x402Version()).isEqualTo(X402_SUPPORTED_VERSION);
                     assertThat(paymentPayload.scheme()).isEqualTo(EXACT_SCHEME_NAME);
                     assertThat(paymentPayload.network()).isEqualTo(BASE_SEPOLIA.name());
                     assertThat((ExactSchemePayload) paymentPayload.payload())
@@ -187,7 +187,7 @@ public class WeatherControllerTest extends BaseTest {
         assertThat((PaymentPayload) result.getRequest().getAttribute(X402_X_PAYMENT_HEADER_DECODED))
                 .isNotNull()
                 .satisfies(paymentPayload -> {
-                    assertThat(paymentPayload.x402Version()).isEqualTo(1);
+                    assertThat(paymentPayload.x402Version()).isEqualTo(X402_SUPPORTED_VERSION);
                     assertThat(paymentPayload.scheme()).isEqualTo(EXACT_SCHEME_NAME);
                     assertThat(paymentPayload.network()).isEqualTo(BASE_SEPOLIA.name());
                     assertThat((ExactSchemePayload) paymentPayload.payload())

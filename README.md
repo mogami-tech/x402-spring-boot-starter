@@ -14,13 +14,13 @@
 
 <hr>
 
-<h3 align="center">Mogami X402 spring boot starter — one annotation, instant paywall.</h2>
+<h3 align="center">Mogami X402 spring boot starter - one annotation, instant paywall.</h2>
 <br>
 
 The Mogami x402 Spring Boot Starter adds a micropayment guard to any Spring Boot endpoint.
-Annotate your controller method with `@X402PaymentRequirement`, set your payment information, done!
+Annotate your controller method with `@X402PaymentRequirements`, set your payment information, done!
 
-Here is how to do it:
+Here is how to use it:
 ```java
 
 @X402PaymentRequirements(
@@ -30,8 +30,8 @@ Here is how to do it:
         payTo = "0x7553F6FA4Fb62986b64f79aEFa1fB93ea64A22b1",
         asset = "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
         extra = {
-                @X402PaymentRequirement.ExtraEntry(key = "name", value = "USDC"),
-                @X402PaymentRequirement.ExtraEntry(key = "version", value = "2")
+                @X402PaymentRequirements.ExtraEntry(key = "name", value = "USDC"),
+                @X402PaymentRequirements.ExtraEntry(key = "version", value = "2")
         })
 @GetMapping("/weather")
 public String weather() {

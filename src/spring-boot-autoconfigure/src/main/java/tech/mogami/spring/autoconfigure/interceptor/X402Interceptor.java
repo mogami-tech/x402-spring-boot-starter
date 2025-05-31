@@ -30,12 +30,12 @@ import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static jakarta.servlet.http.HttpServletResponse.SC_PAYMENT_REQUIRED;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
-import static tech.mogami.commons.constants.BlockchainConstants.DEFAULT_MAX_TIMEOUT_SECONDS;
-import static tech.mogami.commons.constants.X402Constants.X402_PAYMENT_REQUIRED_MESSAGE;
-import static tech.mogami.commons.constants.X402Constants.X402_SUPPORTED_VERSION;
-import static tech.mogami.commons.constants.X402Constants.X402_X_PAYMENT_HEADER;
-import static tech.mogami.commons.constants.X402Constants.X402_X_PAYMENT_HEADER_DECODED;
-import static tech.mogami.commons.constants.X402Constants.X402_X_PAYMENT_RESPONSE;
+import static tech.mogami.commons.constant.BlockchainConstants.DEFAULT_MAX_TIMEOUT_SECONDS;
+import static tech.mogami.commons.constant.X402Constants.X402_PAYMENT_REQUIRED_MESSAGE;
+import static tech.mogami.commons.constant.X402Constants.X402_SUPPORTED_VERSION;
+import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_HEADER;
+import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_HEADER_DECODED;
+import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_RESPONSE;
 
 /**
  * Interceptor for x402.

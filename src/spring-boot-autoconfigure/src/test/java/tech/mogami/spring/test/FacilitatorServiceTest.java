@@ -39,7 +39,7 @@ public class FacilitatorServiceTest extends BaseTest {
                 .isNotNull()
                 .satisfies(verifyResponse -> {
                     assertThat(verifyResponse.isValid()).isFalse();
-                    assertThat(verifyResponse.invalidReason()).isEqualTo("invalid_scheme");
+                    assertThat(verifyResponse.invalidReason()).isEqualTo("invalid_exact_evm_payload_authorization_valid_before");
                     assertThat(verifyResponse.payer()).isEqualTo("0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F73");
                 });
     }
@@ -53,7 +53,7 @@ public class FacilitatorServiceTest extends BaseTest {
                     assertThat(settleResult.success()).isFalse();
                     assertThat(settleResult.network()).isEqualTo(BASE_SEPOLIA.name());
                     assertThat(settleResult.transaction()).isEmpty();
-                    assertThat(settleResult.errorReason()).isEqualTo("invalid_scheme");
+                    assertThat(settleResult.errorReason()).isEqualTo("invalid_exact_evm_payload_authorization_valid_before");
                     assertThat(settleResult.payer()).isEqualTo("0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F73");
                 });
     }

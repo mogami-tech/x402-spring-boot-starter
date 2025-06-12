@@ -12,7 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import tech.mogami.commons.api.facilitator.settle.SettleResponse;
 import tech.mogami.commons.header.payment.PaymentPayload;
-import tech.mogami.commons.header.payment.schemes.ExactSchemePayload;
+import tech.mogami.commons.header.payment.schemes.exact.ExactSchemePayload;
 import tech.mogami.commons.test.BaseTest;
 
 import java.io.IOException;
@@ -32,12 +32,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 import static tech.mogami.commons.constant.X402Constants.X402_PAYMENT_REQUIRED_MESSAGE;
-import static tech.mogami.commons.constant.X402Constants.X402_SUPPORTED_VERSION;
 import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_HEADER;
 import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_HEADER_DECODED;
 import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_RESPONSE;
-import static tech.mogami.commons.constant.networks.Networks.BASE_SEPOLIA;
-import static tech.mogami.commons.header.payment.schemes.ExactSchemeConstants.EXACT_SCHEME_NAME;
+import static tech.mogami.commons.constant.network.Networks.BASE_SEPOLIA;
+import static tech.mogami.commons.constant.version.X402Versions.X402_SUPPORTED_VERSION_BY_MOGAMI;
+import static tech.mogami.commons.header.payment.schemes.Schemes.EXACT_SCHEME;
 
 @SpringBootTest(
         properties = {
@@ -114,11 +114,11 @@ public class WeatherControllerTest extends BaseTest {
                 .andDo(print())
                 .andExpect(status().isPaymentRequired())
                 .andExpect(content().contentType(APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.x402Version").value(X402_SUPPORTED_VERSION))
+                .andExpect(jsonPath("$.x402Version").value(X402_SUPPORTED_VERSION_BY_MOGAMI.version()))
                 .andExpect(jsonPath("$.error").value(X402_PAYMENT_REQUIRED_MESSAGE))
                 .andExpect(jsonPath("$.accepts.length()").value(2))
                 // First scheme.
-                .andExpect(jsonPath("$.accepts[0].scheme").value(EXACT_SCHEME_NAME))
+                .andExpect(jsonPath("$.accepts[0].scheme").value(EXACT_SCHEME.name()))
                 .andExpect(jsonPath("$.accepts[0].network").value(BASE_SEPOLIA.name()))
                 .andExpect(jsonPath("$.accepts[0].maxAmountRequired").value("1000"))
                 .andExpect(jsonPath("$.accepts[0].description").isEmpty())
@@ -128,7 +128,7 @@ public class WeatherControllerTest extends BaseTest {
                 .andExpect(jsonPath("$.accepts[0].extra.name").value("USDC"))
                 .andExpect(jsonPath("$.accepts[0].extra.version").value("2"))
                 // Second scheme.
-                .andExpect(jsonPath("$.accepts[1].scheme").value(EXACT_SCHEME_NAME))
+                .andExpect(jsonPath("$.accepts[1].scheme").value(EXACT_SCHEME.name()))
                 .andExpect(jsonPath("$.accepts[1].network").value(BASE_SEPOLIA.name()))
                 .andExpect(jsonPath("$.accepts[1].maxAmountRequired").value("2000"))
                 .andExpect(jsonPath("$.accepts[1].description").value("Description number 2"))
@@ -146,7 +146,7 @@ public class WeatherControllerTest extends BaseTest {
                 .andDo(print())
                 .andExpect(status().isPaymentRequired())
                 .andExpect(content().contentType(APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.x402Version").value(X402_SUPPORTED_VERSION))
+                .andExpect(jsonPath("$.x402Version").value(X402_SUPPORTED_VERSION_BY_MOGAMI.version()))
                 .andExpect(jsonPath("$.error").value(X402_PAYMENT_REQUIRED_MESSAGE))
                 .andExpect(jsonPath("$.accepts.length()").value(2))
                 .andReturn();
@@ -155,8 +155,8 @@ public class WeatherControllerTest extends BaseTest {
         assertThat((PaymentPayload) result.getRequest().getAttribute(X402_X_PAYMENT_HEADER_DECODED))
                 .isNotNull()
                 .satisfies(paymentPayload -> {
-                    assertThat(paymentPayload.x402Version()).isEqualTo(X402_SUPPORTED_VERSION);
-                    assertThat(paymentPayload.scheme()).isEqualTo(EXACT_SCHEME_NAME);
+                    assertThat(paymentPayload.x402Version()).isEqualTo(X402_SUPPORTED_VERSION_BY_MOGAMI.version());
+                    assertThat(paymentPayload.scheme()).isEqualTo(EXACT_SCHEME.name());
                     assertThat(paymentPayload.network()).isEqualTo(BASE_SEPOLIA.name());
                     assertThat((ExactSchemePayload) paymentPayload.payload())
                             .isNotNull()
@@ -187,8 +187,8 @@ public class WeatherControllerTest extends BaseTest {
         assertThat((PaymentPayload) result.getRequest().getAttribute(X402_X_PAYMENT_HEADER_DECODED))
                 .isNotNull()
                 .satisfies(paymentPayload -> {
-                    assertThat(paymentPayload.x402Version()).isEqualTo(X402_SUPPORTED_VERSION);
-                    assertThat(paymentPayload.scheme()).isEqualTo(EXACT_SCHEME_NAME);
+                    assertThat(paymentPayload.x402Version()).isEqualTo(X402_SUPPORTED_VERSION_BY_MOGAMI.version());
+                    assertThat(paymentPayload.scheme()).isEqualTo(EXACT_SCHEME.name());
                     assertThat(paymentPayload.network()).isEqualTo(BASE_SEPOLIA.name());
                     assertThat((ExactSchemePayload) paymentPayload.payload())
                             .isNotNull()

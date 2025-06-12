@@ -9,8 +9,8 @@ import tech.mogami.commons.test.BaseTest;
 import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorService;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static tech.mogami.commons.constant.networks.Networks.BASE_SEPOLIA;
-import static tech.mogami.commons.header.payment.schemes.ExactSchemeConstants.EXACT_SCHEME_NAME;
+import static tech.mogami.commons.constant.network.Networks.BASE_SEPOLIA;
+import static tech.mogami.commons.header.payment.schemes.Schemes.EXACT_SCHEME;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -27,7 +27,7 @@ public class FacilitatorServiceTest extends BaseTest {
                 .isNotNull()
                 .satisfies(supportedResponse -> {
                     assertThat(supportedResponse.kinds()).isNotEmpty();
-                    assertThat(supportedResponse.kinds().getFirst().scheme()).isEqualTo(EXACT_SCHEME_NAME);
+                    assertThat(supportedResponse.kinds().getFirst().scheme()).isEqualTo(EXACT_SCHEME.name());
                     assertThat(supportedResponse.kinds().getFirst().network()).isEqualTo(BASE_SEPOLIA.name());
                 });
     }

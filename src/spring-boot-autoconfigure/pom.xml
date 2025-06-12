@@ -18,7 +18,7 @@
         <dependency>
             <groupId>tech.mogami.commons</groupId>
             <artifactId>mogami-x402-commons</artifactId>
-            <version>0.0.4</version>
+            <version>0.0.5</version>
         </dependency>
 
         <!-- Spring dependencies -->
@@ -230,7 +230,7 @@
     <parent>
         <groupId>tech.mogami.spring</groupId>
         <artifactId>mogami-x402-spring-boot-starter-project</artifactId>
-        <version>0.1.3</version>
+        <version>0.1.4</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <!-- =========================================================================================================== -->

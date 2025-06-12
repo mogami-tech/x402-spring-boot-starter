@@ -29,13 +29,13 @@ import java.util.stream.Collectors;
 import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static jakarta.servlet.http.HttpServletResponse.SC_PAYMENT_REQUIRED;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
-import static tech.mogami.commons.constant.BlockchainConstants.DEFAULT_MAX_TIMEOUT_SECONDS;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static tech.mogami.commons.constant.X402Constants.X402_DEFAULT_PAYMENT_TIMEOUT_SECONDS;
 import static tech.mogami.commons.constant.X402Constants.X402_PAYMENT_REQUIRED_MESSAGE;
-import static tech.mogami.commons.constant.X402Constants.X402_SUPPORTED_VERSION;
 import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_HEADER;
 import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_HEADER_DECODED;
 import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_RESPONSE;
+import static tech.mogami.commons.constant.version.X402Versions.X402_SUPPORTED_VERSION_BY_MOGAMI;
 
 /**
  * Interceptor for x402.
@@ -150,7 +150,7 @@ public class X402Interceptor implements HandlerInterceptor {
     private PaymentRequired buildPaymentRequirementsBody(final HttpServletRequest request,
                                                          final Set<X402PaymentRequirements> paymentRequirementsAnnotations) {
         return PaymentRequired.builder()
-                .x402Version(X402_SUPPORTED_VERSION)
+                .x402Version(X402_SUPPORTED_VERSION_BY_MOGAMI.version())
                 .error(X402_PAYMENT_REQUIRED_MESSAGE)
                 .accepts(paymentRequirementsAnnotations
                         .stream()
@@ -176,7 +176,7 @@ public class X402Interceptor implements HandlerInterceptor {
                 .description(paymentRequirementsAnnotation.description())
                 .mimeType("")
                 .payTo(paymentRequirementsAnnotation.payTo())
-                .maxTimeoutSeconds(DEFAULT_MAX_TIMEOUT_SECONDS)
+                .maxTimeoutSeconds(X402_DEFAULT_PAYMENT_TIMEOUT_SECONDS)
                 .asset(paymentRequirementsAnnotation.asset())
                 .extra(Arrays.stream(paymentRequirementsAnnotation.extra())
                         .collect(Collectors.toMap(

@@ -8,7 +8,7 @@
     <!-- Project information -->
     <groupId>tech.mogami.spring</groupId>
     <artifactId>mogami-x402-spring-boot-starter-project</artifactId>
-    <version>0.1.3</version>
+    <version>0.1.4</version>
     <packaging>pom</packaging>
     <name>Mogami x402 spring boot starter project</name>
     <description>Mogami x402 spring boot starter project</description>
@@ -80,7 +80,7 @@
 
         <!-- Maven -->
         <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
-        <maven.puppycrawl.checkstyle.version>10.24.0</maven.puppycrawl.checkstyle.version>
+        <maven.puppycrawl.checkstyle.version>10.25.0</maven.puppycrawl.checkstyle.version>
         <maven.source.plugin.version>3.3.1</maven.source.plugin.version>
         <maven.resources.plugin.version>3.3.1</maven.resources.plugin.version>
         <maven.compiler.plugin.version>3.14.0</maven.compiler.plugin.version>
@@ -214,6 +214,20 @@
     <!-- =========================================================================================================== -->
 
     <!-- =========================================================================================================== -->
+    <repositories>
+        <repository>
+            <id>central-snapshots</id>
+            <name>Maven Central Snapshots</name>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+    </repositories>
     <distributionManagement>
         <repository>
             <id>central</id>

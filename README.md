@@ -12,8 +12,6 @@
     </a>
 </p>
 
-<hr>
-
 <h3 align="center">Mogami X402 spring boot starter - one annotation, instant paywall.</h3>
 
 <p align="center">

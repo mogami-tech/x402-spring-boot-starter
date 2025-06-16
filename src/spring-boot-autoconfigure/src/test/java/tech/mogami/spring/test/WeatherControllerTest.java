@@ -99,7 +99,7 @@ public class WeatherControllerTest extends BaseTest {
     }
 
     @Test
-    @DisplayName("get /weather/without-payment test")
+    @DisplayName("get /weather/without-payment")
     void getFreeWeather() throws Exception {
         mockMvc.perform(get("/weather/without-payment"))
                 .andDo(print())
@@ -108,7 +108,7 @@ public class WeatherControllerTest extends BaseTest {
     }
 
     @Test
-    @DisplayName("get /weather without payment header test")
+    @DisplayName("get /weather without payment header")
     void getWeatherWithoutPaymentHeader() throws Exception {
         mockMvc.perform(get("/weather"))
                 .andDo(print())
@@ -139,7 +139,7 @@ public class WeatherControllerTest extends BaseTest {
     }
 
     @Test
-    @DisplayName("get /weather with invalid payment header test")
+    @DisplayName("get /weather with invalid payment header")
     void getWeatherWithInvalidPaymentHeader() throws Exception {
         // Calling the API with the payment header.
         var result = mockMvc.perform(get("/weather").header(X402_X_PAYMENT_HEADER, getSampleEncodedPaymentHeader("isValidFalse")))
@@ -174,7 +174,7 @@ public class WeatherControllerTest extends BaseTest {
     }
 
     @Test
-    @DisplayName("get /weather with valid payment header test")
+    @DisplayName("get /weather with valid payment header")
     void getWeatherWithValidPaymentHeader() throws Exception {
         // Calling the API with the payment header.
         var result = mockMvc.perform(get("/weather").header(X402_X_PAYMENT_HEADER, getSampleEncodedPaymentHeader("isValidTrue")))
@@ -206,8 +206,8 @@ public class WeatherControllerTest extends BaseTest {
 
         // Testing that the response contains the X-PAYMENT-RESPONSE header.
         try {
-            final String decodeSettleString = new String(Base64.getMimeDecoder().decode(result.getResponse().getHeader(X402_X_PAYMENT_RESPONSE)), UTF_8);
-            final SettleResponse settleResponse = new ObjectMapper().readValue(decodeSettleString, SettleResponse.class);
+            var decodeSettleString = new String(Base64.getMimeDecoder().decode(result.getResponse().getHeader(X402_X_PAYMENT_RESPONSE)), UTF_8);
+            var settleResponse = new ObjectMapper().readValue(decodeSettleString, SettleResponse.class);
             assertThat(settleResponse)
                     .isNotNull()
                     .satisfies(resultSettle -> {

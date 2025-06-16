@@ -39,5 +39,4 @@ public interface FacilitatorService {
     Mono<SettleResponse> settle(PaymentPayload paymentPayload,
                                 PaymentRequirements paymentRequirements);
 
-
 }

@@ -68,18 +68,19 @@ public class X402Interceptor implements HandlerInterceptor {
 
                 // We check if the payment is present or not.
                 if (request.getHeader(X402_X_PAYMENT_HEADER) == null) {
-                    // The payment is not present, we build the response by listing the payment requirements.
+                    // Payment not present, we return a 402 Payment Required response ==================================
+                    log.info("x402 URL Called without payment: {}", request.getRequestURL().toString());
                     response.setStatus(SC_PAYMENT_REQUIRED);
                     response.setContentType(APPLICATION_JSON_VALUE);
                     objectMapper.writeValue(response.getWriter(), buildPaymentRequirementsBody(request, paymentRequirementsList));
                     return false; // We stop the chain.
                 } else {
                     try {
-                        // The payment is present, we decode it (base64) and add it to the response.
+                        // The payment is present, we decode it (base64) and add it to the response ====================
                         final String paymentHeaderString = new String(Base64.getMimeDecoder().decode(request.getHeader(X402_X_PAYMENT_HEADER)), UTF_8);
                         PaymentPayload paymentPayload = JsonUtil.fromJson(paymentHeaderString, PaymentPayload.class);
                         request.setAttribute(X402_X_PAYMENT_HEADER_DECODED, paymentPayload);
-                        log.info("Payment received: {}", paymentPayload);
+                        log.info("Payment received for url {}: {}", request.getRequestURL().toString(), paymentPayload);
 
                         // Now, we use the facilitator to check if the payment is isValid.
                         X402PaymentRequirements test = paymentRequirementsList.stream()
@@ -87,18 +88,18 @@ public class X402Interceptor implements HandlerInterceptor {
                                 .orElseThrow(() -> new IllegalArgumentException("No payment requirements found"));
                         final PaymentRequirements paymentRequirement = buildPaymentRequirements(request, test);
 
-                        // We do the verification.
+                        // We do the verification on the facilitator server ============================================
                         final VerifyResponse verifyResult = facilitatorService.verify(paymentPayload, paymentRequirement).block();
                         if (verifyResult == null) {
+                            // Error calling the verify facilitator - null result ======================================
                             log.error("Error calling the verifyResult facilitator - null result");
                             response.sendError(SC_BAD_REQUEST, "Serveur error calling the facilitator");
                             return false;
                         } else {
                             log.info("Verify result: {}", verifyResult);
                             if (verifyResult.isValid()) {
-                                // If the Verification Response is isValid, the resource server performs the work to fulfill
-                                // the request.
-                                log.info("Payment is isValid: {}", verifyResult);
+                                // Verification is valid ===============================================================
+                                log.info("Payment is valid: {}", verifyResult);
 
                                 // Calling /settle and setting the response header.
                                 final SettleResponse settleResponse = facilitatorService.settle(paymentPayload, paymentRequirement).block();
@@ -112,8 +113,9 @@ public class X402Interceptor implements HandlerInterceptor {
                                 response.setHeader(X402_X_PAYMENT_RESPONSE, Base64Util.encode(JsonUtil.toJson(settleResponse)));
                                 return true;
                             } else {
-                                // If the Verification Response is invalid, the resource server returns a 402-Payment
-                                // Required status and a Payment Required Response JSON object in the response body.
+                                // Verification is invalid ============================================================
+                                // The resource server returns a 402-Payment Required status and a Payment Required Response JSON object in the response body.
+                                log.error("Payment is invalid: {}", verifyResult);
                                 response.setStatus(SC_PAYMENT_REQUIRED);
                                 response.setContentType(APPLICATION_JSON_VALUE);
                                 objectMapper.writeValue(response.getWriter(), buildPaymentRequirementsBody(request, paymentRequirementsList));
@@ -123,6 +125,7 @@ public class X402Interceptor implements HandlerInterceptor {
                         }
 
                     } catch (IllegalArgumentException e) {
+                        log.error("Error decoding payment header: {}", e.getMessage());
                         response.sendError(SC_BAD_REQUEST, "Invalid Base64");
                         return false;
                     }

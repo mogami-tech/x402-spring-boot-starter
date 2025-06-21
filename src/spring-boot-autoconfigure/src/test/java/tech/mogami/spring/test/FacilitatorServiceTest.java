@@ -21,7 +21,7 @@ public class FacilitatorServiceTest extends BaseTest {
     private FacilitatorService facilitatorService;
 
     @Test
-    @DisplayName("Supported response test")
+    @DisplayName("/supported response")
     void supportedResponse() {
         assertThat(facilitatorService.supported().block())
                 .isNotNull()
@@ -33,7 +33,7 @@ public class FacilitatorServiceTest extends BaseTest {
     }
 
     @Test
-    @DisplayName("Verify response test")
+    @DisplayName("/verify response")
     void verifyResponse() {
         assertThat(facilitatorService.verify(getSamplePaymentPayload(), getSamplePaymentRequirements()).block())
                 .isNotNull()
@@ -45,7 +45,7 @@ public class FacilitatorServiceTest extends BaseTest {
     }
 
     @Test
-    @DisplayName("Settle response test")
+    @DisplayName("/settle response")
     void settleResponse() {
         assertThat(facilitatorService.settle(getSamplePaymentPayload(), getSamplePaymentRequirements()).block())
                 .isNotNull()

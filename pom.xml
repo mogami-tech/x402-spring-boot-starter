@@ -92,7 +92,7 @@
         <maven.maven-gpg-plugin>3.2.7</maven.maven-gpg-plugin>
         <maven.maven-deploy-plugin>3.1.4</maven.maven-deploy-plugin>
         <maven.gitflow-maven-plugin>1.21.0</maven.gitflow-maven-plugin>
-        <maven.central-publishing-maven-plugin>0.7.0</maven.central-publishing-maven-plugin>
+        <maven.central-publishing-maven-plugin>0.8.0</maven.central-publishing-maven-plugin>
     </properties>
     <!-- =========================================================================================================== -->
 

@@ -80,7 +80,10 @@ public class X402Interceptor implements HandlerInterceptor {
                         final String paymentHeaderString = new String(Base64.getMimeDecoder().decode(request.getHeader(X402_X_PAYMENT_HEADER)), UTF_8);
                         PaymentPayload paymentPayload = JsonUtil.fromJson(paymentHeaderString, PaymentPayload.class);
                         request.setAttribute(X402_X_PAYMENT_HEADER_DECODED, paymentPayload);
-                        log.info("Payment received for url {}: {}", request.getRequestURL().toString(), paymentPayload);
+                        log.info("Payment received for url {}: {}", request.getRequestURL().toString(), paymentHeaderString);
+
+                        // X402 Console - Sending X402_SERVER_URL_ACCESS_REQUEST event to console.
+                        log.info("Sending X402_SERVER_URL_ACCESS_REQUEST event to console: {}", paymentHeaderString);
 
                         // Now, we use the facilitator to check if the payment is isValid.
                         X402PaymentRequirements test = paymentRequirementsList.stream()
@@ -110,6 +113,10 @@ public class X402Interceptor implements HandlerInterceptor {
                                     response.sendError(SC_BAD_REQUEST, "Serveur error calling the facilitator");
                                     return false;
                                 }
+
+                                // X402 Console - Sending X402_SERVER_URL_ACCESS_RESPONSE event to console.
+                                log.info("Sending X402_SERVER_PAYMENT_SETTLE_RESPONSE event to console: {}", JsonUtil.toJson(settleResponse));
+
                                 response.setHeader(X402_X_PAYMENT_RESPONSE, Base64Util.encode(JsonUtil.toJson(settleResponse)));
                                 return true;
                             } else {

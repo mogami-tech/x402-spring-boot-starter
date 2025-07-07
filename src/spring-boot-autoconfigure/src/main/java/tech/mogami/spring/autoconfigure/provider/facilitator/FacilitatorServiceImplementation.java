@@ -52,8 +52,9 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
                 .header(ACCEPT, APPLICATION_JSON_VALUE)
                 .retrieve()
                 .bodyToMono(SupportedResponse.class)
+                .doOnNext(response -> log.info("Facilitator /support response: '{}'", JsonUtil.toJson(response)))
                 .doOnError(WebClientResponseException.class, error ->
-                        log.error("Facilitator /support error : '{}'", error.getResponseBodyAsString()));
+                        log.error("Facilitator /support error: '{}'", error.getResponseBodyAsString()));
     }
 
     @Override
@@ -64,7 +65,10 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
                 .paymentPayload(paymentPayload)
                 .paymentRequirements(paymentRequirements)
                 .build();
-        log.info("Facilitator /verify request : '{}'", JsonUtil.toJson(body));
+        log.info("Facilitator /verify request: '{}'", JsonUtil.toJson(body));
+
+        // X402 Console - Sending X402_SERVER_PAYMENT_VERIFY_REQUEST event to console.
+        log.info("Sending X402_SERVER_PAYMENT_VERIFY_REQUEST event to console: {}", JsonUtil.toJson(body));
 
         return client.post()
                 .uri(VERIFY_URL)
@@ -72,6 +76,9 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
                 .bodyValue(body)
                 .retrieve()
                 .bodyToMono(VerifyResponse.class)
+                .doOnNext(response -> log.info("Facilitator /verify response: '{}'", JsonUtil.toJson(response)))
+                // X402 Console - Sending X402_SERVER_PAYMENT_VERIFY_RESPONSE event to console.
+                .doOnNext(response -> log.info("Sending X402_SERVER_PAYMENT_VERIFY_RESPONSE event to console: {}", JsonUtil.toJson(response)))
                 .doOnError(WebClientResponseException.class, error ->
                         log.error("Facilitator /verify error: '{}'", error.getResponseBodyAsString()));
     }
@@ -84,16 +91,21 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
                 .paymentPayload(paymentPayload)
                 .paymentRequirements(paymentRequirements)
                 .build();
-        log.info("Facilitator /settle request : '{}'", JsonUtil.toJson(body));
+        log.info("Facilitator /settle request: '{}'", JsonUtil.toJson(body));
+
+        // X402 Console - Sending X402_SERVER_PAYMENT_SETTLE_REQUEST event to console.
+        log.info("Sending X402_SERVER_PAYMENT_SETTLE_REQUEST event to console: {}", JsonUtil.toJson(body));
 
         return client.post()
                 .uri(SETTLE_URL)
                 .contentType(APPLICATION_JSON)
-                .bodyValue(body)
                 .retrieve()
                 .bodyToMono(SettleResponse.class)
+                .doOnNext(response -> log.info("Facilitator /settle response: '{}'", JsonUtil.toJson(response)))
+                // X402 Console - Sending X402_SERVER_PAYMENT_SETTLE_RESPONSE event to console.
+                .doOnNext(response -> log.info("Sending X402_SERVER_PAYMENT_SETTLE_RESPONSE event to console: {}", JsonUtil.toJson(response)))
                 .doOnError(WebClientResponseException.class, error ->
-                        log.error("Facilitator /settle error : '{}'", error.getResponseBodyAsString()));
+                        log.error("Facilitator /settle error: '{}'", error.getResponseBodyAsString()));
     }
 
 }

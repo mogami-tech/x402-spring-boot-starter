@@ -99,6 +99,7 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
         return client.post()
                 .uri(SETTLE_URL)
                 .contentType(APPLICATION_JSON)
+                .bodyValue(body)
                 .retrieve()
                 .bodyToMono(SettleResponse.class)
                 .doOnNext(response -> log.info("Facilitator /settle response: '{}'", JsonUtil.toJson(response)))

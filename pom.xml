@@ -70,7 +70,7 @@
         <spring.version>3.5.5</spring.version>
 
         <!-- Core utils -->
-        <lombok.version>1.18.40</lombok.version>
+        <lombok.version>1.18.42</lombok.version>
         <lombok.mapstruct.version>0.2.0</lombok.mapstruct.version>
         <mapstruct.version>1.6.3</mapstruct.version>
 

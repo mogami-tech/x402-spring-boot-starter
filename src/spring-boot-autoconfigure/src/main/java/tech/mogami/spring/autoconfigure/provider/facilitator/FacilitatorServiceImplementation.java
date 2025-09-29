@@ -1,11 +1,15 @@
 package tech.mogami.spring.autoconfigure.provider.facilitator;
 
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
+import tech.mogami.commons.api.console.v1.EventRequest;
 import tech.mogami.commons.api.facilitator.settle.SettleRequest;
 import tech.mogami.commons.api.facilitator.settle.SettleResponse;
 import tech.mogami.commons.api.facilitator.supported.SupportedResponse;
@@ -15,10 +19,15 @@ import tech.mogami.commons.header.payment.PaymentPayload;
 import tech.mogami.commons.header.payment.PaymentRequirements;
 import tech.mogami.commons.util.JsonUtil;
 import tech.mogami.spring.autoconfigure.parameter.X402Parameters;
+import tech.mogami.spring.autoconfigure.provider.console.ConsoleService;
 
 import static org.springframework.http.HttpHeaders.ACCEPT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static tech.mogami.commons.api.console.EventType.X402_SERVER_PAYMENT_SETTLE_REQUEST;
+import static tech.mogami.commons.api.console.EventType.X402_SERVER_PAYMENT_SETTLE_RESPONSE;
+import static tech.mogami.commons.api.console.EventType.X402_SERVER_PAYMENT_VERIFY_REQUEST;
+import static tech.mogami.commons.api.console.EventType.X402_SERVER_PAYMENT_VERIFY_RESPONSE;
 import static tech.mogami.commons.api.facilitator.FacilitatorApiEndpoints.SETTLE_URL;
 import static tech.mogami.commons.api.facilitator.FacilitatorApiEndpoints.SUPPORTED_URL;
 import static tech.mogami.commons.api.facilitator.FacilitatorApiEndpoints.VERIFY_URL;
@@ -27,20 +36,27 @@ import static tech.mogami.commons.api.facilitator.FacilitatorApiEndpoints.VERIFY
  * {@link FacilitatorService} implementation.
  */
 @Slf4j
+@Service
+@RequiredArgsConstructor
 @SuppressWarnings({"checkstyle:DesignForExtension", "unused"})
 public class FacilitatorServiceImplementation implements FacilitatorService {
 
+    /** X402 parameters. */
+    private final X402Parameters x402Parameters;
+
+    /** Console service. */
+    private final ConsoleService consoleService;
+
     /** Web client. */
-    private final WebClient client;
+    private WebClient client;
 
     /**
-     * Constructor for FacilitatorClient.
-     *
-     * @param facilitatorParameters facilitator parameters
+     * Building web client.
      */
-    public FacilitatorServiceImplementation(final X402Parameters.Facilitator facilitatorParameters) {
+    @PostConstruct
+    public void init() {
         this.client = WebClient.builder()
-                .baseUrl(facilitatorParameters.baseUrl())
+                .baseUrl(x402Parameters.facilitator().baseUrl())
                 .clientConnector(new ReactorClientHttpConnector(HttpClient.create().followRedirect(true)))
                 .build();
     }
@@ -60,53 +76,89 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
     @Override
     public Mono<VerifyResponse> verify(final PaymentPayload paymentPayload,
                                        final PaymentRequirements paymentRequirements) {
-        VerifyRequest body = VerifyRequest.builder()
+        VerifyRequest verifyRequest = VerifyRequest.builder()
                 .x402Version(paymentPayload.x402Version())
                 .paymentPayload(paymentPayload)
                 .paymentRequirements(paymentRequirements)
                 .build();
-        log.info("Facilitator /verify request: '{}'", JsonUtil.toJson(body));
+        log.info("Facilitator /verify request: '{}'", JsonUtil.toJson(verifyRequest));
 
-        // X402 Console - Sending X402_SERVER_PAYMENT_VERIFY_REQUEST event to console.
-        log.info("Sending X402_SERVER_PAYMENT_VERIFY_REQUEST event to console: {}", JsonUtil.toJson(body));
+        final String nonce = paymentPayload.getNonce()
+                .orElseThrow(() -> new IllegalArgumentException("Nonce is required in the payment payload"));
+
+        consoleService.logEvent(EventRequest.builder()
+                .type(X402_SERVER_PAYMENT_VERIFY_REQUEST)
+                .nonce(nonce)
+                .payload(JsonUtil.toJson(verifyRequest))
+                .build());
 
         return client.post()
                 .uri(VERIFY_URL)
                 .contentType(APPLICATION_JSON)
-                .bodyValue(body)
+                .bodyValue(verifyRequest)
                 .retrieve()
                 .bodyToMono(VerifyResponse.class)
                 .doOnNext(response -> log.info("Facilitator /verify response: '{}'", JsonUtil.toJson(response)))
-                // X402 Console - Sending X402_SERVER_PAYMENT_VERIFY_RESPONSE event to console.
-                .doOnNext(response -> log.info("Sending X402_SERVER_PAYMENT_VERIFY_RESPONSE event to console: {}", JsonUtil.toJson(response)))
-                .doOnError(WebClientResponseException.class, error ->
-                        log.error("Facilitator /verify error: '{}'", error.getResponseBodyAsString()));
+                .doOnNext(response -> consoleService.logEvent(EventRequest.builder()
+                        .type(X402_SERVER_PAYMENT_VERIFY_RESPONSE)
+                        .nonce(nonce)
+                        .payload(JsonUtil.toJson(verifyRequest))
+                        .errorMessage(response.invalidReason())
+                        .build()))
+                .doOnError(WebClientResponseException.class, error -> {
+                            log.error("Facilitator /verify error: '{}'", error.getResponseBodyAsString());
+                            consoleService.logEvent(EventRequest.builder()
+                                    .type(X402_SERVER_PAYMENT_VERIFY_RESPONSE)
+                                    .nonce(nonce)
+                                    .payload(error.getResponseBodyAsString())
+                                    .errorMessage(error.getResponseBodyAsString())
+                                    .build());
+                        }
+                );
     }
 
     @Override
     public Mono<SettleResponse> settle(final PaymentPayload paymentPayload,
                                        final PaymentRequirements paymentRequirements) {
-        SettleRequest body = SettleRequest.builder()
+        SettleRequest settleRequest = SettleRequest.builder()
                 .x402Version(paymentPayload.x402Version())
                 .paymentPayload(paymentPayload)
                 .paymentRequirements(paymentRequirements)
                 .build();
-        log.info("Facilitator /settle request: '{}'", JsonUtil.toJson(body));
+        log.info("Facilitator /settle request: '{}'", JsonUtil.toJson(settleRequest));
 
-        // X402 Console - Sending X402_SERVER_PAYMENT_SETTLE_REQUEST event to console.
-        log.info("Sending X402_SERVER_PAYMENT_SETTLE_REQUEST event to console: {}", JsonUtil.toJson(body));
+        final String nonce = paymentPayload.getNonce()
+                .orElseThrow(() -> new IllegalArgumentException("Nonce is required in the payment payload"));
+
+        consoleService.logEvent(EventRequest.builder()
+                .type(X402_SERVER_PAYMENT_SETTLE_REQUEST)
+                .nonce(nonce)
+                .payload(JsonUtil.toJson(settleRequest))
+                .build());
 
         return client.post()
                 .uri(SETTLE_URL)
                 .contentType(APPLICATION_JSON)
-                .bodyValue(body)
+                .bodyValue(settleRequest)
                 .retrieve()
                 .bodyToMono(SettleResponse.class)
                 .doOnNext(response -> log.info("Facilitator /settle response: '{}'", JsonUtil.toJson(response)))
-                // X402 Console - Sending X402_SERVER_PAYMENT_SETTLE_RESPONSE event to console.
-                .doOnNext(response -> log.info("Sending X402_SERVER_PAYMENT_SETTLE_RESPONSE event to console: {}", JsonUtil.toJson(response)))
-                .doOnError(WebClientResponseException.class, error ->
-                        log.error("Facilitator /settle error: '{}'", error.getResponseBodyAsString()));
+                .doOnNext(response -> consoleService.logEvent(EventRequest.builder()
+                        .type(X402_SERVER_PAYMENT_SETTLE_RESPONSE)
+                        .nonce(nonce)
+                        .payload(JsonUtil.toJson(settleRequest))
+                        .errorMessage(response.errorReason())
+                        .build()))
+                .doOnError(WebClientResponseException.class, error -> {
+                            log.error("Facilitator /settle error: '{}'", error.getResponseBodyAsString());
+                            consoleService.logEvent(EventRequest.builder()
+                                    .type(X402_SERVER_PAYMENT_SETTLE_RESPONSE)
+                                    .nonce(nonce)
+                                    .payload(error.getResponseBodyAsString())
+                                    .errorMessage(error.getResponseBodyAsString())
+                                    .build());
+                        }
+                );
     }
 
 }

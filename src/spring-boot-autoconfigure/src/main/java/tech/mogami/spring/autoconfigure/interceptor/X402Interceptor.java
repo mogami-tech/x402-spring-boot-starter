@@ -10,6 +10,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
+import tech.mogami.commons.api.console.v1.EventRequest;
 import tech.mogami.commons.api.facilitator.settle.SettleResponse;
 import tech.mogami.commons.api.facilitator.verify.VerifyResponse;
 import tech.mogami.commons.header.payment.PaymentPayload;
@@ -18,6 +19,7 @@ import tech.mogami.commons.header.payment.PaymentRequirements;
 import tech.mogami.commons.util.Base64Util;
 import tech.mogami.commons.util.JsonUtil;
 import tech.mogami.spring.autoconfigure.annotation.X402PaymentRequirements;
+import tech.mogami.spring.autoconfigure.provider.console.ConsoleService;
 import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorService;
 
 import java.util.Arrays;
@@ -30,6 +32,8 @@ import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static jakarta.servlet.http.HttpServletResponse.SC_PAYMENT_REQUIRED;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static tech.mogami.commons.api.console.EventType.X402_SERVER_PAYMENT_SETTLE_RESPONSE;
+import static tech.mogami.commons.api.console.EventType.X402_SERVER_URL_ACCESS_REQUEST;
 import static tech.mogami.commons.constant.X402Constants.X402_DEFAULT_PAYMENT_TIMEOUT_SECONDS;
 import static tech.mogami.commons.constant.X402Constants.X402_PAYMENT_REQUIRED_MESSAGE;
 import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_HEADER;
@@ -46,7 +50,10 @@ import static tech.mogami.commons.constant.version.X402Versions.X402_SUPPORTED_V
 @SuppressWarnings("checkstyle:DesignForExtension")
 public class X402Interceptor implements HandlerInterceptor {
 
-    /** Object mapper. */
+    /** Console service. */
+    private final ConsoleService consoleService;
+
+    /** Object mapper TODO Why not use the one in x402commons-. */
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /** Facilitator service. */
@@ -82,8 +89,15 @@ public class X402Interceptor implements HandlerInterceptor {
                         request.setAttribute(X402_X_PAYMENT_HEADER_DECODED, paymentPayload);
                         log.info("Payment received for url {}: {}", request.getRequestURL().toString(), paymentHeaderString);
 
+                        final String nonce = paymentPayload.getNonce()
+                                .orElseThrow(() -> new IllegalArgumentException("Nonce is required in the payment payload"));
+
                         // X402 Console - Sending X402_SERVER_URL_ACCESS_REQUEST event to console.
-                        log.info("Sending X402_SERVER_URL_ACCESS_REQUEST event to console: {}", paymentHeaderString);
+                        consoleService.logEvent(EventRequest.builder()
+                                .type(X402_SERVER_URL_ACCESS_REQUEST)
+                                .nonce(nonce)
+                                .payload(JsonUtil.toJson(paymentPayload))
+                                .build());
 
                         // Now, we use the facilitator to check if the payment is isValid.
                         X402PaymentRequirements test = paymentRequirementsList.stream()
@@ -114,9 +128,6 @@ public class X402Interceptor implements HandlerInterceptor {
                                     return false;
                                 }
 
-                                // X402 Console - Sending X402_SERVER_URL_ACCESS_RESPONSE event to console.
-                                log.info("Sending X402_SERVER_PAYMENT_SETTLE_RESPONSE event to console: {}", JsonUtil.toJson(settleResponse));
-
                                 response.setHeader(X402_X_PAYMENT_RESPONSE, Base64Util.encode(JsonUtil.toJson(settleResponse)));
                                 return true;
                             } else {
@@ -126,6 +137,12 @@ public class X402Interceptor implements HandlerInterceptor {
                                 response.setStatus(SC_PAYMENT_REQUIRED);
                                 response.setContentType(APPLICATION_JSON_VALUE);
                                 objectMapper.writeValue(response.getWriter(), buildPaymentRequirementsBody(request, paymentRequirementsList));
+                                // X402 Console - Sending X402_SERVER_URL_ACCESS_RESPONSE event to console.
+                                consoleService.logEvent(EventRequest.builder()
+                                        .type(X402_SERVER_PAYMENT_SETTLE_RESPONSE)
+                                        .nonce(nonce)
+                                        .errorMessage(verifyResult.invalidReason())
+                                        .build());
                                 return false;
                             }
 

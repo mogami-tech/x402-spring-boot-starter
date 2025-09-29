@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import tech.mogami.spring.autoconfigure.interceptor.X402Interceptor;
@@ -21,6 +22,7 @@ import tech.mogami.spring.autoconfigure.parameter.X402Parameters;
         X402Parameters.class
 })
 @RequiredArgsConstructor
+@ComponentScan("tech.mogami.spring.autoconfigure.*")
 @SuppressWarnings("checkstyle:DesignForExtension")
 public class MogamiAutoConfiguration implements WebMvcConfigurer {
 

@@ -81,12 +81,6 @@
             <groupId>org.mock-server</groupId>
             <artifactId>mockserver-junit-jupiter-no-dependencies</artifactId>
             <version>${mockserver.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.commons</groupId>
-                    <artifactId>commons-lang3</artifactId>
-                </exclusion>
-            </exclusions>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -98,23 +98,28 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
                 .bodyValue(verifyRequest)
                 .retrieve()
                 .bodyToMono(VerifyResponse.class)
-                .doOnNext(response -> log.info("Facilitator /verify response: '{}'", JsonUtil.toJson(response)))
-                .doOnNext(response -> consoleService.logEvent(EventRequest.builder()
-                        .type(X402_SERVER_PAYMENT_VERIFY_RESPONSE)
-                        .nonce(nonce)
-                        .payload(JsonUtil.toJson(verifyRequest))
-                        .errorMessage(response.invalidReason())
-                        .build()))
+                .doOnNext(response -> {
+                    log.info("Facilitator /verify response: '{}'", JsonUtil.toJson(response));
+
+                    // Fire-and-forget
+                    consoleService.logEvent(EventRequest.builder()
+                            .type(X402_SERVER_PAYMENT_VERIFY_RESPONSE)
+                            .nonce(nonce)
+                            .payload(JsonUtil.toJson(verifyRequest))
+                            .errorMessage(response.invalidReason())
+                            .build());
+                })
                 .doOnError(WebClientResponseException.class, error -> {
-                            log.error("Facilitator /verify error: '{}'", error.getResponseBodyAsString());
-                            consoleService.logEvent(EventRequest.builder()
-                                    .type(X402_SERVER_PAYMENT_VERIFY_RESPONSE)
-                                    .nonce(nonce)
-                                    .payload(error.getResponseBodyAsString())
-                                    .errorMessage(error.getResponseBodyAsString())
-                                    .build());
-                        }
-                );
+                    log.error("Facilitator /verify error: '{}'", error.getResponseBodyAsString());
+
+                    // Fire-and-forget
+                    consoleService.logEvent(EventRequest.builder()
+                            .type(X402_SERVER_PAYMENT_VERIFY_RESPONSE)
+                            .nonce(nonce)
+                            .payload(error.getResponseBodyAsString())
+                            .errorMessage(error.getResponseBodyAsString())
+                            .build());
+                });
     }
 
     @Override
@@ -142,23 +147,28 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
                 .bodyValue(settleRequest)
                 .retrieve()
                 .bodyToMono(SettleResponse.class)
-                .doOnNext(response -> log.info("Facilitator /settle response: '{}'", JsonUtil.toJson(response)))
-                .doOnNext(response -> consoleService.logEvent(EventRequest.builder()
-                        .type(X402_SERVER_PAYMENT_SETTLE_RESPONSE)
-                        .nonce(nonce)
-                        .payload(JsonUtil.toJson(settleRequest))
-                        .errorMessage(response.errorReason())
-                        .build()))
+                .doOnNext(response -> {
+                    log.info("Facilitator /settle response: '{}'", JsonUtil.toJson(response));
+
+                    // Fire-and-forget
+                    consoleService.logEvent(EventRequest.builder()
+                            .type(X402_SERVER_PAYMENT_SETTLE_RESPONSE)
+                            .nonce(nonce)
+                            .payload(JsonUtil.toJson(settleRequest))
+                            .errorMessage(response.errorReason())
+                            .build());
+                })
                 .doOnError(WebClientResponseException.class, error -> {
-                            log.error("Facilitator /settle error: '{}'", error.getResponseBodyAsString());
-                            consoleService.logEvent(EventRequest.builder()
-                                    .type(X402_SERVER_PAYMENT_SETTLE_RESPONSE)
-                                    .nonce(nonce)
-                                    .payload(error.getResponseBodyAsString())
-                                    .errorMessage(error.getResponseBodyAsString())
-                                    .build());
-                        }
-                );
+                    log.error("Facilitator /settle error: '{}'", error.getResponseBodyAsString());
+
+                    // Fire-and-forget
+                    consoleService.logEvent(EventRequest.builder()
+                            .type(X402_SERVER_PAYMENT_SETTLE_RESPONSE)
+                            .nonce(nonce)
+                            .payload(error.getResponseBodyAsString())
+                            .errorMessage(error.getResponseBodyAsString())
+                            .build());
+                });
     }
 
 }

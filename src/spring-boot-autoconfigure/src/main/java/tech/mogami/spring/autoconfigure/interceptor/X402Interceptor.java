@@ -128,6 +128,12 @@ public class X402Interceptor implements HandlerInterceptor {
                                     return false;
                                 }
 
+                                consoleService.logEvent(EventRequest.builder()
+                                        .type(X402_SERVER_PAYMENT_SETTLE_RESPONSE)
+                                        .nonce(nonce)
+                                        .payload(JsonUtil.toJson(settleResponse))
+                                        .errorMessage(settleResponse.errorReason())
+                                        .build());
                                 response.setHeader(X402_X_PAYMENT_RESPONSE, Base64Util.encode(JsonUtil.toJson(settleResponse)));
                                 return true;
                             } else {
@@ -140,6 +146,7 @@ public class X402Interceptor implements HandlerInterceptor {
                                 // X402 Console - Sending X402_SERVER_URL_ACCESS_RESPONSE event to console.
                                 consoleService.logEvent(EventRequest.builder()
                                         .type(X402_SERVER_PAYMENT_SETTLE_RESPONSE)
+                                        .payload(JsonUtil.toJson(verifyResult))
                                         .nonce(nonce)
                                         .errorMessage(verifyResult.invalidReason())
                                         .build());

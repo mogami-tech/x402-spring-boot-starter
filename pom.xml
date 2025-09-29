@@ -146,6 +146,8 @@
                 <version>${maven.gitflow-maven-plugin}</version>
                 <configuration>
                     <skipTestProject>true</skipTestProject>
+                    <!-- TODO This is temporary for the first release, should be set to false afterwards -->
+                    <allowSnapshots>true</allowSnapshots>
                     <gitFlowConfig>
                         <productionBranch>production</productionBranch>
                         <developmentBranch>development</developmentBranch>

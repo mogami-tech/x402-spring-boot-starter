@@ -19,9 +19,9 @@ import tech.mogami.spring.autoconfigure.parameter.X402Parameters;
 import static org.springframework.http.HttpHeaders.ACCEPT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static tech.mogami.commons.api.facilitator.FacilitatorRoutes.SETTLE_URL;
-import static tech.mogami.commons.api.facilitator.FacilitatorRoutes.SUPPORTED_URL;
-import static tech.mogami.commons.api.facilitator.FacilitatorRoutes.VERIFY_URL;
+import static tech.mogami.commons.api.facilitator.FacilitatorApiEndpoints.SETTLE_URL;
+import static tech.mogami.commons.api.facilitator.FacilitatorApiEndpoints.SUPPORTED_URL;
+import static tech.mogami.commons.api.facilitator.FacilitatorApiEndpoints.VERIFY_URL;
 
 /**
  * {@link FacilitatorService} implementation.

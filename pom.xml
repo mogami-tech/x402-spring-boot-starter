@@ -67,10 +67,10 @@
         <!-- Libraries releases -->
 
         <!-- Core -->
-        <spring.version>3.5.3</spring.version>
+        <spring.version>3.5.6</spring.version>
 
         <!-- Core utils -->
-        <lombok.version>1.18.38</lombok.version>
+        <lombok.version>1.18.42</lombok.version>
         <lombok.mapstruct.version>0.2.0</lombok.mapstruct.version>
         <mapstruct.version>1.6.3</mapstruct.version>
 
@@ -80,19 +80,19 @@
 
         <!-- Maven -->
         <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
-        <maven.puppycrawl.checkstyle.version>10.26.1</maven.puppycrawl.checkstyle.version>
+        <maven.puppycrawl.checkstyle.version>11.0.1</maven.puppycrawl.checkstyle.version>
         <maven.source.plugin.version>3.3.1</maven.source.plugin.version>
         <maven.resources.plugin.version>3.3.1</maven.resources.plugin.version>
-        <maven.compiler.plugin.version>3.14.0</maven.compiler.plugin.version>
-        <maven.javadoc.plugin.version>3.11.2</maven.javadoc.plugin.version>
+        <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
+        <maven.javadoc.plugin.version>3.12.0</maven.javadoc.plugin.version>
         <maven.jar.plugin.version>3.4.2</maven.jar.plugin.version>
         <maven.archetype-packaging.version>3.2.1</maven.archetype-packaging.version>
-        <maven.surefire.plugin.version>3.5.3</maven.surefire.plugin.version>
+        <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
         <maven.surefire-junit5-tree-reporter.version>1.4.0</maven.surefire-junit5-tree-reporter.version>
         <maven.maven-gpg-plugin>3.2.8</maven.maven-gpg-plugin>
         <maven.maven-deploy-plugin>3.1.4</maven.maven-deploy-plugin>
         <maven.gitflow-maven-plugin>1.21.0</maven.gitflow-maven-plugin>
-        <maven.central-publishing-maven-plugin>0.8.0</maven.central-publishing-maven-plugin>
+        <maven.central-publishing-maven-plugin>0.9.0</maven.central-publishing-maven-plugin>
     </properties>
     <!-- =========================================================================================================== -->
 
@@ -247,7 +247,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.3</version>
+        <version>3.5.6</version>
         <relativePath/>
     </parent>
     <!-- =========================================================================================================== -->

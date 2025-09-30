@@ -96,7 +96,7 @@ public class X402Interceptor implements HandlerInterceptor {
                         consoleService.logEvent(EventRequest.builder()
                                 .type(X402_SERVER_URL_ACCESS_REQUEST)
                                 .nonce(nonce)
-                                .payload(JsonUtil.toJson(paymentPayload))
+                                .payload(JsonUtil.toPrettyJson(paymentPayload))
                                 .build());
 
                         // Now, we use the facilitator to check if the payment is isValid.
@@ -131,7 +131,7 @@ public class X402Interceptor implements HandlerInterceptor {
                                 consoleService.logEvent(EventRequest.builder()
                                         .type(X402_SERVER_PAYMENT_SETTLE_RESPONSE)
                                         .nonce(nonce)
-                                        .payload(JsonUtil.toJson(settleResponse))
+                                        .payload(JsonUtil.toPrettyJson(settleResponse))
                                         .errorMessage(settleResponse.errorReason())
                                         .build());
                                 response.setHeader(X402_X_PAYMENT_RESPONSE, Base64Util.encode(JsonUtil.toJson(settleResponse)));
@@ -146,7 +146,7 @@ public class X402Interceptor implements HandlerInterceptor {
                                 // X402 Console - Sending X402_SERVER_URL_ACCESS_RESPONSE event to console.
                                 consoleService.logEvent(EventRequest.builder()
                                         .type(X402_SERVER_PAYMENT_SETTLE_RESPONSE)
-                                        .payload(JsonUtil.toJson(verifyResult))
+                                        .payload(JsonUtil.toPrettyJson(verifyResult))
                                         .nonce(nonce)
                                         .errorMessage(verifyResult.invalidReason())
                                         .build());

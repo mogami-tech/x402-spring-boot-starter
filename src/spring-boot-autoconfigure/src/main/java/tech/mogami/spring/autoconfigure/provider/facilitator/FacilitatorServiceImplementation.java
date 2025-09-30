@@ -89,7 +89,7 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
         consoleService.logEvent(EventRequest.builder()
                 .type(X402_SERVER_PAYMENT_VERIFY_REQUEST)
                 .nonce(nonce)
-                .payload(JsonUtil.toJson(verifyRequest))
+                .payload(JsonUtil.toPrettyJson(verifyRequest))
                 .build());
 
         return client.post()
@@ -105,7 +105,7 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
                     consoleService.logEvent(EventRequest.builder()
                             .type(X402_SERVER_PAYMENT_VERIFY_RESPONSE)
                             .nonce(nonce)
-                            .payload(JsonUtil.toJson(verifyRequest))
+                            .payload(JsonUtil.toPrettyJson(verifyRequest))
                             .errorMessage(response.invalidReason())
                             .build());
                 })
@@ -138,7 +138,7 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
         consoleService.logEvent(EventRequest.builder()
                 .type(X402_SERVER_PAYMENT_SETTLE_REQUEST)
                 .nonce(nonce)
-                .payload(JsonUtil.toJson(settleRequest))
+                .payload(JsonUtil.toPrettyJson(settleRequest))
                 .build());
 
         return client.post()
@@ -154,7 +154,7 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
                     consoleService.logEvent(EventRequest.builder()
                             .type(X402_SERVER_PAYMENT_SETTLE_RESPONSE)
                             .nonce(nonce)
-                            .payload(JsonUtil.toJson(settleRequest))
+                            .payload(JsonUtil.toPrettyJson(settleRequest))
                             .errorMessage(response.errorReason())
                             .build());
                 })

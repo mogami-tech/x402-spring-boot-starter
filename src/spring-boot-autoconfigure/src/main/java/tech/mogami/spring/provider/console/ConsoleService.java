@@ -1,4 +1,4 @@
-package tech.mogami.spring.autoconfigure.provider.console;
+package tech.mogami.spring.provider.console;
 
 import tech.mogami.commons.api.console.v1.EventRequest;
 

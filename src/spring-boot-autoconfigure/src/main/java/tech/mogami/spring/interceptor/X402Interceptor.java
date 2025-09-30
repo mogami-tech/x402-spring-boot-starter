@@ -1,4 +1,4 @@
-package tech.mogami.spring.autoconfigure.interceptor;
+package tech.mogami.spring.interceptor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,9 +18,9 @@ import tech.mogami.commons.header.payment.PaymentRequired;
 import tech.mogami.commons.header.payment.PaymentRequirements;
 import tech.mogami.commons.util.Base64Util;
 import tech.mogami.commons.util.JsonUtil;
-import tech.mogami.spring.autoconfigure.annotation.X402PaymentRequirements;
-import tech.mogami.spring.autoconfigure.provider.console.ConsoleService;
-import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorService;
+import tech.mogami.spring.annotation.X402PaymentRequirements;
+import tech.mogami.spring.provider.console.ConsoleService;
+import tech.mogami.spring.provider.facilitator.FacilitatorService;
 
 import java.util.Arrays;
 import java.util.Base64;

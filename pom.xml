@@ -11,7 +11,7 @@
     <version>0.1.6-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Mogami x402 spring boot starter project</name>
-    <description>Mogami x402 spring boot starter project</description>
+    <description>The Server SDK lets you turn any endpoint into a pay-per-call API using the x402 protocol</description>
     <url>https://github.com/mogami-tech/x402-spring-boot-starter</url>
     <licenses>
         <license>
@@ -146,8 +146,6 @@
                 <version>${maven.gitflow-maven-plugin}</version>
                 <configuration>
                     <skipTestProject>true</skipTestProject>
-                    <!-- TODO This is temporary for the first release, should be set to false afterwards -->
-                    <allowSnapshots>true</allowSnapshots>
                     <gitFlowConfig>
                         <productionBranch>production</productionBranch>
                         <developmentBranch>development</developmentBranch>

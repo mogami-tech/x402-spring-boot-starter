@@ -1,4 +1,4 @@
-package tech.mogami.spring.autoconfigure.provider.facilitator;
+package tech.mogami.spring.provider.facilitator;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +18,8 @@ import tech.mogami.commons.api.facilitator.verify.VerifyResponse;
 import tech.mogami.commons.header.payment.PaymentPayload;
 import tech.mogami.commons.header.payment.PaymentRequirements;
 import tech.mogami.commons.util.JsonUtil;
-import tech.mogami.spring.autoconfigure.parameter.X402Parameters;
-import tech.mogami.spring.autoconfigure.provider.console.ConsoleService;
+import tech.mogami.spring.parameter.X402Parameters;
+import tech.mogami.spring.provider.console.ConsoleService;
 
 import static org.springframework.http.HttpHeaders.ACCEPT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -28,9 +28,9 @@ import static tech.mogami.commons.api.console.EventType.X402_SERVER_PAYMENT_SETT
 import static tech.mogami.commons.api.console.EventType.X402_SERVER_PAYMENT_SETTLE_RESPONSE;
 import static tech.mogami.commons.api.console.EventType.X402_SERVER_PAYMENT_VERIFY_REQUEST;
 import static tech.mogami.commons.api.console.EventType.X402_SERVER_PAYMENT_VERIFY_RESPONSE;
-import static tech.mogami.commons.api.facilitator.FacilitatorApiEndpoints.SETTLE_URL;
-import static tech.mogami.commons.api.facilitator.FacilitatorApiEndpoints.SUPPORTED_URL;
-import static tech.mogami.commons.api.facilitator.FacilitatorApiEndpoints.VERIFY_URL;
+import static tech.mogami.commons.api.facilitator.FacilitatorApiEndpoints.SETTLE_ENDPOINT;
+import static tech.mogami.commons.api.facilitator.FacilitatorApiEndpoints.SUPPORTED_ENDPOINT;
+import static tech.mogami.commons.api.facilitator.FacilitatorApiEndpoints.VERIFY_ENDPOINT;
 
 /**
  * {@link FacilitatorService} implementation.
@@ -64,7 +64,7 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
     @Override
     public Mono<SupportedResponse> supported() {
         return client.get()
-                .uri(SUPPORTED_URL)
+                .uri(SUPPORTED_ENDPOINT)
                 .header(ACCEPT, APPLICATION_JSON_VALUE)
                 .retrieve()
                 .bodyToMono(SupportedResponse.class)
@@ -93,7 +93,7 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
                 .build());
 
         return client.post()
-                .uri(VERIFY_URL)
+                .uri(VERIFY_ENDPOINT)
                 .contentType(APPLICATION_JSON)
                 .bodyValue(verifyRequest)
                 .retrieve()
@@ -142,7 +142,7 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
                 .build());
 
         return client.post()
-                .uri(SETTLE_URL)
+                .uri(SETTLE_ENDPOINT)
                 .contentType(APPLICATION_JSON)
                 .bodyValue(settleRequest)
                 .retrieve()

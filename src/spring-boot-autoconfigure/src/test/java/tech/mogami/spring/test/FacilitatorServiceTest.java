@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import tech.mogami.commons.test.BaseTest;
-import tech.mogami.spring.autoconfigure.provider.facilitator.FacilitatorService;
+import tech.mogami.spring.provider.facilitator.FacilitatorService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static tech.mogami.commons.constant.network.Networks.BASE_SEPOLIA;

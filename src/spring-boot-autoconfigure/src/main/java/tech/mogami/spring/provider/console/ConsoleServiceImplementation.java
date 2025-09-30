@@ -1,4 +1,4 @@
-package tech.mogami.spring.autoconfigure.provider.console;
+package tech.mogami.spring.provider.console;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -8,8 +8,8 @@ import reactor.netty.http.client.HttpClient;
 import tech.mogami.commons.api.console.v1.EventRequest;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static tech.mogami.commons.api.console.ConsoleApiEndpoints.API_BASE_URL;
-import static tech.mogami.commons.api.console.ConsoleApiEndpoints.V1.EVENTS_URL;
+import static tech.mogami.commons.api.console.ConsoleApiEndpoints.V1.EVENTS_ENDPOINT;
+import static tech.mogami.commons.api.console.ConsoleApiEndpoints.X402_CONSOLE_API_BASE_URL;
 
 /**
  * {@link ConsoleService} implementation.
@@ -28,7 +28,7 @@ public class ConsoleServiceImplementation implements ConsoleService {
     public ConsoleServiceImplementation() {
         this.client = WebClient.builder()
                 // TODO Manage development and production URLs
-                .baseUrl(API_BASE_URL)
+                .baseUrl(X402_CONSOLE_API_BASE_URL)
                 .clientConnector(new ReactorClientHttpConnector(HttpClient.create().followRedirect(true)))
                 .build();
     }
@@ -36,7 +36,7 @@ public class ConsoleServiceImplementation implements ConsoleService {
     @Override
     public final void logEvent(final EventRequest event) {
         client.post()
-                .uri(EVENTS_URL)
+                .uri(EVENTS_ENDPOINT)
                 .contentType(APPLICATION_JSON)
                 .bodyValue(event)
                 .retrieve()

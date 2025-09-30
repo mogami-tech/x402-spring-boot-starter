@@ -1,4 +1,4 @@
-package tech.mogami.spring.autoconfigure.configuration;
+package tech.mogami.spring.configuration;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -9,8 +9,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import tech.mogami.spring.autoconfigure.interceptor.X402Interceptor;
-import tech.mogami.spring.autoconfigure.parameter.X402Parameters;
+import tech.mogami.spring.interceptor.X402Interceptor;
+import tech.mogami.spring.parameter.X402Parameters;
 
 /**
  * Mogami Spring Boot Auto-Configuration.

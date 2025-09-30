@@ -1,4 +1,4 @@
-package tech.mogami.spring.autoconfigure.parameter;
+package tech.mogami.spring.parameter;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;

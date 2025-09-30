@@ -22,7 +22,7 @@ import tech.mogami.spring.parameter.X402Parameters;
         X402Parameters.class
 })
 @RequiredArgsConstructor
-@ComponentScan("tech.mogami.spring.autoconfigure.*")
+@ComponentScan("tech.mogami.spring.*")
 @SuppressWarnings("checkstyle:DesignForExtension")
 public class MogamiAutoConfiguration implements WebMvcConfigurer {
 

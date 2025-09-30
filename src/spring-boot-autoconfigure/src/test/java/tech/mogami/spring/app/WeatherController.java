@@ -3,7 +3,7 @@ package tech.mogami.spring.app;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import tech.mogami.commons.test.BaseTest;
-import tech.mogami.spring.autoconfigure.annotation.X402PaymentRequirements;
+import tech.mogami.spring.annotation.X402PaymentRequirements;
 
 
 @SuppressWarnings("SameReturnValue")

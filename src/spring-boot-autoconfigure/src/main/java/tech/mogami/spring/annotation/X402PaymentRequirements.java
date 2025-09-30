@@ -1,4 +1,4 @@
-package tech.mogami.spring.autoconfigure.annotation;
+package tech.mogami.spring.annotation;
 
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;

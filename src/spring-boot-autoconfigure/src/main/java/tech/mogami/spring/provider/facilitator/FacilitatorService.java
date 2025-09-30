@@ -1,4 +1,4 @@
-package tech.mogami.spring.autoconfigure.provider.facilitator;
+package tech.mogami.spring.provider.facilitator;
 
 import reactor.core.publisher.Mono;
 import tech.mogami.commons.api.facilitator.settle.SettleResponse;

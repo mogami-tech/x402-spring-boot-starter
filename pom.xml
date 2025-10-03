@@ -10,8 +10,8 @@
     <artifactId>mogami-x402-spring-boot-starter-project</artifactId>
     <version>0.1.8-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>Mogami x402 spring boot starter project</name>
-    <description>The Server SDK lets you turn any endpoint into a pay-per-call API using the x402 protocol</description>
+    <name>Mogami Java x402 server SDK - Spring boot starter</name>
+    <description>Protect your APIs with pay-per-call logic using a single Spring Boot annotation.</description>
     <url>https://github.com/mogami-tech/x402-spring-boot-starter</url>
     <licenses>
         <license>

@@ -56,7 +56,6 @@
     <properties>
         <!-- ======================================================================================================= -->
         <!-- Java build configuration -->
-
         <java.version>21</java.version>
         <maven.compiler.target>21</maven.compiler.target>
         <maven.compiler.source>21</maven.compiler.source>
@@ -65,9 +64,11 @@
 
         <!-- ======================================================================================================= -->
         <!-- Libraries releases -->
+        <!-- Mogami -->
+        <mogami.commons.version>0.0.9-SNAPSHOT</mogami.commons.version>
 
-        <!-- Core -->
-        <spring.version>3.5.6</spring.version>
+        <!-- Spring -->
+        <spring-boot.version>3.5.6</spring-boot.version>
 
         <!-- Core utils -->
         <lombok.version>1.18.42</lombok.version>
@@ -81,19 +82,34 @@
         <!-- Maven -->
         <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
         <maven.puppycrawl.checkstyle.version>11.1.0</maven.puppycrawl.checkstyle.version>
-        <maven.source.plugin.version>3.3.1</maven.source.plugin.version>
         <maven.resources.plugin.version>3.3.1</maven.resources.plugin.version>
-        <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
-        <maven.javadoc.plugin.version>3.12.0</maven.javadoc.plugin.version>
-        <maven.jar.plugin.version>3.4.2</maven.jar.plugin.version>
-        <maven.archetype-packaging.version>3.2.1</maven.archetype-packaging.version>
+        <maven.compiler.plugin.version>3.14.0</maven.compiler.plugin.version>
         <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
         <maven.surefire-junit5-tree-reporter.version>1.4.0</maven.surefire-junit5-tree-reporter.version>
-        <maven.maven-gpg-plugin>3.2.8</maven.maven-gpg-plugin>
-        <maven.maven-deploy-plugin>3.1.4</maven.maven-deploy-plugin>
-        <maven.gitflow-maven-plugin>1.21.0</maven.gitflow-maven-plugin>
-        <maven.central-publishing-maven-plugin>0.9.0</maven.central-publishing-maven-plugin>
+        <maven.jar.plugin.version>3.4.2</maven.jar.plugin.version>
+        <maven.source.plugin.version>3.3.1</maven.source.plugin.version>
+        <maven.javadoc.plugin.version>3.12.0</maven.javadoc.plugin.version>
+        <maven.archetype-packaging.version>3.2.1</maven.archetype-packaging.version>
+        <maven.gitflow-maven-plugin.version>1.21.0</maven.gitflow-maven-plugin.version>
+        <maven.gpg-plugin.version>3.2.8</maven.gpg-plugin.version>
+        <maven.deploy-plugin.version>3.1.4</maven.deploy-plugin.version>
+        <maven.central-publishing-maven-plugin.version>0.9.0</maven.central-publishing-maven-plugin.version>
     </properties>
+    <!-- =========================================================================================================== -->
+
+    <!-- =========================================================================================================== -->
+    <!-- Dependency management -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <!-- =========================================================================================================== -->
 
     <!-- =========================================================================================================== -->
@@ -135,7 +151,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <version>${maven.maven-deploy-plugin}</version>
+                <version>${maven.deploy-plugin.version}</version>
                 <configuration>
                     <skip>true</skip>
                 </configuration>
@@ -143,7 +159,7 @@
             <plugin>
                 <groupId>com.amashchenko.maven.plugin</groupId>
                 <artifactId>gitflow-maven-plugin</artifactId>
-                <version>${maven.gitflow-maven-plugin}</version>
+                <version>${maven.gitflow-maven-plugin.version}</version>
                 <configuration>
                     <skipTestProject>true</skipTestProject>
                     <gitFlowConfig>
@@ -179,7 +195,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>${maven.maven-gpg-plugin}</version>
+                        <version>${maven.gpg-plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>sign-release</id>
@@ -200,7 +216,7 @@
                     <plugin>
                         <groupId>org.sonatype.central</groupId>
                         <artifactId>central-publishing-maven-plugin</artifactId>
-                        <version>${maven.central-publishing-maven-plugin}</version>
+                        <version>${maven.central-publishing-maven-plugin.version}</version>
                         <extensions>true</extensions>
                         <configuration>
                             <publishingServerId>central</publishingServerId>
@@ -238,16 +254,6 @@
             <url>https://central.sonatype.com/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
-    <!-- =========================================================================================================== -->
-
-    <!-- =========================================================================================================== -->
-    <!-- Spring boot -->
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.6</version>
-        <relativePath/>
-    </parent>
     <!-- =========================================================================================================== -->
 
 </project>

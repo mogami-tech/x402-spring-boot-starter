@@ -68,9 +68,9 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
                 .header(ACCEPT, APPLICATION_JSON_VALUE)
                 .retrieve()
                 .bodyToMono(SupportedResponse.class)
-                .doOnNext(response -> log.info("Facilitator /support response: '{}'", JsonUtil.toJson(response)))
                 .doOnError(WebClientResponseException.class, error ->
-                        log.error("Facilitator /support error: '{}'", error.getResponseBodyAsString()));
+                        log.error("Facilitator /support error: '{}'", error.getResponseBodyAsString())
+                );
     }
 
     @Override

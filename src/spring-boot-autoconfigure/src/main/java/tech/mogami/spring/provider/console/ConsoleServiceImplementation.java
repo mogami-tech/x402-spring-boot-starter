@@ -8,8 +8,8 @@ import reactor.netty.http.client.HttpClient;
 import tech.mogami.commons.api.console.v1.EventRequest;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static tech.mogami.commons.api.console.ConsoleApiEndpoints.MOGAMI_X402_CONSOLE_API_BASE_URL;
 import static tech.mogami.commons.api.console.ConsoleApiEndpoints.V1.EVENTS_ENDPOINT;
-import static tech.mogami.commons.api.console.ConsoleApiEndpoints.X402_CONSOLE_API_BASE_URL;
 
 /**
  * {@link ConsoleService} implementation.
@@ -27,8 +27,7 @@ public class ConsoleServiceImplementation implements ConsoleService {
      */
     public ConsoleServiceImplementation() {
         this.client = WebClient.builder()
-                // TODO Manage development and production URLs
-                .baseUrl(X402_CONSOLE_API_BASE_URL)
+                .baseUrl(MOGAMI_X402_CONSOLE_API_BASE_URL)
                 .clientConnector(new ReactorClientHttpConnector(HttpClient.create().followRedirect(true)))
                 .build();
     }
@@ -42,8 +41,7 @@ public class ConsoleServiceImplementation implements ConsoleService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .doOnNext(eventId ->
-                        log.info("{}: Event logged successfully for nonce: {} with event id: {}",
-                                event.type(), event.nonce(), eventId)
+                        log.info("{}: Event logged successfully for nonce: {} with event id: {}", event.type(), event.nonce(), eventId)
                 )
                 .doOnError(e ->
                         log.error("{}: Failed to log event: {}", event.type(), e.getMessage(), e)

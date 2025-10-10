@@ -4,8 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- =========================================================================================================== -->
-    <!-- Project information -->
+    <!-- Project information ======================================================================================= -->
     <groupId>tech.mogami.spring</groupId>
     <artifactId>mogami-x402-spring-boot-starter-project</artifactId>
     <version>0.1.8-SNAPSHOT</version>
@@ -20,10 +19,8 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-    <!-- =========================================================================================================== -->
 
-    <!-- =========================================================================================================== -->
-    <!-- Developers -->
+    <!-- Developers ================================================================================================ -->
     <developers>
         <developer>
             <id>straumat</id>
@@ -32,29 +29,22 @@
             <url>https://github.com/straumat</url>
         </developer>
     </developers>
-    <!-- =========================================================================================================== -->
 
-    <!-- =========================================================================================================== -->
-    <!-- Source Code Management -->
+    <!-- Source Code Management ==================================================================================== -->
     <scm>
         <url>https://github.com/mogami-tech/x402-spring-boot-starter</url>
         <connection>scm:git:git://github.com/mogami-tech/x402-spring-boot-starter.git</connection>
         <developerConnection>scm:git:git@github.com:mogami-tech/x402-spring-boot-starter.git</developerConnection>
     </scm>
-    <!-- =========================================================================================================== -->
 
-    <!-- =========================================================================================================== -->
-    <!-- Issue management -->
+    <!-- Issue management ========================================================================================== -->
     <issueManagement>
         <system>GitHub Issues</system>
         <url>https://github.com/mogami-tech/x402-spring-boot-starter/issues</url>
     </issueManagement>
-    <!-- =========================================================================================================== -->
 
-    <!-- =========================================================================================================== -->
-    <!-- Project configuration -->
+    <!-- Project configuration ===================================================================================== -->
     <properties>
-        <!-- ======================================================================================================= -->
         <!-- Java build configuration -->
         <java.version>21</java.version>
         <maven.compiler.target>21</maven.compiler.target>
@@ -62,8 +52,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <!-- ======================================================================================================= -->
-        <!-- Libraries releases -->
         <!-- Mogami -->
         <mogami.commons.version>0.0.9-SNAPSHOT</mogami.commons.version>
 
@@ -95,10 +83,8 @@
         <maven.deploy-plugin.version>3.1.4</maven.deploy-plugin.version>
         <maven.central-publishing-maven-plugin.version>0.9.0</maven.central-publishing-maven-plugin.version>
     </properties>
-    <!-- =========================================================================================================== -->
 
-    <!-- =========================================================================================================== -->
-    <!-- Dependency management -->
+    <!-- Dependency management ===================================================================================== -->
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -110,22 +96,16 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    <!-- =========================================================================================================== -->
 
-    <!-- =========================================================================================================== -->
-    <!-- Modules -->
+    <!-- Modules =================================================================================================== -->
     <modules>
         <module>src/spring-boot-autoconfigure</module>
         <module>src/spring-boot-starter</module>
     </modules>
-    <!-- =========================================================================================================== -->
 
-    <!-- =========================================================================================================== -->
-    <!-- Build configuration -->
+    <!-- Build configuration ======================================================================================= -->
     <build>
-        <!-- Plugins -->
         <plugins>
-            <!-- Tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -147,7 +127,6 @@
                     </statelessTestsetInfoReporter>
                 </configuration>
             </plugin>
-            <!-- Release -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
@@ -180,10 +159,8 @@
             </plugin>
         </plugins>
     </build>
-    <!-- =========================================================================================================== -->
 
-    <!-- =========================================================================================================== -->
-    <!-- Profiles -->
+    <!-- Profiles ================================================================================================== -->
     <profiles>
         <profile>
             <id>release</id>
@@ -227,9 +204,8 @@
             </build>
         </profile>
     </profiles>
-    <!-- =========================================================================================================== -->
 
-    <!-- =========================================================================================================== -->
+    <!-- Repositories ============================================================================================== -->
     <repositories>
         <repository>
             <id>central-snapshots</id>
@@ -244,6 +220,8 @@
             </releases>
         </repository>
     </repositories>
+
+    <!-- Distribution management =================================================================================== -->
     <distributionManagement>
         <repository>
             <id>central</id>
@@ -254,6 +232,5 @@
             <url>https://central.sonatype.com/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
-    <!-- =========================================================================================================== -->
 
 </project>

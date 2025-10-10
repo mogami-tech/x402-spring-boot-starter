@@ -52,7 +52,7 @@ public class FacilitatorServiceTest extends BaseTest {
                 .satisfies(settleResult -> {
                     assertThat(settleResult.success()).isFalse();
                     assertThat(settleResult.network()).isEqualTo(BASE_SEPOLIA.name());
-                    assertThat(settleResult.transaction()).isEmpty();
+                    assertThat(settleResult.transaction()).isNull();
                     assertThat(settleResult.errorReason()).isEqualTo("invalid_exact_evm_payload_authorization_valid_before");
                     assertThat(settleResult.payer()).isEqualTo("0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F73");
                 });

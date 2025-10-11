@@ -73,7 +73,7 @@
         <maven.resources.plugin.version>3.3.1</maven.resources.plugin.version>
         <maven.compiler.plugin.version>3.14.0</maven.compiler.plugin.version>
         <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
-        <maven.surefire-junit5-tree-reporter.version>1.4.0</maven.surefire-junit5-tree-reporter.version>
+        <maven.surefire-junit5-tree-reporter.version>1.5.0</maven.surefire-junit5-tree-reporter.version>
         <maven.jar.plugin.version>3.4.2</maven.jar.plugin.version>
         <maven.source.plugin.version>3.3.1</maven.source.plugin.version>
         <maven.build-helper-maven-plugin.version>3.6.1</maven.build-helper-maven-plugin.version>

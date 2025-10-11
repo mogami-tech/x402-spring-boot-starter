@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.RestController;
 import tech.mogami.commons.test.BaseTest;
 import tech.mogami.spring.annotation.X402PaymentRequirements;
 
-
 @SuppressWarnings("SameReturnValue")
 @RestController
 public class WeatherController extends BaseTest {

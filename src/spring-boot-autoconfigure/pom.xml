@@ -3,22 +3,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- =========================================================================================================== -->
-    <!-- Project information -->
+    <!-- Project information ======================================================================================= -->
     <artifactId>mogami-x402-spring-boot-starter-autoconfigure</artifactId>
     <packaging>jar</packaging>
     <name>Mogami x402 spring boot starter autoconfigure</name>
     <description>Mogami x402 spring boot starter autoconfigure</description>
-    <!-- =========================================================================================================== -->
 
-    <!-- =========================================================================================================== -->
-    <!-- Dependencies -->
+    <!-- Dependencies ============================================================================================== -->
     <dependencies>
         <!-- Mogami -->
         <dependency>
             <groupId>tech.mogami.commons</groupId>
             <artifactId>mogami-x402-commons</artifactId>
-            <version>0.0.8</version>
+            <version>${mogami.commons.version}</version>
         </dependency>
 
         <!-- Spring dependencies -->
@@ -84,16 +81,14 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    <!-- =========================================================================================================== -->
 
-    <!-- =========================================================================================================== -->
-    <!-- Build configuration -->
+    <!-- Build configuration ======================================================================================= -->
     <build>
-        <!-- Plugins -->
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${maven.build-helper-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
@@ -108,7 +103,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- Checkstyle verification -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
@@ -135,7 +129,6 @@
                     <violationSeverity>warning</violationSeverity>
                 </configuration>
             </plugin>
-            <!-- Compilation (with mapstruct & spring boot processor) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -163,12 +156,11 @@
                         <path>
                             <groupId>org.springframework.boot</groupId>
                             <artifactId>spring-boot-configuration-processor</artifactId>
-                            <version>${spring.version}</version>
+                            <version>${spring-boot.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
-            <!-- Jar (classes, sources and documentation)-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -213,16 +205,13 @@
             </plugin>
         </plugins>
     </build>
-    <!-- =========================================================================================================== -->
 
-    <!-- =========================================================================================================== -->
-    <!-- Parent -->
+    <!-- Parent ==================================================================================================== -->
     <parent>
         <groupId>tech.mogami.spring</groupId>
         <artifactId>mogami-x402-spring-boot-starter-project</artifactId>
-        <version>0.1.7</version>
+        <version>1.0.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-    <!-- =========================================================================================================== -->
 
 </project>

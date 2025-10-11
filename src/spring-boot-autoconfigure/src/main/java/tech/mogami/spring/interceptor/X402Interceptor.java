@@ -53,7 +53,7 @@ public class X402Interceptor implements HandlerInterceptor {
     /** Console service. */
     private final ConsoleService consoleService;
 
-    /** Object mapper TODO Why not use the one in x402commons-. */
+    /** Object mapper. */
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /** Facilitator service. */
@@ -70,96 +70,104 @@ public class X402Interceptor implements HandlerInterceptor {
             Set<X402PaymentRequirements> paymentRequirementsList = AnnotatedElementUtils.findMergedRepeatableAnnotations(hm.getMethod(), X402PaymentRequirements.class);
             if (!paymentRequirementsList.isEmpty()) {
 
-                // =====================================================================================================
-                // The method is annotated with @X402.
-
-                // We check if the payment is present or not.
+                // x402 URL Called without payment =====================================================================
                 if (request.getHeader(X402_X_PAYMENT_HEADER) == null) {
-                    // Payment not present, we return a 402 Payment Required response ==================================
                     log.info("x402 URL Called without payment: {}", request.getRequestURL().toString());
                     response.setStatus(SC_PAYMENT_REQUIRED);
                     response.setContentType(APPLICATION_JSON_VALUE);
                     objectMapper.writeValue(response.getWriter(), buildPaymentRequirementsBody(request, paymentRequirementsList));
                     return false; // We stop the chain.
-                } else {
-                    try {
-                        // The payment is present, we decode it (base64) and add it to the response ====================
-                        final String paymentHeaderString = new String(Base64.getMimeDecoder().decode(request.getHeader(X402_X_PAYMENT_HEADER)), UTF_8);
-                        PaymentPayload paymentPayload = JsonUtil.fromJson(paymentHeaderString, PaymentPayload.class);
-                        request.setAttribute(X402_X_PAYMENT_HEADER_DECODED, paymentPayload);
-                        log.info("Payment received for url {}: {}", request.getRequestURL().toString(), paymentHeaderString);
+                }
 
-                        final String nonce = paymentPayload.getNonce()
-                                .orElseThrow(() -> new IllegalArgumentException("Nonce is required in the payment payload"));
+                // x402 URL Called with payment ========================================================================
+                try {
+                    // The payment is present, we decode it (base64) and add it to the response ========================
+                    final String paymentHeaderString = new String(Base64.getMimeDecoder().decode(request.getHeader(X402_X_PAYMENT_HEADER)), UTF_8);
+                    PaymentPayload paymentPayload = JsonUtil.fromJson(paymentHeaderString, PaymentPayload.class);
+                    request.setAttribute(X402_X_PAYMENT_HEADER_DECODED, paymentPayload);
+                    log.info("Payment received for url {}: {}", request.getRequestURL().toString(), paymentHeaderString);
 
-                        // X402 Console - Sending X402_SERVER_URL_ACCESS_REQUEST event to console.
+                    final String nonce = paymentPayload.getNonce()
+                            .orElseThrow(() -> new IllegalArgumentException("Nonce is required in the payment payload"));
+
+                    // X402 Console - Sending X402_SERVER_URL_ACCESS_REQUEST event to console.
+                    consoleService.logEvent(EventRequest.builder()
+                            .type(X402_SERVER_URL_ACCESS_REQUEST)
+                            .nonce(nonce)
+                            .payload(JsonUtil.toPrettyJson(paymentPayload))
+                            .build());
+
+                    // Now, we use the facilitator to check if the payment is isValid.
+                    X402PaymentRequirements test = paymentRequirementsList.stream()
+                            .findFirst()
+                            .orElseThrow(() -> new IllegalArgumentException("No payment requirements found"));
+                    final PaymentRequirements paymentRequirement = buildPaymentRequirements(request, test);
+
+                    // We do the verification on the facilitator server ================================================
+                    final VerifyResponse verifyResult = facilitatorService.verify(paymentPayload, paymentRequirement).block();
+                    if (verifyResult == null) {
+                        // Error calling the verify facilitator - null result ==========================================
+                        log.error("Error calling /verify on facilitator - null result");
                         consoleService.logEvent(EventRequest.builder()
-                                .type(X402_SERVER_URL_ACCESS_REQUEST)
+                                .type(X402_SERVER_PAYMENT_SETTLE_RESPONSE)
                                 .nonce(nonce)
-                                .payload(JsonUtil.toPrettyJson(paymentPayload))
+                                .payload(null)
+                                .errorMessage("Error calling /verify on facilitator - null result")
                                 .build());
-
-                        // Now, we use the facilitator to check if the payment is isValid.
-                        X402PaymentRequirements test = paymentRequirementsList.stream()
-                                .findFirst()
-                                .orElseThrow(() -> new IllegalArgumentException("No payment requirements found"));
-                        final PaymentRequirements paymentRequirement = buildPaymentRequirements(request, test);
-
-                        // We do the verification on the facilitator server ============================================
-                        final VerifyResponse verifyResult = facilitatorService.verify(paymentPayload, paymentRequirement).block();
-                        if (verifyResult == null) {
-                            // Error calling the verify facilitator - null result ======================================
-                            log.error("Error calling the verifyResult facilitator - null result");
-                            response.sendError(SC_BAD_REQUEST, "Serveur error calling the facilitator");
-                            return false;
-                        } else {
-                            log.info("Verify result: {}", verifyResult);
-                            if (verifyResult.isValid()) {
-                                // Verification is valid ===============================================================
-                                log.info("Payment is valid: {}", verifyResult);
-
-                                // Calling /settle and setting the response header.
-                                final SettleResponse settleResponse = facilitatorService.settle(paymentPayload, paymentRequirement).block();
-                                if (settleResponse != null) {
-                                    log.info("Settle result: {}", settleResponse);
-                                } else {
-                                    log.error("Error calling the settle facilitator - null result");
-                                    response.sendError(SC_BAD_REQUEST, "Serveur error calling the facilitator");
-                                    return false;
-                                }
-
-                                consoleService.logEvent(EventRequest.builder()
-                                        .type(X402_SERVER_PAYMENT_SETTLE_RESPONSE)
-                                        .nonce(nonce)
-                                        .payload(JsonUtil.toPrettyJson(settleResponse))
-                                        .errorMessage(settleResponse.errorReason())
-                                        .build());
-                                response.setHeader(X402_X_PAYMENT_RESPONSE, Base64Util.encode(JsonUtil.toJson(settleResponse)));
-                                return true;
-                            } else {
-                                // Verification is invalid ============================================================
-                                // The resource server returns a 402-Payment Required status and a Payment Required Response JSON object in the response body.
-                                log.error("Payment is invalid: {}", verifyResult);
-                                response.setStatus(SC_PAYMENT_REQUIRED);
-                                response.setContentType(APPLICATION_JSON_VALUE);
-                                objectMapper.writeValue(response.getWriter(), buildPaymentRequirementsBody(request, paymentRequirementsList));
-                                // X402 Console - Sending X402_SERVER_URL_ACCESS_RESPONSE event to console.
-                                consoleService.logEvent(EventRequest.builder()
-                                        .type(X402_SERVER_PAYMENT_SETTLE_RESPONSE)
-                                        .payload(JsonUtil.toPrettyJson(verifyResult))
-                                        .nonce(nonce)
-                                        .errorMessage(verifyResult.invalidReason())
-                                        .build());
-                                return false;
-                            }
-
-                        }
-
-                    } catch (IllegalArgumentException e) {
-                        log.error("Error decoding payment header: {}", e.getMessage());
-                        response.sendError(SC_BAD_REQUEST, "Invalid Base64");
+                        response.sendError(SC_BAD_REQUEST, "Error calling /verify on facilitator - null result");
                         return false;
                     }
+
+                    // We have a result from the verification ==========================================================
+                    log.info("Verify result: {}", verifyResult);
+                    if (!verifyResult.isValid()) {
+                        // Verification is invalid =====================================================================
+                        log.error("Payment is invalid: {}", verifyResult);
+                        // X402 Console - Sending X402_SERVER_URL_ACCESS_RESPONSE event to console.
+                        consoleService.logEvent(EventRequest.builder()
+                                .type(X402_SERVER_PAYMENT_SETTLE_RESPONSE)
+                                .payload(JsonUtil.toPrettyJson(verifyResult))
+                                .nonce(nonce)
+                                .errorMessage(verifyResult.invalidReason())
+                                .build());
+                        response.setStatus(SC_PAYMENT_REQUIRED);
+                        response.setContentType(APPLICATION_JSON_VALUE);
+                        objectMapper.writeValue(response.getWriter(), buildPaymentRequirementsBody(request, paymentRequirementsList));
+                        return false;
+                    }
+
+                    // Verification is valid ===========================================================================
+                    log.info("Payment is valid: {}", verifyResult);
+
+                    // Calling /settle and setting the response header =================================================
+                    final SettleResponse settleResponse = facilitatorService.settle(paymentPayload, paymentRequirement).block();
+                    if (settleResponse == null) {
+                        log.error("Error calling the settle facilitator - null result");
+                        consoleService.logEvent(EventRequest.builder()
+                                .type(X402_SERVER_PAYMENT_SETTLE_RESPONSE)
+                                .nonce(nonce)
+                                .payload(null)
+                                .errorMessage("Error calling the settle facilitator - null result")
+                                .build());
+                        response.sendError(SC_BAD_REQUEST, "Serveur error calling the facilitator");
+                        return false;
+                    }
+
+                    // We have a valid result from the settlement ======================================================
+                    log.info("Settle result: {}", settleResponse);
+                    consoleService.logEvent(EventRequest.builder()
+                            .type(X402_SERVER_PAYMENT_SETTLE_RESPONSE)
+                            .nonce(nonce)
+                            .payload(JsonUtil.toPrettyJson(settleResponse))
+                            .errorMessage(settleResponse.errorReason())
+                            .build());
+                    response.setHeader(X402_X_PAYMENT_RESPONSE, Base64Util.encode(JsonUtil.toJson(settleResponse)));
+                    return true;
+
+                } catch (IllegalArgumentException e) {
+                    log.error("Error decoding payment header: {}", e.getMessage());
+                    response.sendError(SC_BAD_REQUEST, "Invalid Base64");
+                    return false;
                 }
                 // =====================================================================================================
 

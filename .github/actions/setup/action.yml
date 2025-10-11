@@ -1,5 +1,5 @@
 name: "Environment setup"
-description: "Install tools like Java, Maven, Docker, Just, etc."
+description: "Install tools (Java, Maven and Just)"
 
 inputs:
   central-username: { required: false, description: "Central username" }
@@ -10,6 +10,9 @@ inputs:
 runs:
   using: "composite"
   steps:
+
+    - name: Just Setup
+      uses: taiki-e/install-action@just
 
     - name: Java Setup
       uses: actions/setup-java@v4.7.1
@@ -28,6 +31,3 @@ runs:
         echo "MAVEN_USERNAME=${{ inputs.central-username }}" >> $GITHUB_ENV
         echo "MAVEN_PASSWORD=${{ inputs.central-token }}" >> $GITHUB_ENV
         echo "MAVEN_GPG_PASSPHRASE=${{ inputs.gpg-passphrase }}" >> $GITHUB_ENV
-
-    - name: Just Setup
-      uses: taiki-e/install-action@just

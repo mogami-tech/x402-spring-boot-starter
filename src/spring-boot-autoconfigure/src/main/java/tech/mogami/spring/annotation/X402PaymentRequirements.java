@@ -18,14 +18,14 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface X402PaymentRequirements {
 
     /**
-     * Scheme of the payment protocol to use.
+     * Scheme of the payment protocol to use (e.g., "exact").
      *
      * @return the scheme
      */
     String scheme();
 
     /**
-     * Network of the blockchain to send payment on.
+     * Blockchain network identifier (e.g., "base-sepolia", "ethereum-mainnet").
      *
      * @return the network
      */
@@ -41,14 +41,14 @@ public @interface X402PaymentRequirements {
     String maximumAmountRequired();
 
     /**
-     * Description of the resource.
+     * Human-readable description of the resource.
      *
      * @return the description
      */
     String description() default "";
 
     /**
-     * Address to pay value to.
+     * Recipient wallet address for the payment.
      *
      * @return the address
      */

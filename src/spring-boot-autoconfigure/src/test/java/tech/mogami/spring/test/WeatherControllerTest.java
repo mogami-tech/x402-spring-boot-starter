@@ -39,6 +39,7 @@ import static tech.mogami.commons.constant.network.Networks.BASE_SEPOLIA;
 import static tech.mogami.commons.constant.version.X402Versions.X402_SUPPORTED_VERSION_BY_MOGAMI;
 import static tech.mogami.commons.header.payment.schemes.Schemes.EXACT_SCHEME;
 
+@SuppressWarnings("ALL")
 @SpringBootTest(
         properties = {
                 "x402.facilitator.base-url=http://localhost:10000/facilitator",

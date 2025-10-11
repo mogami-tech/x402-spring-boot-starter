@@ -49,5 +49,4 @@ public class ConsoleServiceImplementation implements ConsoleService {
                 .subscribe();
     }
 
-
 }

@@ -26,6 +26,9 @@ import tech.mogami.spring.parameter.X402Parameters;
 @SuppressWarnings("checkstyle:DesignForExtension")
 public class MogamiAutoConfiguration implements WebMvcConfigurer {
 
+    /** X402 parameters. */
+    private final X402Parameters x402Parameters;
+
     /** Facilitator service. */
     private final X402Interceptor x402Interceptor;
 
@@ -35,6 +38,7 @@ public class MogamiAutoConfiguration implements WebMvcConfigurer {
     @PostConstruct
     public void init() {
         log.info("Using Mogami x402 spring boot starter");
+        log.info("[Configuration] Using {} as facilitator server", x402Parameters.facilitator().baseUrl());
     }
 
     @Override

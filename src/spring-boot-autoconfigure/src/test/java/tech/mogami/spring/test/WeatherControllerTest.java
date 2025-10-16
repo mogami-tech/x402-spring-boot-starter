@@ -36,6 +36,7 @@ import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_HEADER;
 import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_HEADER_DECODED;
 import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_RESPONSE;
 import static tech.mogami.commons.constant.network.Networks.BASE_SEPOLIA;
+import static tech.mogami.commons.constant.network.base.BaseContracts.BASE_SEPOLIA_USDC_CONTRACT;
 import static tech.mogami.commons.constant.version.X402Versions.X402_SUPPORTED_VERSION_BY_MOGAMI;
 import static tech.mogami.commons.header.payment.schemes.Schemes.EXACT_SCHEME;
 
@@ -125,7 +126,7 @@ public class WeatherControllerTest extends BaseTest {
                 .andExpect(jsonPath("$.accepts[0].description").isEmpty())
                 .andExpect(jsonPath("$.accepts[0].resource").value("http://localhost/weather"))
                 .andExpect(jsonPath("$.accepts[0].payTo").value(TEST_SERVER_WALLET_ADDRESS_1))
-                .andExpect(jsonPath("$.accepts[0].asset").value(TEST_ASSET_CONTRACT_ADDRESS))
+                .andExpect(jsonPath("$.accepts[0].asset").value(BASE_SEPOLIA_USDC_CONTRACT))
                 .andExpect(jsonPath("$.accepts[0].extra.name").value("USDC"))
                 .andExpect(jsonPath("$.accepts[0].extra.version").value("2"))
                 // Second scheme.
@@ -135,7 +136,7 @@ public class WeatherControllerTest extends BaseTest {
                 .andExpect(jsonPath("$.accepts[1].description").value("Description number 2"))
                 .andExpect(jsonPath("$.accepts[1].resource").value("http://localhost/weather"))
                 .andExpect(jsonPath("$.accepts[1].payTo").value(TEST_SERVER_WALLET_ADDRESS_2))
-                .andExpect(jsonPath("$.accepts[1].asset").value(TEST_ASSET_CONTRACT_ADDRESS))
+                .andExpect(jsonPath("$.accepts[1].asset").value(BASE_SEPOLIA_USDC_CONTRACT))
                 .andExpect(jsonPath("$.accepts[1].extra").isEmpty());
     }
 

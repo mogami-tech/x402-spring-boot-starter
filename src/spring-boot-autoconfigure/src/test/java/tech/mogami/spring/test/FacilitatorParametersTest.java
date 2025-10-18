@@ -70,6 +70,90 @@ public class FacilitatorParametersTest extends BaseTest {
     }
 
     @Test
+    @DisplayName("Missing default-network parameter")
+    void missingDefaultNetworkParameter() {
+        try {
+            var application = new SpringApplication(TestApplication.class);
+            application.setDefaultProperties(getTestProperties("default-network-missing"));
+            application.run();
+            fail("Exception not raised with invalid parameters");
+        } catch (Exception e) {
+            var message = ExceptionUtils.getRootCause(e).getMessage();
+            assertTrue(message.contains("Parameter x402.default-network must be set"));
+        }
+    }
+
+    @Test
+    @DisplayName("Invalid default-network parameter")
+    void invalidDefaultNetworkParameter() {
+        try {
+            var application = new SpringApplication(TestApplication.class);
+            application.setDefaultProperties(getTestProperties("default-network-invalid"));
+            application.run();
+            fail("Exception not raised with invalid parameters");
+        } catch (Exception e) {
+            var message = ExceptionUtils.getRootCause(e).getMessage();
+            assertTrue(message.contains("Invalid x402.default-network value"));
+        }
+    }
+
+    @Test
+    @DisplayName("Null default-network parameter")
+    void nullDefaultNetworkParameter() {
+        try {
+            var application = new SpringApplication(TestApplication.class);
+            application.setDefaultProperties(getTestProperties("default-network-null"));
+            application.run();
+            fail("Exception not raised with invalid parameters");
+        } catch (Exception e) {
+            var message = ExceptionUtils.getRootCause(e).getMessage();
+            assertTrue(message.contains("Parameter x402.default-network must be set"));
+        }
+    }
+
+    @Test
+    @DisplayName("Invalid default-payto parameter")
+    void invalidDefaultPayToParameter() {
+        try {
+            var application = new SpringApplication(TestApplication.class);
+            application.setDefaultProperties(getTestProperties("default-payto-invalid"));
+            application.run();
+            fail("Exception not raised with invalid parameters");
+        } catch (Exception e) {
+            var message = ExceptionUtils.getRootCause(e).getMessage();
+            assertTrue(message.contains("Invalid x402.default-payto value"));
+        }
+    }
+
+    @Test
+    @DisplayName("Missing default-payto parameter")
+    void missingDefaultPayToParameter() {
+        try {
+            var application = new SpringApplication(TestApplication.class);
+            application.setDefaultProperties(getTestProperties("default-payto-missing"));
+            application.run();
+            fail("Exception not raised with invalid parameters");
+        } catch (Exception e) {
+            var message = ExceptionUtils.getRootCause(e).getMessage();
+            assertTrue(message.contains("Parameter x402.default-payto must be set"));
+        }
+    }
+
+    @Test
+    @DisplayName("Null default-payto parameter")
+    void nullDefaultPayToParameter() {
+        try {
+            var application = new SpringApplication(TestApplication.class);
+            application.setDefaultProperties(getTestProperties("default-payto-null"));
+            application.run();
+            fail("Exception not raised with invalid parameters");
+        } catch (Exception e) {
+            var message = ExceptionUtils.getRootCause(e).getMessage();
+            assertTrue(message.contains("Parameter x402.default-payto must be set"));
+        }
+    }
+
+    @Test
     @DisplayName("No parameters")
     void noParameters() {
         try {

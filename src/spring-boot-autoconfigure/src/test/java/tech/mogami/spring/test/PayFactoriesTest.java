@@ -6,8 +6,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.mock.web.MockHttpServletRequest;
 import tech.mogami.spring.annotation.X402PayUSDC;
+import tech.mogami.spring.annotation.X402PaymentRequirements;
+import tech.mogami.spring.app.WeatherController;
 import tech.mogami.spring.factory.annotation.PayFactories;
 import tech.mogami.spring.parameter.X402Parameters;
 
@@ -19,6 +22,7 @@ import static tech.mogami.commons.constant.network.base.BaseContracts.BASE_SEPOL
 import static tech.mogami.commons.header.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_NAME;
 import static tech.mogami.commons.header.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_PARAMETER_NAME;
 import static tech.mogami.commons.header.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_PARAMETER_VERSION;
+import static tech.mogami.commons.test.BaseTestData.TEST_SERVER_WALLET_ADDRESS_1;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -86,6 +90,36 @@ public class PayFactoriesTest {
                     assertThat(requirements.asset()).isEqualTo(BASE_MAINNET_USDC_CONTRACT);
                     assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_NAME)).isPresent();
                     assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_NAME)).get().isEqualTo("USD Coin");
+                    assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_VERSION)).isPresent();
+                    assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_VERSION)).get().isEqualTo("2");
+                });
+
+    }
+
+    @Test
+    @DisplayName("X402PaymentRequirementsFactory")
+    void X402PaymentRequirementsFactory() throws NoSuchMethodException {
+        var annotations = AnnotatedElementUtils.findMergedRepeatableAnnotations(
+                WeatherController.class.getDeclaredMethod("weather"),
+                X402PaymentRequirements.class);
+        var firstAnnotation = annotations.stream().findFirst();
+
+        assertThat(payFactories.buildRequirements(
+                firstAnnotation.get(),
+                getRequest()))
+                .isNotNull()
+                .satisfies(requirements -> {
+                    assertThat(requirements.scheme()).isEqualTo(EXACT_SCHEME_NAME);
+                    assertThat(requirements.network()).isEqualTo(x402Parameters.defaultNetwork());
+                    assertThat(requirements.maxAmountRequiredAsBigInteger().compareTo(new BigInteger("1000"))).isEqualTo(0);
+                    assertThat(requirements.resource()).isEqualTo("http://localhost:8080/x402/pay");
+                    assertThat(requirements.description()).isBlank();
+                    assertThat(requirements.mimeType()).isBlank();
+                    assertThat(requirements.payTo()).isEqualTo(TEST_SERVER_WALLET_ADDRESS_1);
+                    assertThat(requirements.maxTimeoutSeconds()).isEqualTo(60);
+                    assertThat(requirements.asset()).isEqualTo(BASE_SEPOLIA_USDC_CONTRACT);
+                    assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_NAME)).isPresent();
+                    assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_NAME)).get().isEqualTo("USDC");
                     assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_VERSION)).isPresent();
                     assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_VERSION)).get().isEqualTo("2");
                 });

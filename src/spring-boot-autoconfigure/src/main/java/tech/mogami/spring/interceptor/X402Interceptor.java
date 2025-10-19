@@ -208,6 +208,7 @@ public class X402Interceptor implements HandlerInterceptor {
      * @param paymentRequirementsAnnotation The payment requirements annotation
      * @return The payment required body
      */
+    @Deprecated
     private PaymentRequirements buildPaymentRequirements(final HttpServletRequest request,
                                                          final X402PaymentRequirements paymentRequirementsAnnotation) {
         return PaymentRequirements.builder()

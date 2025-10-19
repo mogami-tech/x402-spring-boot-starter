@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import tech.mogami.commons.header.payment.PaymentRequirements;
 import tech.mogami.spring.annotation.X402PayUSDC;
+import tech.mogami.spring.annotation.X402PaymentRequirements;
 import tech.mogami.spring.parameter.X402Parameters;
 
 import java.lang.annotation.Annotation;
@@ -27,6 +28,7 @@ public class PayFactories {
 
     @PostConstruct
     private void initializeFactories() {
+        REGISTRY.put(X402PaymentRequirements.class, new X402PaymentRequirementsFactory());
         REGISTRY.put(X402PayUSDC.class, new X402PayUSDCFactory());
 
         // Initialize X402 parameters or other dependencies here.
@@ -34,7 +36,6 @@ public class PayFactories {
                 .stream()
                 .filter(factory -> factory instanceof AbstractPayFactory<?>)
                 .map(AbstractPayFactory.class::cast)
-                .peek(factory -> System.out.println("Initializing factory: " + factory.getClass().getSimpleName()))
                 .forEach(factory -> factory.setX402Parameters(x402Parameters));
     }
 
@@ -49,6 +50,9 @@ public class PayFactories {
         if (a.annotationType().equals(X402PayUSDC.class)) {
             X402PayUSDCFactory factory = (X402PayUSDCFactory) REGISTRY.get(X402PayUSDC.class);
             return factory.buildRequirements((X402PayUSDC) a, request);
+        } else if (a.annotationType().equals(X402PaymentRequirements.class)) {
+            X402PaymentRequirementsFactory factory = (X402PaymentRequirementsFactory) REGISTRY.get(X402PaymentRequirements.class);
+            return factory.buildRequirements((X402PaymentRequirements) a, request);
         } else {
             throw new IllegalArgumentException("Unsupported annotation type: " + a.annotationType());
         }

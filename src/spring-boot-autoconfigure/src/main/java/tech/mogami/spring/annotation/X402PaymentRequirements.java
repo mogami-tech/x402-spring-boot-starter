@@ -1,5 +1,6 @@
 package tech.mogami.spring.annotation;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -14,7 +15,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Repeatable(X402PaymentRequirements.List.class)
 @Retention(RUNTIME)
-@Target(METHOD)
+@Target({METHOD})
+@Documented
 public @interface X402PaymentRequirements {
 
     /**
@@ -96,6 +98,7 @@ public @interface X402PaymentRequirements {
      */
     @Target(METHOD)
     @Retention(RUNTIME)
+    @Documented
     @interface List {
         @SuppressWarnings("UnusedReturnValue")
         X402PaymentRequirements[] value();

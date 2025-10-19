@@ -1,0 +1,103 @@
+package tech.mogami.spring.test;
+
+import jakarta.servlet.http.HttpServletRequest;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpServletRequest;
+import tech.mogami.spring.annotation.X402PayUSDC;
+import tech.mogami.spring.factory.annotation.PayFactories;
+import tech.mogami.spring.parameter.X402Parameters;
+
+import java.math.BigInteger;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static tech.mogami.commons.constant.network.base.BaseContracts.BASE_MAINNET_USDC_CONTRACT;
+import static tech.mogami.commons.constant.network.base.BaseContracts.BASE_SEPOLIA_USDC_CONTRACT;
+import static tech.mogami.commons.header.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_NAME;
+import static tech.mogami.commons.header.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_PARAMETER_NAME;
+import static tech.mogami.commons.header.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_PARAMETER_VERSION;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@DisplayName("Pay factories tests")
+public class PayFactoriesTest {
+
+    @Autowired
+    X402Parameters x402Parameters;
+
+    @Autowired
+    PayFactories payFactories;
+
+    @X402PayUSDC(amount = "3.5")
+    void simpleX402PayUSDC() {
+    }
+
+    @X402PayUSDC(
+            amount = "5.1",
+            payTo = "0x71C7656EC7ab88b098defB751B7401B5f6d8976F",
+            network = "base",
+            description = "Complex payment"
+    )
+    void complexeX402PayUSDC() {
+    }
+
+    @Test
+    @DisplayName("X402PayUSDCFactory")
+    void testX402PayUSDCFactory() throws NoSuchMethodException {
+
+        // simpleX402PayUSDC
+        assertThat(payFactories.buildRequirements(
+                getClass().getDeclaredMethod("simpleX402PayUSDC").getAnnotation(X402PayUSDC.class),
+                getRequest()))
+                .isNotNull()
+                .satisfies(requirements -> {
+                    assertThat(requirements.scheme()).isEqualTo(EXACT_SCHEME_NAME);
+                    assertThat(requirements.network()).isEqualTo(x402Parameters.defaultNetwork());
+                    assertThat(requirements.maxAmountRequiredAsBigInteger().compareTo(new BigInteger("3500000"))).isEqualTo(0);
+                    assertThat(requirements.resource()).isEqualTo("http://localhost:8080/x402/pay");
+                    assertThat(requirements.description()).isBlank();
+                    assertThat(requirements.mimeType()).isBlank();
+                    assertThat(requirements.payTo()).isEqualTo(x402Parameters.defaultPayTo());
+                    assertThat(requirements.maxTimeoutSeconds()).isEqualTo(60);
+                    assertThat(requirements.asset()).isEqualTo(BASE_SEPOLIA_USDC_CONTRACT);
+                    assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_NAME)).isPresent();
+                    assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_NAME)).get().isEqualTo("USDC");
+                    assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_VERSION)).isPresent();
+                    assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_VERSION)).get().isEqualTo("2");
+                });
+
+        // complexeX402PayUSDC
+        assertThat(payFactories.buildRequirements(
+                getClass().getDeclaredMethod("complexeX402PayUSDC").getAnnotation(X402PayUSDC.class),
+                getRequest()))
+                .isNotNull()
+                .satisfies(requirements -> {
+                    assertThat(requirements.scheme()).isEqualTo(EXACT_SCHEME_NAME);
+                    assertThat(requirements.network()).isEqualTo("base");
+                    assertThat(requirements.maxAmountRequiredAsBigInteger().compareTo(new BigInteger("5100000"))).isEqualTo(0);
+                    assertThat(requirements.resource()).isEqualTo("http://localhost:8080/x402/pay");
+                    assertThat(requirements.description()).isEqualTo("Complex payment");
+                    assertThat(requirements.mimeType()).isBlank();
+                    assertThat(requirements.payTo()).isEqualTo("0x71C7656EC7ab88b098defB751B7401B5f6d8976F");
+                    assertThat(requirements.maxTimeoutSeconds()).isEqualTo(60);
+                    assertThat(requirements.asset()).isEqualTo(BASE_MAINNET_USDC_CONTRACT);
+                    assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_NAME)).isPresent();
+                    assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_NAME)).get().isEqualTo("USD Coin");
+                    assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_VERSION)).isPresent();
+                    assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_VERSION)).get().isEqualTo("2");
+                });
+
+    }
+
+    private HttpServletRequest getRequest() {
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/x402/pay");
+        request.setServerName("localhost");
+        request.setScheme("http");
+        request.setServerPort(8080);
+        return request; // returns http://localhost:8080/x402/pay
+    }
+
+}

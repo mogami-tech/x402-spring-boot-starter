@@ -14,6 +14,7 @@ import tech.mogami.commons.api.facilitator.settle.SettleResponse;
 import tech.mogami.commons.header.payment.PaymentPayload;
 import tech.mogami.commons.header.payment.schemes.exact.ExactSchemePayload;
 import tech.mogami.commons.test.BaseTest;
+import tech.mogami.spring.parameter.X402Parameters;
 
 import java.io.IOException;
 import java.util.Base64;
@@ -35,7 +36,9 @@ import static tech.mogami.commons.constant.X402Constants.X402_PAYMENT_REQUIRED_M
 import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_HEADER;
 import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_HEADER_DECODED;
 import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_RESPONSE;
+import static tech.mogami.commons.constant.network.Networks.BASE_MAINNET;
 import static tech.mogami.commons.constant.network.Networks.BASE_SEPOLIA;
+import static tech.mogami.commons.constant.network.base.BaseContracts.BASE_MAINNET_USDC_CONTRACT;
 import static tech.mogami.commons.constant.network.base.BaseContracts.BASE_SEPOLIA_USDC_CONTRACT;
 import static tech.mogami.commons.constant.version.X402Versions.X402_SUPPORTED_VERSION_BY_MOGAMI;
 import static tech.mogami.commons.header.payment.schemes.Schemes.EXACT_SCHEME;
@@ -52,7 +55,10 @@ public class WeatherControllerTest extends BaseTest {
     private static ClientAndServer mockServer;
 
     @Autowired
-    private MockMvc mockMvc;
+    X402Parameters x402Parameters;
+
+    @Autowired
+    MockMvc mockMvc;
 
     @BeforeEach
     public void setup() {
@@ -138,6 +144,38 @@ public class WeatherControllerTest extends BaseTest {
                 .andExpect(jsonPath("$.accepts[1].payTo").value(TEST_SERVER_WALLET_ADDRESS_2))
                 .andExpect(jsonPath("$.accepts[1].asset").value(BASE_SEPOLIA_USDC_CONTRACT))
                 .andExpect(jsonPath("$.accepts[1].extra").isEmpty());
+    }
+
+    @Test
+    @DisplayName("get /weatherWithX402PayUSDC with without payment header")
+    void getWeatherWithX402PayUSDCWithoutPaymentHeader() throws Exception {
+        mockMvc.perform(get("/weatherWithX402PayUSDC"))
+                .andDo(print())
+                .andExpect(status().isPaymentRequired())
+                .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.x402Version").value(X402_SUPPORTED_VERSION_BY_MOGAMI.version()))
+                .andExpect(jsonPath("$.error").value(X402_PAYMENT_REQUIRED_MESSAGE))
+                .andExpect(jsonPath("$.accepts.length()").value(2))
+                // First scheme.
+                .andExpect(jsonPath("$.accepts[0].scheme").value(EXACT_SCHEME.name()))
+                .andExpect(jsonPath("$.accepts[0].network").value(BASE_SEPOLIA.name()))
+                .andExpect(jsonPath("$.accepts[0].maxAmountRequired").value("3600000"))
+                .andExpect(jsonPath("$.accepts[0].description").isEmpty())
+                .andExpect(jsonPath("$.accepts[0].resource").value("http://localhost/weatherWithX402PayUSDC"))
+                .andExpect(jsonPath("$.accepts[0].payTo").value(x402Parameters.defaultPayTo()))
+                .andExpect(jsonPath("$.accepts[0].asset").value(BASE_SEPOLIA_USDC_CONTRACT))
+                .andExpect(jsonPath("$.accepts[0].extra.name").value("USDC"))
+                .andExpect(jsonPath("$.accepts[0].extra.version").value("2"))
+                // Second scheme.
+                .andExpect(jsonPath("$.accepts[1].scheme").value(EXACT_SCHEME.name()))
+                .andExpect(jsonPath("$.accepts[1].network").value(BASE_MAINNET.name()))
+                .andExpect(jsonPath("$.accepts[1].maxAmountRequired").value("5200000"))
+                .andExpect(jsonPath("$.accepts[1].description").value("Complex payment"))
+                .andExpect(jsonPath("$.accepts[1].resource").value("http://localhost/weatherWithX402PayUSDC"))
+                .andExpect(jsonPath("$.accepts[1].payTo").value("0x71C7656EC7ab88b098defB751B7401B5f6d8976H"))
+                .andExpect(jsonPath("$.accepts[1].asset").value(BASE_MAINNET_USDC_CONTRACT))
+                .andExpect(jsonPath("$.accepts[1].extra.name").value("USD Coin"))
+                .andExpect(jsonPath("$.accepts[1].extra.version").value("2"));
     }
 
     @Test

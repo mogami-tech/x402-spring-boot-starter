@@ -1,6 +1,7 @@
 package tech.mogami.spring.annotation;
 
 import java.lang.annotation.Documented;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -11,6 +12,7 @@ import static tech.mogami.commons.header.payment.schemes.exact.ExactSchemeConsta
 /**
  * X402 Pay USDC annotation.
  */
+@Repeatable(X402PayUSDC.List.class)
 @Target(METHOD)
 @Retention(RUNTIME)
 @Documented
@@ -53,5 +55,16 @@ public @interface X402PayUSDC {
      * @return the description
      */
     String description() default "";
+
+    /**
+     * X402PayUSDC list.
+     */
+    @Target(METHOD)
+    @Retention(RUNTIME)
+    @Documented
+    @interface List {
+        @SuppressWarnings("UnusedReturnValue")
+        X402PayUSDC[] value();
+    }
 
 }

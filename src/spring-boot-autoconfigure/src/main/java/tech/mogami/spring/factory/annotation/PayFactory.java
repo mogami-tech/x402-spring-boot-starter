@@ -10,6 +10,7 @@ import java.lang.annotation.Annotation;
  *
  * @param <A> the annotation type handled by this factory
  */
+@SuppressWarnings("unused")
 public interface PayFactory<A extends Annotation> {
 
     /**

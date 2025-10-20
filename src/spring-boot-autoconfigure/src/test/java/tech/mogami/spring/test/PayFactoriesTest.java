@@ -24,6 +24,7 @@ import static tech.mogami.commons.header.payment.schemes.exact.ExactSchemeConsta
 import static tech.mogami.commons.header.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_PARAMETER_VERSION;
 import static tech.mogami.commons.test.BaseTestData.TEST_SERVER_WALLET_ADDRESS_1;
 
+@SuppressWarnings("EmptyMethod")
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("Pay factories tests")

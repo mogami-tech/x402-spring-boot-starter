@@ -7,7 +7,7 @@
     <!-- Project information ======================================================================================= -->
     <groupId>tech.mogami.spring</groupId>
     <artifactId>mogami-x402-spring-boot-starter-project</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.1.0</version>
     <packaging>pom</packaging>
     <name>Mogami Java x402 server SDK - Spring boot starter</name>
     <description>Protect your APIs with pay-per-call logic using a single Spring Boot annotation.</description>

@@ -1,5 +1,6 @@
 package tech.mogami.spring.annotation;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -9,12 +10,12 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * X402 Payment requirements annotation.
- * TODO Treat "mimeType: string;" (MIME type of the resource response)
- * TODO Treat "outputSchema?: object | null;" (Output schema of the resource response)
  */
 @Repeatable(X402PaymentRequirements.List.class)
 @Retention(RUNTIME)
-@Target(METHOD)
+@Target({METHOD})
+@Documented
+@X402Pay
 public @interface X402PaymentRequirements {
 
     /**
@@ -96,6 +97,7 @@ public @interface X402PaymentRequirements {
      */
     @Target(METHOD)
     @Retention(RUNTIME)
+    @Documented
     @interface List {
         @SuppressWarnings("UnusedReturnValue")
         X402PaymentRequirements[] value();

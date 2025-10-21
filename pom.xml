@@ -53,7 +53,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- Mogami -->
-        <mogami.commons.version>1.0.3-SNAPSHOT</mogami.commons.version>
+        <mogami.commons.version>1.0.3</mogami.commons.version>
 
         <!-- Spring -->
         <spring-boot.version>3.5.6</spring-boot.version>

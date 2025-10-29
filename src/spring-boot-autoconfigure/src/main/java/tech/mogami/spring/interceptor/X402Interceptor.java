@@ -10,7 +10,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
-import tech.mogami.commons.api.console.v1.EventRequest;
 import tech.mogami.commons.api.facilitator.settle.SettleResponse;
 import tech.mogami.commons.api.facilitator.verify.VerifyResponse;
 import tech.mogami.commons.header.payment.PaymentPayload;
@@ -21,7 +20,6 @@ import tech.mogami.commons.util.JsonUtil;
 import tech.mogami.spring.annotation.X402PayUSDC;
 import tech.mogami.spring.annotation.X402PaymentRequirements;
 import tech.mogami.spring.factory.annotation.PayFactories;
-import tech.mogami.spring.provider.console.ConsoleService;
 import tech.mogami.spring.provider.facilitator.FacilitatorService;
 
 import java.lang.annotation.Annotation;
@@ -35,8 +33,6 @@ import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static jakarta.servlet.http.HttpServletResponse.SC_PAYMENT_REQUIRED;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static tech.mogami.commons.api.console.EventType.X402_SERVER_PAYMENT_SETTLE_RESPONSE;
-import static tech.mogami.commons.api.console.EventType.X402_SERVER_URL_ACCESS_REQUEST;
 import static tech.mogami.commons.constant.X402Constants.X402_PAYMENT_REQUIRED_MESSAGE;
 import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_HEADER;
 import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_HEADER_DECODED;
@@ -57,9 +53,6 @@ public class X402Interceptor implements HandlerInterceptor {
 
     /** Pay factories. */
     private final PayFactories payFactories;
-
-    /** Console service. */
-    private final ConsoleService consoleService;
 
     /** Facilitator service. */
     private final FacilitatorService facilitatorService;
@@ -98,13 +91,6 @@ public class X402Interceptor implements HandlerInterceptor {
                     final String nonce = paymentPayload.getNonce()
                             .orElseThrow(() -> new IllegalArgumentException("Nonce is required in the payment payload"));
 
-                    // X402 Console - Sending X402_SERVER_URL_ACCESS_REQUEST event to console.
-                    consoleService.logEvent(EventRequest.builder()
-                            .type(X402_SERVER_URL_ACCESS_REQUEST)
-                            .nonce(nonce)
-                            .payload(JsonUtil.toPrettyJson(paymentPayload))
-                            .build());
-
                     // Now, we use the facilitator to check if the payment is isValid.
                     Annotation requirementsFound = paymentRequirementsList.stream()
                             .findFirst()
@@ -116,12 +102,6 @@ public class X402Interceptor implements HandlerInterceptor {
                     if (verifyResult == null) {
                         // Error calling the verify facilitator - null result ==========================================
                         log.error("Error calling /verify on facilitator - null result");
-                        consoleService.logEvent(EventRequest.builder()
-                                .type(X402_SERVER_PAYMENT_SETTLE_RESPONSE)
-                                .nonce(nonce)
-                                .payload(null)
-                                .errorMessage("Error calling /verify on facilitator - null result")
-                                .build());
                         response.sendError(SC_BAD_REQUEST, "Error calling /verify on facilitator - null result");
                         return false;
                     }
@@ -131,13 +111,6 @@ public class X402Interceptor implements HandlerInterceptor {
                     if (!verifyResult.isValid()) {
                         // Verification is invalid =====================================================================
                         log.error("Payment is invalid: {}", verifyResult);
-                        // X402 Console - Sending X402_SERVER_URL_ACCESS_RESPONSE event to console.
-                        consoleService.logEvent(EventRequest.builder()
-                                .type(X402_SERVER_PAYMENT_SETTLE_RESPONSE)
-                                .payload(JsonUtil.toPrettyJson(verifyResult))
-                                .nonce(nonce)
-                                .errorMessage(verifyResult.invalidReason())
-                                .build());
                         response.setStatus(SC_PAYMENT_REQUIRED);
                         response.setContentType(APPLICATION_JSON_VALUE);
                         objectMapper.writeValue(response.getWriter(), buildPaymentRequirementsBody(request, paymentRequirementsList));
@@ -151,24 +124,12 @@ public class X402Interceptor implements HandlerInterceptor {
                     final SettleResponse settleResponse = facilitatorService.settle(paymentPayload, paymentRequirement).block();
                     if (settleResponse == null) {
                         log.error("Error calling the settle facilitator - null result");
-                        consoleService.logEvent(EventRequest.builder()
-                                .type(X402_SERVER_PAYMENT_SETTLE_RESPONSE)
-                                .nonce(nonce)
-                                .payload(null)
-                                .errorMessage("Error calling the settle facilitator - null result")
-                                .build());
                         response.sendError(SC_BAD_REQUEST, "Serveur error calling the facilitator");
                         return false;
                     }
 
                     // We have a valid result from the settlement ======================================================
                     log.info("Settle result: {}", settleResponse);
-                    consoleService.logEvent(EventRequest.builder()
-                            .type(X402_SERVER_PAYMENT_SETTLE_RESPONSE)
-                            .nonce(nonce)
-                            .payload(JsonUtil.toPrettyJson(settleResponse))
-                            .errorMessage(settleResponse.errorReason())
-                            .build());
                     response.setHeader(X402_X_PAYMENT_RESPONSE, Base64Util.encode(JsonUtil.toJson(settleResponse)));
                     return true;
 

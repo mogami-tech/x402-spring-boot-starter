@@ -88,9 +88,6 @@ public class X402Interceptor implements HandlerInterceptor {
                     request.setAttribute(X402_X_PAYMENT_HEADER_DECODED, paymentPayload);
                     log.info("Payment received for url {}: {}", request.getRequestURL().toString(), paymentHeaderString);
 
-                    final String nonce = paymentPayload.getNonce()
-                            .orElseThrow(() -> new IllegalArgumentException("Nonce is required in the payment payload"));
-
                     // Now, we use the facilitator to check if the payment is isValid.
                     Annotation requirementsFound = paymentRequirementsList.stream()
                             .findFirst()
@@ -124,18 +121,24 @@ public class X402Interceptor implements HandlerInterceptor {
                     final SettleResponse settleResponse = facilitatorService.settle(paymentPayload, paymentRequirement).block();
                     if (settleResponse == null) {
                         log.error("Error calling the settle facilitator - null result");
-                        response.sendError(SC_BAD_REQUEST, "Serveur error calling the facilitator");
+                        response.sendError(SC_BAD_REQUEST, "Serveur error calling the facilitator - null result");
+                        return false;
+                    }
+                    if (settleResponse.success()) {
+                        // We have a valid result from the settlement ==================================================
+                        log.info("Settle result: {}", settleResponse);
+                        response.setHeader(X402_X_PAYMENT_RESPONSE, Base64Util.encode(JsonUtil.toJson(settleResponse)));
+                        return true;
+                    } else {
+                        // Settlement failed ============================================================================
+                        log.error("Payment settlement failed: {}", settleResponse);
+                        response.sendError(SC_BAD_REQUEST, "Payment settlement failed: " + settleResponse.errorReason());
                         return false;
                     }
 
-                    // We have a valid result from the settlement ======================================================
-                    log.info("Settle result: {}", settleResponse);
-                    response.setHeader(X402_X_PAYMENT_RESPONSE, Base64Util.encode(JsonUtil.toJson(settleResponse)));
-                    return true;
-
                 } catch (IllegalArgumentException e) {
                     log.error("Error decoding payment header: {}", e.getMessage());
-                    response.sendError(SC_BAD_REQUEST, "Invalid Base64");
+                    response.sendError(SC_BAD_REQUEST, e.getMessage());
                     return false;
                 }
                 // =====================================================================================================

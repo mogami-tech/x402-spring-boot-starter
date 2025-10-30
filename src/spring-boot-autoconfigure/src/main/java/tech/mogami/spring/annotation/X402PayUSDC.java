@@ -5,8 +5,10 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import static io.netty.handler.codec.http.HttpHeaders.Values.APPLICATION_JSON;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static tech.mogami.commons.constant.X402Constants.X402_DEFAULT_PAYMENT_TIMEOUT_SECONDS;
 import static tech.mogami.commons.header.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_NAME;
 
 /**
@@ -34,6 +36,27 @@ public @interface X402PayUSDC {
      * @return the amount
      */
     String amount();
+
+    /**
+     * Maximum timeout required to complete the payment in seconds.
+     *
+     * @return the timeout
+     */
+    int maximumTimeoutSeconds() default X402_DEFAULT_PAYMENT_TIMEOUT_SECONDS;
+
+    /**
+     * MIME type of the resource.
+     *
+     * @return the MIME type
+     */
+    String mimeType() default APPLICATION_JSON;
+
+    /**
+     * Optional schema describing the structure or metadata of the protected resource output.
+     *
+     * @return the output schema
+     */
+    String outputSchema() default "";
 
     /**
      * Recipient wallet address for the payment.

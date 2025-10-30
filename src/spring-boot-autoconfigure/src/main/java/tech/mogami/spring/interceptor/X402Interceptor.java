@@ -111,6 +111,9 @@ public class X402Interceptor implements HandlerInterceptor {
                         response.setStatus(SC_PAYMENT_REQUIRED);
                         response.setContentType(APPLICATION_JSON_VALUE);
                         objectMapper.writeValue(response.getWriter(), buildPaymentRequirementsBody(request, paymentRequirementsList));
+                        // TODO Not sure what the specs say about this case, we return payment required again.
+                        // log.error("Error calling /verify on facilitator - null result");
+                        // response.sendError(SC_BAD_REQUEST, "Error calling /verify on facilitator - " + verifyResult.invalidReason());
                         return false;
                     }
 

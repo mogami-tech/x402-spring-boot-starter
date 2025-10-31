@@ -1,5 +1,8 @@
 package tech.mogami.spring.integration;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -8,14 +11,28 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import tech.mogami.commons.header.payment.PaymentRequired;
+import tech.mogami.commons.header.payment.PaymentRequirements;
 import tech.mogami.commons.test.BaseTest;
+import tech.mogami.java.client.helper.X402PaymentHelper;
 
 import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.http.HttpStatus.PAYMENT_REQUIRED;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static tech.mogami.commons.constant.X402Constants.X402_PAYMENT_REQUIRED_MESSAGE;
+import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_HEADER;
+import static tech.mogami.commons.constant.network.Networks.BASE_SEPOLIA;
+import static tech.mogami.commons.constant.network.base.BaseContracts.BASE_SEPOLIA_USDC_CONTRACT;
+import static tech.mogami.commons.constant.version.X402Versions.X402_SUPPORTED_VERSION_BY_MOGAMI;
+import static tech.mogami.commons.header.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_NAME;
+import static tech.mogami.commons.header.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_PARAMETER_NAME;
+import static tech.mogami.commons.header.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_PARAMETER_VERSION;
 
 @AutoConfigureMockMvc
 @DisplayName("Conformity tests")
@@ -36,26 +53,120 @@ public class ConformityTest extends BaseTest {
     }
 
     @Test
-    @DisplayName("Calling the URL without payment requirements")
-    void withoutPaymentRequirements() throws Exception {
+    @DisplayName("Payment process")
+    void paymentProcess() throws JsonProcessingException {
+        // JSON value of output schema.
+        final JsonNode outputSchema = new ObjectMapper().readTree("""
+                {
+                  "input": {
+                    "discoverable": true,
+                    "method": "GET",
+                    "type": "http"
+                  }
+                }
+                """);
+
         OkHttpClient client = new OkHttpClient();
         urls(port).forEach(url -> {
-            Request request = new Request.Builder()
-                    .url(url)
-                    .header("User-Agent", "axios/1.8.4")
-                    .addHeader("Accept", "application/json")
-                    .build();
+            Optional<PaymentRequired> paymentRequired;
+            PaymentRequirements paymentRequirements = null;
 
-            // Testing the response.
-            try (Response response = client.newCall(request).execute()) {
+            // Calling the URL without payment =========================================================================
+            try (Response response = client.newCall(new Request.Builder()
+                            .url(url)
+                            .addHeader("Accept", "application/json")
+                            .build())
+                    .execute()) {
+                // Testing response code (402 Payment Required).
                 assertThat(response).isNotNull();
                 assertThat(response.code()).isEqualTo(PAYMENT_REQUIRED.value());
-                assertThat(response.body()).isNotNull();
 
-                // Looking at the payment requirements.
+                // Testing payment required values.
+                assertThat(response.body()).isNotNull();
+                paymentRequired = X402PaymentHelper.getPaymentRequiredFromBody(response.body().string());
+                assertThat(paymentRequired).isPresent();
+                assertThat(paymentRequired.get().x402Version()).isEqualTo(X402_SUPPORTED_VERSION_BY_MOGAMI.version());
+                assertThat(paymentRequired.get().accepts()).size().isEqualTo(1);
+                assertThat(paymentRequired.get().error()).isEqualTo(X402_PAYMENT_REQUIRED_MESSAGE);
+
+                // Checking payment requirements values.
+                paymentRequirements = paymentRequired.get().accepts().getFirst();
+                assertThat(paymentRequirements).isNotNull()
+                        .satisfies(requirements -> {
+                            assertThat(requirements.scheme()).isEqualTo(EXACT_SCHEME_NAME);
+                            assertThat(requirements.network()).isEqualTo(BASE_SEPOLIA.name());
+                            assertThat(requirements.maxAmountRequiredAsBigInteger().compareTo(new BigInteger("10000"))).isEqualTo(0);
+                            assertThat(requirements.resource()).endsWith("/protected");
+                            assertThat(requirements.description()).isEqualTo("Access to protected content");
+                            assertThat(requirements.mimeType()).isEqualTo(APPLICATION_JSON.toString());
+                            assertThat(requirements.outputSchema()).isEqualTo(outputSchema);
+                            assertThat(requirements.payTo()).isEqualTo("0x209693Bc6afc0C5328bA36FaF03C514EF312287C");
+                            assertThat(requirements.maxTimeoutSeconds()).isEqualTo(300);
+                            assertThat(requirements.asset()).isEqualTo(BASE_SEPOLIA_USDC_CONTRACT);
+                            assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_NAME)).isPresent();
+                            assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_NAME)).get().isEqualTo("USDC");
+                            assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_VERSION)).isPresent();
+                            assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_VERSION)).get().isEqualTo("2");
+                        });
+
+            } catch (IOException e) {
+                fail("Request to " + url + " failed: " + e.getMessage());
+            }
+
+            // Calling the URL with invalid payment ====================================================================
+            // Generating a payment payload (without signature).
+            var paymentPayloadNotSigned = X402PaymentHelper.getPayloadFromPaymentRequirements(
+                    null,
+                    TEST_CLIENT_WALLET_ADDRESS_1,
+                    paymentRequirements);
+
+            try (Response response = client.newCall(new Request.Builder()
+                            .url(url)
+                            .header(X402_X_PAYMENT_HEADER, X402PaymentHelper.getPayloadHeader(paymentPayloadNotSigned))
+                            .addHeader("Accept", "application/json")
+                            .build())
+                    .execute()) {
+
+                // Testing response code (402 Payment Required).
+                assertThat(response).isNotNull();
+                assertThat(response.code()).isEqualTo(PAYMENT_REQUIRED.value());
+
+                // Testing payment required values.
+                assertThat(response.body()).isNotNull();
                 var body = response.body().string();
-                System.out.println("===> " + body);
-                //assertThat(X402PaymentHelper.getPaymentRequiredFromBody(body)).isPresent();
+                System.out.println("=> Response body with invalid payment: " + body);
+                paymentRequired = X402PaymentHelper.getPaymentRequiredFromBody(body);
+                assertThat(paymentRequired).isPresent();
+                assertThat(paymentRequired.get().x402Version()).isEqualTo(X402_SUPPORTED_VERSION_BY_MOGAMI.version());
+                assertThat(paymentRequired.get().accepts()).size().isEqualTo(1);
+
+                // Error are different for invalid payment depending on the server implementation.
+                if (url.contains("x402.org")) {
+                    assertThat(paymentRequired.get().error()).contains("\"issues\":");
+                }
+                if (url.contains("localhost")) {
+                    assertThat(paymentRequired.get().error()).isEqualTo("invalid_payload");
+                }
+
+                // Checking payment requirements values.
+                paymentRequirements = paymentRequired.get().accepts().getFirst();
+                assertThat(paymentRequirements).isNotNull()
+                        .satisfies(requirements -> {
+                            assertThat(requirements.scheme()).isEqualTo(EXACT_SCHEME_NAME);
+                            assertThat(requirements.network()).isEqualTo(BASE_SEPOLIA.name());
+                            assertThat(requirements.maxAmountRequiredAsBigInteger().compareTo(new BigInteger("10000"))).isEqualTo(0);
+                            assertThat(requirements.resource()).endsWith("/protected");
+                            assertThat(requirements.description()).isEqualTo("Access to protected content");
+                            assertThat(requirements.mimeType()).isEqualTo(APPLICATION_JSON.toString());
+                            assertThat(requirements.outputSchema()).isEqualTo(outputSchema);
+                            assertThat(requirements.payTo()).isEqualTo("0x209693Bc6afc0C5328bA36FaF03C514EF312287C");
+                            assertThat(requirements.maxTimeoutSeconds()).isEqualTo(300);
+                            assertThat(requirements.asset()).isEqualTo(BASE_SEPOLIA_USDC_CONTRACT);
+                            assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_NAME)).isPresent();
+                            assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_NAME)).get().isEqualTo("USDC");
+                            assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_VERSION)).isPresent();
+                            assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_VERSION)).get().isEqualTo("2");
+                        });
 
             } catch (IOException e) {
                 fail("Request to " + url + " failed: " + e.getMessage());

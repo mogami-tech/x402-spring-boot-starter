@@ -9,6 +9,7 @@ import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.servlet.HandlerInterceptor;
 import tech.mogami.commons.api.facilitator.settle.SettleResponse;
 import tech.mogami.commons.api.facilitator.verify.VerifyResponse;
@@ -76,7 +77,7 @@ public class X402Interceptor implements HandlerInterceptor {
                     log.info("x402 URL Called without payment: {}", request.getRequestURL().toString());
                     response.setStatus(SC_PAYMENT_REQUIRED);
                     response.setContentType(APPLICATION_JSON_VALUE);
-                    objectMapper.writeValue(response.getWriter(), buildPaymentRequirementsBody(request, paymentRequirementsList));
+                    objectMapper.writeValue(response.getWriter(), buildPaymentRequirementsBody(request, null, paymentRequirementsList));
                     return false; // We stop the chain.
                 }
 
@@ -95,30 +96,40 @@ public class X402Interceptor implements HandlerInterceptor {
                     final PaymentRequirements paymentRequirement = payFactories.buildRequirements(requirementsFound, request);
 
                     // We do the verification on the facilitator server ================================================
-                    final VerifyResponse verifyResult = facilitatorService.verify(paymentPayload, paymentRequirement).block();
-                    if (verifyResult == null) {
-                        // Error calling the verify facilitator - null result ==========================================
-                        log.error("Error calling /verify on facilitator - null result");
-                        response.sendError(SC_BAD_REQUEST, "Error calling /verify on facilitator - null result");
+                    VerifyResponse verifyResponse;
+                    try {
+                        verifyResponse = facilitatorService.verify(paymentPayload, paymentRequirement).block();
+                    } catch (WebClientResponseException e) {
+                        // The call failed.
+                        String responseBody = e.getResponseBodyAsString(UTF_8);
+                        log.error("Verification failed: {} - {}", e.getStatusCode(), responseBody);
+
+                        // The body should contain a verifyResponse.
+                        try {
+                            verifyResponse = JsonUtil.fromJson(responseBody, VerifyResponse.class);
+                        } catch (Exception ex) {
+                            log.error("The result from the facilitator is not a valid VerifyResponse: {}", responseBody);
+                            verifyResponse = null;
+                        }
+                        response.setStatus(SC_PAYMENT_REQUIRED);
+                        response.setContentType(APPLICATION_JSON_VALUE);
+                        objectMapper.writeValue(response.getWriter(), buildPaymentRequirementsBody(request, verifyResponse, paymentRequirementsList));
                         return false;
                     }
 
                     // We have a result from the verification ==========================================================
-                    log.info("Verify result: {}", verifyResult);
-                    if (!verifyResult.isValid()) {
+                    log.info("Verify result: {}", verifyResponse);
+                    if (verifyResponse == null || !verifyResponse.isValid()) {
                         // Verification is invalid =====================================================================
-                        log.error("Payment is invalid: {}", verifyResult);
+                        log.error("Payment is invalid: {}", verifyResponse);
                         response.setStatus(SC_PAYMENT_REQUIRED);
                         response.setContentType(APPLICATION_JSON_VALUE);
-                        objectMapper.writeValue(response.getWriter(), buildPaymentRequirementsBody(request, paymentRequirementsList));
-                        // TODO Not sure what the specs say about this case, we return payment required again.
-                        // log.error("Error calling /verify on facilitator - null result");
-                        // response.sendError(SC_BAD_REQUEST, "Error calling /verify on facilitator - " + verifyResult.invalidReason());
+                        objectMapper.writeValue(response.getWriter(), buildPaymentRequirementsBody(request, verifyResponse, paymentRequirementsList));
                         return false;
                     }
 
                     // Verification is valid ===========================================================================
-                    log.info("Payment is valid: {}", verifyResult);
+                    log.info("Payment is valid: {}", verifyResponse);
 
                     // Calling /settle and setting the response header =================================================
                     final SettleResponse settleResponse = facilitatorService.settle(paymentPayload, paymentRequirement).block();
@@ -161,14 +172,22 @@ public class X402Interceptor implements HandlerInterceptor {
      * Builds the body for the payment required response.
      *
      * @param request                        The HTTP request
+     * @param verifyResponse                 The verify response
      * @param paymentRequirementsAnnotations The list of payment requirements annotations
      * @return The payment required body
      */
     private PaymentRequired buildPaymentRequirementsBody(final HttpServletRequest request,
+                                                         final VerifyResponse verifyResponse,
                                                          final Set<Annotation> paymentRequirementsAnnotations) {
+        // We check if we have a verify response with an error inside, if so we use this error.
+        String errorMessage = X402_PAYMENT_REQUIRED_MESSAGE;
+        if (verifyResponse != null && verifyResponse.invalidReason() != null) {
+            errorMessage = verifyResponse.invalidReason();
+        }
+
         return PaymentRequired.builder()
                 .x402Version(X402_SUPPORTED_VERSION_BY_MOGAMI.version())
-                .error(X402_PAYMENT_REQUIRED_MESSAGE)
+                .error(errorMessage)
                 .accepts(paymentRequirementsAnnotations
                         .stream()
                         .map(paymentRequirement -> payFactories.buildRequirements(paymentRequirement, request))

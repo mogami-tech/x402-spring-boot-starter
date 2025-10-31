@@ -17,6 +17,7 @@ import tech.mogami.spring.parameter.X402Parameters;
 import java.math.BigInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static tech.mogami.commons.constant.network.base.BaseContracts.BASE_MAINNET_USDC_CONTRACT;
 import static tech.mogami.commons.constant.network.base.BaseContracts.BASE_SEPOLIA_USDC_CONTRACT;
@@ -105,6 +106,7 @@ public class PayFactoriesTest {
                 WeatherController.class.getDeclaredMethod("weather"),
                 X402PaymentRequirements.class);
         var firstAnnotation = annotations.stream().findFirst();
+        assertTrue(firstAnnotation.isPresent());
 
         assertThat(payFactories.buildRequirements(
                 firstAnnotation.get(),

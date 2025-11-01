@@ -6,14 +6,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.web3j.crypto.Credentials;
+import tech.mogami.commons.api.facilitator.settle.SettleResponse;
 import tech.mogami.commons.header.payment.PaymentRequired;
 import tech.mogami.commons.header.payment.PaymentRequirements;
 import tech.mogami.commons.test.BaseTest;
+import tech.mogami.commons.util.Base64Util;
+import tech.mogami.commons.util.JsonUtil;
 import tech.mogami.java.client.helper.X402PaymentHelper;
 
 import java.io.IOException;
@@ -23,10 +28,12 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.PAYMENT_REQUIRED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static tech.mogami.commons.constant.X402Constants.X402_PAYMENT_REQUIRED_MESSAGE;
 import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_HEADER;
+import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_RESPONSE;
 import static tech.mogami.commons.constant.network.Networks.BASE_SEPOLIA;
 import static tech.mogami.commons.constant.network.base.BaseContracts.BASE_SEPOLIA_USDC_CONTRACT;
 import static tech.mogami.commons.constant.version.X402Versions.X402_SUPPORTED_VERSION_BY_MOGAMI;
@@ -134,7 +141,6 @@ public class ConformityTest extends BaseTest {
                 // Testing payment required values.
                 assertThat(response.body()).isNotNull();
                 var body = response.body().string();
-                System.out.println("=> Response body with invalid payment: " + body);
                 paymentRequired = X402PaymentHelper.getPaymentRequiredFromBody(body);
                 assertThat(paymentRequired).isPresent();
                 assertThat(paymentRequired.get().x402Version()).isEqualTo(X402_SUPPORTED_VERSION_BY_MOGAMI.version());
@@ -166,6 +172,46 @@ public class ConformityTest extends BaseTest {
                             assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_NAME)).get().isEqualTo("USDC");
                             assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_VERSION)).isPresent();
                             assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_VERSION)).get().isEqualTo("2");
+                        });
+
+            } catch (IOException e) {
+                fail("Request to " + url + " failed: " + e.getMessage());
+            }
+
+            // Calling the URL with invalid payment ====================================================================
+            // Generating a payment payload (without signature).
+            var signedPayload = X402PaymentHelper.getSignedPayload(
+                    Credentials.create(TEST_CLIENT_WALLET_ADDRESS_1_PRIVATE_KEY),
+                    paymentRequirements,
+                    paymentPayloadNotSigned);
+
+            try (Response response = client.newCall(new Request.Builder()
+                            .url(url)
+                            .header(X402_X_PAYMENT_HEADER, X402PaymentHelper.getPayloadHeader(signedPayload))
+                            .addHeader("Accept", "application/json")
+                            .build())
+                    .execute()) {
+
+                //var responseBody = response.body().string();
+                //System.out.println("=> Response after payment: " + responseBody);
+
+                // Testing response code - Should be 200 OK if payment is accepted.
+                assertThat(response).isNotNull();
+                assertThat(response.code()).isEqualTo(OK.value());
+
+                // Testing X402_X_PAYMENT_RESPONSE.
+                var paymentResponseHeaderEncoded = StringUtils.firstNonBlank(response.header(X402_X_PAYMENT_RESPONSE), response.header(X402_X_PAYMENT_RESPONSE.toLowerCase()));
+                assertThat(paymentResponseHeaderEncoded).isNotNull();
+                var paymentResponseHeaderDecoded = Base64Util.decode(paymentResponseHeaderEncoded);
+                assertThat(paymentResponseHeaderDecoded).isNotNull();
+                assertThat(JsonUtil.fromJson(paymentResponseHeaderDecoded, SettleResponse.class))
+                        .isNotNull()
+                        .satisfies(settleResponse -> {
+                            assertThat(settleResponse.success()).isTrue();
+                            assertThat(settleResponse.network()).isEqualTo(BASE_SEPOLIA.name());
+                            assertThat(settleResponse.transaction()).isNotNull();
+                            assertThat(settleResponse.errorReason()).isNull();
+                            assertThat(settleResponse.payer()).isEqualTo(TEST_CLIENT_WALLET_ADDRESS_1);
                         });
 
             } catch (IOException e) {

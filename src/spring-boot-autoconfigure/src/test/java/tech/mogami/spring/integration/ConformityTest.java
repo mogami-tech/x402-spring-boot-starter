@@ -7,6 +7,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -47,6 +48,7 @@ import static tech.mogami.commons.header.payment.schemes.exact.ExactSchemeConsta
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = "x402.facilitator.base-url=https://x402.org/facilitator"
 )
+@Disabled("Disabled to avoid too many requests to the public x402.org server")
 public class ConformityTest extends BaseTest {
 
     @LocalServerPort

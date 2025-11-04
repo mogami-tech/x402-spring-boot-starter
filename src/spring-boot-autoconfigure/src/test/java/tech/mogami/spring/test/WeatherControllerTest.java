@@ -187,7 +187,7 @@ public class WeatherControllerTest extends BaseTest {
                 .andExpect(status().isPaymentRequired())
                 .andExpect(content().contentType(APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.x402Version").value(X402_SUPPORTED_VERSION_BY_MOGAMI.version()))
-                .andExpect(jsonPath("$.error").value(X402_PAYMENT_REQUIRED_MESSAGE))
+                .andExpect(jsonPath("$.error").value("invalid_scheme"))
                 .andExpect(jsonPath("$.accepts.length()").value(2))
                 .andReturn();
 

@@ -17,6 +17,8 @@ import tech.mogami.spring.parameter.X402Parameters;
 import java.math.BigInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static tech.mogami.commons.constant.network.base.BaseContracts.BASE_MAINNET_USDC_CONTRACT;
 import static tech.mogami.commons.constant.network.base.BaseContracts.BASE_SEPOLIA_USDC_CONTRACT;
 import static tech.mogami.commons.header.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_NAME;
@@ -64,7 +66,7 @@ public class PayFactoriesTest {
                     assertThat(requirements.maxAmountRequiredAsBigInteger().compareTo(new BigInteger("3500000"))).isEqualTo(0);
                     assertThat(requirements.resource()).isEqualTo("http://localhost:8080/x402/pay");
                     assertThat(requirements.description()).isBlank();
-                    assertThat(requirements.mimeType()).isBlank();
+                    assertThat(requirements.mimeType()).isEqualTo(APPLICATION_JSON.toString());
                     assertThat(requirements.payTo()).isEqualTo(x402Parameters.defaultPayTo());
                     assertThat(requirements.maxTimeoutSeconds()).isEqualTo(60);
                     assertThat(requirements.asset()).isEqualTo(BASE_SEPOLIA_USDC_CONTRACT);
@@ -85,7 +87,7 @@ public class PayFactoriesTest {
                     assertThat(requirements.maxAmountRequiredAsBigInteger().compareTo(new BigInteger("5100000"))).isEqualTo(0);
                     assertThat(requirements.resource()).isEqualTo("http://localhost:8080/x402/pay");
                     assertThat(requirements.description()).isEqualTo("Complex payment");
-                    assertThat(requirements.mimeType()).isBlank();
+                    assertThat(requirements.mimeType()).isEqualTo(APPLICATION_JSON.toString());
                     assertThat(requirements.payTo()).isEqualTo("0x71C7656EC7ab88b098defB751B7401B5f6d8976F");
                     assertThat(requirements.maxTimeoutSeconds()).isEqualTo(60);
                     assertThat(requirements.asset()).isEqualTo(BASE_MAINNET_USDC_CONTRACT);
@@ -104,6 +106,7 @@ public class PayFactoriesTest {
                 WeatherController.class.getDeclaredMethod("weather"),
                 X402PaymentRequirements.class);
         var firstAnnotation = annotations.stream().findFirst();
+        assertTrue(firstAnnotation.isPresent());
 
         assertThat(payFactories.buildRequirements(
                 firstAnnotation.get(),

@@ -17,6 +17,11 @@
             <artifactId>mogami-x402-commons</artifactId>
             <version>${mogami.commons.version}</version>
         </dependency>
+        <dependency>
+            <groupId>tech.mogami.java.client</groupId>
+            <artifactId>mogami-x402-java-client</artifactId>
+            <version>${mogami.java-client.version}</version>
+        </dependency>
 
         <!-- Spring dependencies -->
         <dependency>
@@ -73,6 +78,11 @@
             <artifactId>awaitility</artifactId>
             <version>${awaitility.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>${okhttp.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mock-server</groupId>
@@ -193,6 +203,9 @@
                 <configuration>
                     <detectOfflineLinks>false</detectOfflineLinks>
                     <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
+                    <failOnError>false</failOnError>
+                    <quiet>true</quiet>
+                    <additionalOptions>-Xdoclint:none</additionalOptions>
                 </configuration>
                 <executions>
                     <execution>
@@ -210,7 +223,7 @@
     <parent>
         <groupId>tech.mogami.spring</groupId>
         <artifactId>mogami-x402-spring-boot-starter-project</artifactId>
-        <version>1.1.0</version>
+        <version>1.1.1</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 

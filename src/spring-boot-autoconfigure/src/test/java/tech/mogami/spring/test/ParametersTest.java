@@ -10,8 +10,8 @@ import tech.mogami.spring.TestApplication;
 import static org.assertj.core.api.Fail.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@DisplayName("Facilitator parameters tests")
-public class FacilitatorParametersTest extends BaseTest {
+@DisplayName("Parameters tests")
+public class ParametersTest extends BaseTest {
 
     @Test
     @DisplayName("Missing facilitator parameters")

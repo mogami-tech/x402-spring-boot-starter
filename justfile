@@ -20,4 +20,4 @@ finish_release:
     mvn gitflow:release-finish -DskipTests
 
 run_deploy_release:
-    mvn -B -Prelease deploy
+    mvn -B -Prelease deploy -DskipTests

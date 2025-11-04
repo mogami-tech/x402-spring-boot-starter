@@ -7,6 +7,8 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static tech.mogami.commons.constant.X402Constants.X402_DEFAULT_PAYMENT_TIMEOUT_SECONDS;
 
 /**
  * X402 Payment requirements annotation.
@@ -40,6 +42,27 @@ public @interface X402PaymentRequirements {
      * @return maximum amount required in the smallest denomination of the cryptocurrency
      */
     String maximumAmountRequired();
+
+    /**
+     * Maximum timeout required to complete the payment in seconds.
+     *
+     * @return the timeout
+     */
+    int maximumTimeoutSeconds() default X402_DEFAULT_PAYMENT_TIMEOUT_SECONDS;
+
+    /**
+     * MIME type of the resource.
+     *
+     * @return the MIME type
+     */
+    String mimeType() default APPLICATION_JSON_VALUE;
+
+    /**
+     * Optional schema describing the structure or metadata of the protected resource output.
+     *
+     * @return the output schema
+     */
+    String outputSchema() default "";
 
     /**
      * Human-readable description of the resource.

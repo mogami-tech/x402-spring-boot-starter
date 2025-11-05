@@ -1,4 +1,4 @@
-package tech.mogami.spring.test;
+package tech.mogami.spring.test.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;

@@ -1,4 +1,4 @@
-package tech.mogami.spring.integration;
+package tech.mogami.spring.test.integration;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;

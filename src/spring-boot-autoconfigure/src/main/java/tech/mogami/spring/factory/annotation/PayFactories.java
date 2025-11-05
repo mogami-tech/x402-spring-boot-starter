@@ -8,6 +8,7 @@ import tech.mogami.commons.header.payment.PaymentRequirements;
 import tech.mogami.spring.annotation.X402PayUSDC;
 import tech.mogami.spring.annotation.X402PaymentRequirements;
 import tech.mogami.spring.parameter.X402Parameters;
+import tech.mogami.spring.pricing.AmountProviderResolver;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
@@ -23,6 +24,9 @@ public class PayFactories {
     /** x402 parameters. */
     private final X402Parameters x402Parameters;
 
+    /** Amount provider resolver. */
+    private final AmountProviderResolver amountResolver;
+
     /** Registry of PayFactory instances mapped by their corresponding annotation classes. */
     private static final Map<Class<? extends Annotation>, PayFactory<?>> REGISTRY = new HashMap<>();
 
@@ -36,7 +40,10 @@ public class PayFactories {
                 .stream()
                 .filter(factory -> factory instanceof AbstractPayFactory<?>)
                 .map(AbstractPayFactory.class::cast)
-                .forEach(factory -> factory.setX402Parameters(x402Parameters));
+                .forEach(factory -> {
+                    factory.setX402Parameters(x402Parameters);
+                    factory.setAmountResolver(amountResolver);
+                });
     }
 
     /**

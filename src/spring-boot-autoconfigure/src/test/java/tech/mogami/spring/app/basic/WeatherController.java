@@ -1,4 +1,4 @@
-package tech.mogami.spring.app;
+package tech.mogami.spring.app.basic;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

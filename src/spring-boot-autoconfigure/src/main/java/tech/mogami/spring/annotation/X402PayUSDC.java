@@ -1,5 +1,8 @@
 package tech.mogami.spring.annotation;
 
+import tech.mogami.spring.pricing.AmountProvider;
+import tech.mogami.spring.pricing.DefaultAmountProvider;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
@@ -32,10 +35,21 @@ public @interface X402PayUSDC {
     /**
      * Amount required to pay for the resource in units of the asset.
      * example: "10.5" USDC
+     * It won't be taken into account if an AmountProvider is provided.
      *
      * @return the amount
      */
     String amount();
+
+    /**
+     * Class providing the amount to pay.
+     * If you want to use a fixed price, use the amount field.
+     * But if you want to calculate a price depending on the user request,
+     * provide your AmountProvider implementation, amount field will be ignored.
+     *
+     * @return the amount provider class
+     */
+    Class<? extends AmountProvider> amountProvider() default DefaultAmountProvider.class;
 
     /**
      * Maximum timeout required to complete the payment in seconds.

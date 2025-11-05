@@ -1,4 +1,4 @@
-package tech.mogami.spring.test;
+package tech.mogami.spring.test.internal;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.DisplayName;
@@ -10,7 +10,7 @@ import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.mock.web.MockHttpServletRequest;
 import tech.mogami.spring.annotation.X402PayUSDC;
 import tech.mogami.spring.annotation.X402PaymentRequirements;
-import tech.mogami.spring.app.WeatherController;
+import tech.mogami.spring.app.basic.WeatherController;
 import tech.mogami.spring.factory.annotation.PayFactories;
 import tech.mogami.spring.parameter.X402Parameters;
 
@@ -19,6 +19,7 @@ import java.math.BigInteger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static tech.mogami.commons.constant.network.base.BaseContracts.BASE_MAINNET_USDC_CONTRACT;
 import static tech.mogami.commons.constant.network.base.BaseContracts.BASE_SEPOLIA_USDC_CONTRACT;
 import static tech.mogami.commons.header.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_NAME;
@@ -118,7 +119,7 @@ public class PayFactoriesTest {
                     assertThat(requirements.maxAmountRequiredAsBigInteger().compareTo(new BigInteger("1000"))).isEqualTo(0);
                     assertThat(requirements.resource()).isEqualTo("http://localhost:8080/x402/pay");
                     assertThat(requirements.description()).isBlank();
-                    assertThat(requirements.mimeType()).isBlank();
+                    assertThat(requirements.mimeType()).isEqualToIgnoringCase(APPLICATION_JSON_VALUE);
                     assertThat(requirements.payTo()).isEqualTo(TEST_SERVER_WALLET_ADDRESS_1);
                     assertThat(requirements.maxTimeoutSeconds()).isEqualTo(60);
                     assertThat(requirements.asset()).isEqualTo(BASE_SEPOLIA_USDC_CONTRACT);

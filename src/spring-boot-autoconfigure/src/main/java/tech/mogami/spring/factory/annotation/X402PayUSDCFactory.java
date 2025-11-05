@@ -25,7 +25,11 @@ public class X402PayUSDCFactory extends AbstractPayFactory<X402PayUSDC> {
         return PaymentRequirements.builder()
                 .scheme(annotation.scheme())
                 .network(network.name())
-                .maxAmountRequired(network.usdc().toAtomic(annotation.amount()).toPlainString())
+                .maxAmountRequired(
+                        amountResolver.resolveAmountInAtomicUnit(network.usdc().toAtomic(annotation.amount()).toPlainString(),
+                                annotation.amountProvider(),
+                                request)
+                )
                 .resource(request.getRequestURL().toString())
                 .description(annotation.description())
                 .mimeType(annotation.mimeType())

@@ -1,4 +1,4 @@
-package tech.mogami.spring.test;
+package tech.mogami.spring.test.internal;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.DisplayName;
@@ -10,7 +10,7 @@ import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.mock.web.MockHttpServletRequest;
 import tech.mogami.spring.annotation.X402PayUSDC;
 import tech.mogami.spring.annotation.X402PaymentRequirements;
-import tech.mogami.spring.app.WeatherController;
+import tech.mogami.spring.app.basic.WeatherController;
 import tech.mogami.spring.factory.annotation.PayFactories;
 import tech.mogami.spring.parameter.X402Parameters;
 

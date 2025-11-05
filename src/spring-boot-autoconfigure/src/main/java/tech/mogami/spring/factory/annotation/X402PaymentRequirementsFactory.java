@@ -23,7 +23,11 @@ public class X402PaymentRequirementsFactory extends AbstractPayFactory<X402Payme
         return PaymentRequirements.builder()
                 .scheme(annotation.scheme())
                 .network(network.name())
-                .maxAmountRequired(annotation.maximumAmountRequired())
+                .maxAmountRequired(
+                        amountResolver.resolveAmountInAtomicUnit(annotation.maximumAmountRequired(),
+                                annotation.amountProvider(),
+                                request)
+                )
                 .resource(request.getRequestURL().toString())
                 .description(annotation.description())
                 .mimeType(annotation.mimeType())

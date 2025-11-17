@@ -14,7 +14,7 @@
     <url>https://github.com/mogami-tech/x402-spring-boot-starter</url>
     <licenses>
         <license>
-            <name>GNU Affero General Public License v3.0</name>
+            <name>Apache-2.0 license</name>
             <url>https://github.com/mogami-tech/x402-spring-boot-starter/blob/development/LICENSE</url>
             <distribution>repo</distribution>
         </license>

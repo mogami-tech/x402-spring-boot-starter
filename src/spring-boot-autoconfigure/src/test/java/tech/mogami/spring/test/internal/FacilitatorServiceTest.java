@@ -10,7 +10,7 @@ import tech.mogami.spring.provider.facilitator.FacilitatorService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static tech.mogami.commons.constant.network.Networks.BASE_SEPOLIA;
-import static tech.mogami.commons.header.payment.schemes.Schemes.EXACT_SCHEME;
+import static tech.mogami.commons.payment.schemes.Schemes.EXACT_SCHEME;
 
 @SpringBootTest
 @AutoConfigureMockMvc

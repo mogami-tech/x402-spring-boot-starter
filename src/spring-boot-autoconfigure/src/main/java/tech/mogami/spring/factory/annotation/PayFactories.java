@@ -4,7 +4,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import tech.mogami.commons.header.payment.PaymentRequirements;
+import tech.mogami.commons.payment.PaymentRequirements;
 import tech.mogami.spring.annotation.X402PayUSDC;
 import tech.mogami.spring.annotation.X402PaymentRequirements;
 import tech.mogami.spring.parameter.X402Parameters;

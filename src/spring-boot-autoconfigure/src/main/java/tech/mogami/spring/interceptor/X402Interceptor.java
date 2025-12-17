@@ -13,9 +13,9 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.servlet.HandlerInterceptor;
 import tech.mogami.commons.api.facilitator.settle.SettleResponse;
 import tech.mogami.commons.api.facilitator.verify.VerifyResponse;
-import tech.mogami.commons.header.payment.PaymentPayload;
-import tech.mogami.commons.header.payment.PaymentRequired;
-import tech.mogami.commons.header.payment.PaymentRequirements;
+import tech.mogami.commons.payment.PaymentPayload;
+import tech.mogami.commons.payment.PaymentRequired;
+import tech.mogami.commons.payment.PaymentRequirements;
 import tech.mogami.commons.util.Base64Util;
 import tech.mogami.commons.util.JsonUtil;
 import tech.mogami.spring.annotation.X402PayUSDC;
@@ -87,6 +87,8 @@ public class X402Interceptor implements HandlerInterceptor {
                     PaymentPayload paymentPayload = JsonUtil.fromJson(paymentHeaderString, PaymentPayload.class);
                     request.setAttribute(X402_X_PAYMENT_HEADER_DECODED, paymentPayload);
                     log.info("Payment received for url {}: {}", request.getRequestURL().toString(), paymentHeaderString);
+
+                    // TODO Here, we check the payment against the fist requirement found. 
                     Annotation requirementsFound = paymentRequirementsList.stream()
                             .findFirst()
                             .orElseThrow(() -> new IllegalArgumentException("No payment requirements found"));

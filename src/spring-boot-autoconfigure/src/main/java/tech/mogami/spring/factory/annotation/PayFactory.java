@@ -1,7 +1,7 @@
 package tech.mogami.spring.factory.annotation;
 
 import jakarta.servlet.http.HttpServletRequest;
-import tech.mogami.commons.header.payment.PaymentRequirements;
+import tech.mogami.commons.payment.PaymentRequirements;
 
 import java.lang.annotation.Annotation;
 

@@ -7,14 +7,14 @@
     <!-- Project information ======================================================================================= -->
     <groupId>tech.mogami.spring</groupId>
     <artifactId>mogami-x402-spring-boot-starter-project</artifactId>
-    <version>1.1.2</version>
+    <version>1.1.3</version>
     <packaging>pom</packaging>
     <name>Mogami Java x402 server SDK - Spring boot starter</name>
     <description>Protect your APIs with pay-per-call logic using a single Spring Boot annotation.</description>
     <url>https://github.com/mogami-tech/x402-spring-boot-starter</url>
     <licenses>
         <license>
-            <name>GNU Affero General Public License v3.0</name>
+            <name>Apache-2.0 license</name>
             <url>https://github.com/mogami-tech/x402-spring-boot-starter/blob/development/LICENSE</url>
             <distribution>repo</distribution>
         </license>
@@ -53,8 +53,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- Mogami -->
-        <mogami.commons.version>1.1.3</mogami.commons.version>
-        <mogami.java-client.version>1.1.1</mogami.java-client.version>
+        <mogami.commons.version>1.2.0</mogami.commons.version>
+        <mogami.java-client.version>1.1.2</mogami.java-client.version>
 
         <!-- Spring -->
         <spring-boot.version>3.5.7</spring-boot.version>
@@ -71,13 +71,13 @@
 
         <!-- Maven -->
         <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
-        <maven.puppycrawl.checkstyle.version>12.1.1</maven.puppycrawl.checkstyle.version>
+        <maven.puppycrawl.checkstyle.version>12.3.0</maven.puppycrawl.checkstyle.version>
         <maven.resources.plugin.version>3.3.1</maven.resources.plugin.version>
         <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
         <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
         <maven.surefire-junit5-tree-reporter.version>1.5.1</maven.surefire-junit5-tree-reporter.version>
-        <maven.jar.plugin.version>3.4.2</maven.jar.plugin.version>
-        <maven.source.plugin.version>3.3.1</maven.source.plugin.version>
+        <maven.jar.plugin.version>3.5.0</maven.jar.plugin.version>
+        <maven.source.plugin.version>3.4.0</maven.source.plugin.version>
         <maven.build-helper-maven-plugin.version>3.6.1</maven.build-helper-maven-plugin.version>
         <maven.javadoc.plugin.version>3.12.0</maven.javadoc.plugin.version>
         <maven.archetype-packaging.version>3.2.1</maven.archetype-packaging.version>

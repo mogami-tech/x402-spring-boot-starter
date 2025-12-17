@@ -11,8 +11,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import tech.mogami.commons.api.facilitator.settle.SettleResponse;
-import tech.mogami.commons.header.payment.PaymentPayload;
-import tech.mogami.commons.header.payment.schemes.exact.ExactSchemePayload;
+import tech.mogami.commons.payment.PaymentPayload;
+import tech.mogami.commons.payment.schemes.exact.ExactSchemePayload;
 import tech.mogami.commons.test.BaseTest;
 import tech.mogami.spring.parameter.X402Parameters;
 
@@ -41,7 +41,7 @@ import static tech.mogami.commons.constant.network.Networks.BASE_SEPOLIA;
 import static tech.mogami.commons.constant.network.base.BaseContracts.BASE_MAINNET_USDC_CONTRACT;
 import static tech.mogami.commons.constant.network.base.BaseContracts.BASE_SEPOLIA_USDC_CONTRACT;
 import static tech.mogami.commons.constant.version.X402Versions.X402_SUPPORTED_VERSION_BY_MOGAMI;
-import static tech.mogami.commons.header.payment.schemes.Schemes.EXACT_SCHEME;
+import static tech.mogami.commons.payment.schemes.Schemes.EXACT_SCHEME;
 
 @SuppressWarnings("ALL")
 @SpringBootTest(

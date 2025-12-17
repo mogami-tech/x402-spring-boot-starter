@@ -15,8 +15,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.web3j.crypto.Credentials;
 import tech.mogami.commons.api.facilitator.settle.SettleResponse;
-import tech.mogami.commons.header.payment.PaymentRequired;
-import tech.mogami.commons.header.payment.PaymentRequirements;
+import tech.mogami.commons.payment.PaymentRequired;
+import tech.mogami.commons.payment.PaymentRequirements;
 import tech.mogami.commons.test.BaseTest;
 import tech.mogami.commons.util.Base64Util;
 import tech.mogami.commons.util.JsonUtil;
@@ -38,9 +38,9 @@ import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_RESPONSE
 import static tech.mogami.commons.constant.network.Networks.BASE_SEPOLIA;
 import static tech.mogami.commons.constant.network.base.BaseContracts.BASE_SEPOLIA_USDC_CONTRACT;
 import static tech.mogami.commons.constant.version.X402Versions.X402_SUPPORTED_VERSION_BY_MOGAMI;
-import static tech.mogami.commons.header.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_NAME;
-import static tech.mogami.commons.header.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_PARAMETER_NAME;
-import static tech.mogami.commons.header.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_PARAMETER_VERSION;
+import static tech.mogami.commons.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_NAME;
+import static tech.mogami.commons.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_PARAMETER_NAME;
+import static tech.mogami.commons.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_PARAMETER_VERSION;
 
 @AutoConfigureMockMvc
 @DisplayName("Conformity tests")
@@ -48,6 +48,7 @@ import static tech.mogami.commons.header.payment.schemes.exact.ExactSchemeConsta
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = "x402.facilitator.base-url=https://x402.org/facilitator"
 )
+// TODO Make this test work
 @Disabled("Disabled to avoid too many requests to the public x402.org server")
 public class ConformityTest extends BaseTest {
 

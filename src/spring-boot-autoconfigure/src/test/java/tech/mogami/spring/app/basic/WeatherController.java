@@ -6,7 +6,8 @@ import tech.mogami.commons.test.BaseTest;
 import tech.mogami.spring.annotation.X402PayUSDC;
 import tech.mogami.spring.annotation.X402PaymentRequirements;
 
-import static tech.mogami.commons.constant.network.base.BaseContracts.BASE_SEPOLIA_USDC_CONTRACT;
+import static tech.mogami.commons.constant.network.contract.BaseContracts.BASE_SEPOLIA_USDC_CONTRACT;
+
 
 @SuppressWarnings("SameReturnValue")
 @RestController
@@ -22,7 +23,7 @@ public class WeatherController extends BaseTest {
     @X402PaymentRequirements(
             scheme = "exact",
             network = "base-sepolia",
-            maximumAmountRequired = "1000",
+            amount = "1000",
             payTo = TEST_SERVER_WALLET_ADDRESS_1,
             asset = BASE_SEPOLIA_USDC_CONTRACT,
             extra = {
@@ -33,8 +34,7 @@ public class WeatherController extends BaseTest {
     @X402PaymentRequirements(
             scheme = "exact",
             network = "base-sepolia",
-            maximumAmountRequired = "2000",
-            description = "Description number 2",
+            amount = "2000",
             payTo = TEST_SERVER_WALLET_ADDRESS_2,
             asset = BASE_SEPOLIA_USDC_CONTRACT
     )
@@ -49,8 +49,7 @@ public class WeatherController extends BaseTest {
     @X402PayUSDC(
             amount = "5.2",
             payTo = "0x71C7656EC7ab88b098defB751B7401B5f6d8976H",
-            network = "base",
-            description = "Complex payment"
+            network = "base"
     )
     @GetMapping("/weatherWithX402PayUSDC")
     public String weatherWithX402PayUSDC() {

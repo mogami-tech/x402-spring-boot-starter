@@ -1,4 +1,4 @@
-package tech.mogami.spring.test.internal;
+package tech.mogami.spring.test.core.internal;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.junit.jupiter.api.DisplayName;

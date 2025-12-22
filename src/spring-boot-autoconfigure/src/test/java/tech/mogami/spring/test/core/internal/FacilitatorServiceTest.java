@@ -1,4 +1,4 @@
-package tech.mogami.spring.test.internal;
+package tech.mogami.spring.test.core.internal;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

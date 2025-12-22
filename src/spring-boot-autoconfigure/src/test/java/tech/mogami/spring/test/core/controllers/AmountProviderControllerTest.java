@@ -1,4 +1,4 @@
-package tech.mogami.spring.test.controllers;
+package tech.mogami.spring.test.core.controllers;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,13 +30,13 @@ public class AmountProviderControllerTest {
                 .andDo(print())
                 .andExpect(status().isPaymentRequired())
                 .andExpect(content().contentType(APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.accepts[0].maxAmountRequired").value("3001"));
+                .andExpect(jsonPath("$.accepts[0].amount").value("3001"));
         // With type parameter.
         mockMvc.perform(get("/dynamicAmountWithX402PaymentRequirements").param("type", "image"))
                 .andDo(print())
                 .andExpect(status().isPaymentRequired())
                 .andExpect(content().contentType(APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.accepts[0].maxAmountRequired").value("1001"));
+                .andExpect(jsonPath("$.accepts[0].amount").value("1001"));
     }
 
     @Test
@@ -47,14 +47,14 @@ public class AmountProviderControllerTest {
                 .andDo(print())
                 .andExpect(status().isPaymentRequired())
                 .andExpect(content().contentType(APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.accepts[0].maxAmountRequired").value("6002"));
+                .andExpect(jsonPath("$.accepts[0].amount").value("6002"));
 
         // With type parameter.
         mockMvc.perform(get("/dynamicAmountWithX402PaymentRequirementsWithSpring").param("type", "text"))
                 .andDo(print())
                 .andExpect(status().isPaymentRequired())
                 .andExpect(content().contentType(APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.accepts[0].maxAmountRequired").value("5002"));
+                .andExpect(jsonPath("$.accepts[0].amount").value("5002"));
     }
 
     @Test
@@ -65,14 +65,14 @@ public class AmountProviderControllerTest {
                 .andDo(print())
                 .andExpect(status().isPaymentRequired())
                 .andExpect(content().contentType(APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.accepts[0].maxAmountRequired").value("3001"));
+                .andExpect(jsonPath("$.accepts[0].amount").value("3001"));
 
         // With type parameter.
         mockMvc.perform(get("/dynamicAmountWithX402PayUSDC").param("type", "text"))
                 .andDo(print())
                 .andExpect(status().isPaymentRequired())
                 .andExpect(content().contentType(APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.accepts[0].maxAmountRequired").value("2001"));
+                .andExpect(jsonPath("$.accepts[0].amount").value("2001"));
     }
 
     @Test
@@ -83,14 +83,14 @@ public class AmountProviderControllerTest {
                 .andDo(print())
                 .andExpect(status().isPaymentRequired())
                 .andExpect(content().contentType(APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.accepts[0].maxAmountRequired").value("6002"));
+                .andExpect(jsonPath("$.accepts[0].amount").value("6002"));
 
         // With type parameter.
         mockMvc.perform(get("/dynamicAmountWithX402PayUSDCWithSpring").param("type", "image"))
                 .andDo(print())
                 .andExpect(status().isPaymentRequired())
                 .andExpect(content().contentType(APPLICATION_JSON_VALUE))
-                .andExpect(jsonPath("$.accepts[0].maxAmountRequired").value("4002"));
+                .andExpect(jsonPath("$.accepts[0].amount").value("4002"));
     }
 
 

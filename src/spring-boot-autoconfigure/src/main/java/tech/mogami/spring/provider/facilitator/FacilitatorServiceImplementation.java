@@ -68,7 +68,7 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
     public Mono<VerifyResponse> verify(final PaymentPayload paymentPayload,
                                        final PaymentRequirements paymentRequirements) {
         VerifyRequest verifyRequest = VerifyRequest.builder()
-                .x402Version(paymentPayload.x402Version())
+                //.x402Version(paymentPayload.x402Version())
                 .paymentPayload(paymentPayload)
                 .paymentRequirements(paymentRequirements)
                 .build();
@@ -91,7 +91,7 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
     public Mono<SettleResponse> settle(final PaymentPayload paymentPayload,
                                        final PaymentRequirements paymentRequirements) {
         SettleRequest settleRequest = SettleRequest.builder()
-                .x402Version(paymentPayload.x402Version())
+                //.x402Version(paymentPayload.x402Version())
                 .paymentPayload(paymentPayload)
                 .paymentRequirements(paymentRequirements)
                 .build();

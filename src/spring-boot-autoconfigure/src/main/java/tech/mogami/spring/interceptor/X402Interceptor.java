@@ -15,18 +15,19 @@ import tech.mogami.commons.api.facilitator.settle.SettleResponse;
 import tech.mogami.commons.api.facilitator.verify.VerifyResponse;
 import tech.mogami.commons.payment.PaymentPayload;
 import tech.mogami.commons.payment.PaymentRequired;
-import tech.mogami.commons.payment.PaymentRequirements;
+import tech.mogami.commons.payment.PaymentResource;
 import tech.mogami.commons.util.Base64Util;
 import tech.mogami.commons.util.JsonUtil;
 import tech.mogami.spring.annotation.X402PayUSDC;
 import tech.mogami.spring.annotation.X402PaymentRequirements;
+import tech.mogami.spring.annotation.X402Resource;
 import tech.mogami.spring.factory.annotation.PayFactories;
 import tech.mogami.spring.provider.facilitator.FacilitatorService;
 
 import java.lang.annotation.Annotation;
-import java.util.Base64;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,9 +35,8 @@ import static jakarta.servlet.http.HttpServletResponse.SC_PAYMENT_REQUIRED;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static tech.mogami.commons.constant.X402Constants.X402_PAYMENT_REQUIRED_MESSAGE;
-import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_HEADER;
-import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_HEADER_DECODED;
-import static tech.mogami.commons.constant.X402Constants.X402_X_PAYMENT_RESPONSE;
+import static tech.mogami.commons.constant.X402Constants.X402_PAYMENT_RESPONSE_HEADER;
+import static tech.mogami.commons.constant.X402Constants.X402_PAYMENT_SIGNATURE_HEADER;
 import static tech.mogami.commons.constant.version.X402Versions.X402_SUPPORTED_VERSION_BY_MOGAMI;
 
 /**
@@ -64,7 +64,11 @@ public class X402Interceptor implements HandlerInterceptor {
 
         // We check if the handler is a HandlerMethod (spring method).
         if (handler instanceof HandlerMethod hm) {
-            Set<Annotation> paymentRequirementsList = new LinkedHashSet<>();
+            // Get the X402Resource annotation =========================================================================
+            final X402Resource resourceAnnotation = AnnotatedElementUtils.findMergedAnnotation(hm.getMethod(), X402Resource.class);
+
+            // Getting all payment requirements annotations ============================================================
+            final Set<Annotation> paymentRequirementsList = new LinkedHashSet<>();
             paymentRequirementsList.addAll(AnnotatedElementUtils.findMergedRepeatableAnnotations(hm.getMethod(), X402PaymentRequirements.class));
             paymentRequirementsList.addAll(AnnotatedElementUtils.findMergedRepeatableAnnotations(hm.getMethod(), X402PayUSDC.class));
 
@@ -72,33 +76,26 @@ public class X402Interceptor implements HandlerInterceptor {
             if (!paymentRequirementsList.isEmpty()) {
 
                 // x402 URL Called without payment =====================================================================
-                if (request.getHeader(X402_X_PAYMENT_HEADER) == null) {
+                if (request.getHeader(X402_PAYMENT_SIGNATURE_HEADER) == null) {
                     log.info("x402 URL Called without payment: {}", request.getRequestURL().toString());
-                    return402(request, response, null, null, paymentRequirementsList);
+                    return402(request, response, null, null, resourceAnnotation, paymentRequirementsList);
                     return false;
                 }
 
                 // x402 URL Called with payment ========================================================================
                 try {
 
-                    // =================================================================================================
-                    // The payment is present, we decode it (base64) and add it to the response ========================
-                    final String paymentHeaderString = new String(Base64.getMimeDecoder().decode(request.getHeader(X402_X_PAYMENT_HEADER)), UTF_8);
-                    PaymentPayload paymentPayload = JsonUtil.fromJson(paymentHeaderString, PaymentPayload.class);
-                    request.setAttribute(X402_X_PAYMENT_HEADER_DECODED, paymentPayload);
+                    // The payment is present, we decode it (base64) transform it ======================================
+                    final String paymentHeaderString = Base64Util.decode(request.getHeader(X402_PAYMENT_SIGNATURE_HEADER));
+                    final PaymentPayload paymentPayload = JsonUtil.fromJson(paymentHeaderString, PaymentPayload.class);
                     log.info("Payment received for url {}: {}", request.getRequestURL().toString(), paymentHeaderString);
 
-                    // TODO Here, we check the payment against the fist requirement found. 
-                    Annotation requirementsFound = paymentRequirementsList.stream()
-                            .findFirst()
-                            .orElseThrow(() -> new IllegalArgumentException("No payment requirements found"));
-                    final PaymentRequirements paymentRequirement = payFactories.buildRequirements(requirementsFound, request);
+                    // TODO Check if paymentPayload.accepted() is in the list of paymentRequirements from annotations.
 
-                    // =================================================================================================
-                    // Calling /verify on the facilitator server========================================================
+                    // Calling /verify on the facilitator server =======================================================
                     VerifyResponse verifyResponse;
                     try {
-                        verifyResponse = facilitatorService.verify(paymentPayload, paymentRequirement).block();
+                        verifyResponse = facilitatorService.verify(paymentPayload, paymentPayload.accepted()).block();
                     } catch (WebClientResponseException e) {
                         // The call failed - the body should contain a verifyResponse.
                         String responseBody = e.getResponseBodyAsString(UTF_8);
@@ -112,7 +109,7 @@ public class X402Interceptor implements HandlerInterceptor {
                                     .invalidReason("Reply error from calling /verify: " + responseBody)
                                     .build();
                         }
-                        return402(request, response, verifyResponse, null, paymentRequirementsList);
+                        return402(request, response, verifyResponse, null, resourceAnnotation, paymentRequirementsList);
                         return false;
                     }
 
@@ -121,18 +118,17 @@ public class X402Interceptor implements HandlerInterceptor {
                     if (verifyResponse == null || !verifyResponse.isValid()) {
                         // Payment is invalid
                         log.error("Payment is invalid: {}", verifyResponse);
-                        return402(request, response, verifyResponse, null, paymentRequirementsList);
+                        return402(request, response, verifyResponse, null, resourceAnnotation, paymentRequirementsList);
                         return false;
                     } else {
                         // Payment is valid
                         log.info("Payment is valid: {}", verifyResponse);
                     }
 
-                    // =================================================================================================
                     // Calling /settle and setting the response header =================================================
                     SettleResponse settleResponse;
                     try {
-                        settleResponse = facilitatorService.settle(paymentPayload, paymentRequirement).block();
+                        settleResponse = facilitatorService.settle(paymentPayload, paymentPayload.accepted()).block();
                     } catch (WebClientResponseException e) {
                         // The call failed.
                         String responseBody = e.getResponseBodyAsString(UTF_8);
@@ -146,19 +142,19 @@ public class X402Interceptor implements HandlerInterceptor {
                                     .errorReason("Reply error from calling /settle: " + responseBody)
                                     .build();
                         }
-                        return402(request, response, null, settleResponse, paymentRequirementsList);
+                        return402(request, response, null, settleResponse, resourceAnnotation, paymentRequirementsList);
                         return false;
                     }
 
                     if (settleResponse == null || !settleResponse.success()) {
                         // Settlement failed
                         log.error("Payment settlement failed: {}", settleResponse);
-                        return402(request, response, null, settleResponse, paymentRequirementsList);
+                        return402(request, response, null, settleResponse, resourceAnnotation, paymentRequirementsList);
                         return false;
                     } else {
-                        // Payment settled ! we let the user access the resource.
+                        // Payment settled! we let the user access the resource.
                         log.info("Payment settled: {}", settleResponse);
-                        response.setHeader(X402_X_PAYMENT_RESPONSE, Base64Util.encode(JsonUtil.toJson(settleResponse)));
+                        response.setHeader(X402_PAYMENT_RESPONSE_HEADER, Base64Util.encode(JsonUtil.toJson(settleResponse)));
                         return true;
                     }
 
@@ -168,7 +164,7 @@ public class X402Interceptor implements HandlerInterceptor {
                             .isValid(false)
                             .invalidReason("Error decoding payment header: " + e.getMessage())
                             .build();
-                    return402(request, response, verifyResponse, null, paymentRequirementsList);
+                    return402(request, response, verifyResponse, null, resourceAnnotation, paymentRequirementsList);
                     return false;
                 }
                 // =====================================================================================================
@@ -191,6 +187,7 @@ public class X402Interceptor implements HandlerInterceptor {
      * @param response                       The HTTP response
      * @param verifyResponse                 The verify response
      * @param settleResponse                 The settle response
+     * @param x402ResourceAnnotation         The x402 resource annotation
      * @param paymentRequirementsAnnotations The list of payment requirements annotations
      * @throws Exception If an error occurs
      */
@@ -198,7 +195,22 @@ public class X402Interceptor implements HandlerInterceptor {
                            final HttpServletResponse response,
                            final VerifyResponse verifyResponse,
                            final SettleResponse settleResponse,
+                           final X402Resource x402ResourceAnnotation,
                            final Set<Annotation> paymentRequirementsAnnotations) throws Exception {
+
+        // We treat the resource annotation to build the resource object.
+        PaymentResource paymentResource;
+        if (x402ResourceAnnotation == null) {
+            paymentResource = PaymentResource.builder()
+                    .url(request.getRequestURL().toString())
+                    .build();
+        } else {
+            paymentResource = PaymentResource.builder()
+                    .url(x402ResourceAnnotation.url())
+                    .description(x402ResourceAnnotation.description())
+                    .mimeType(x402ResourceAnnotation.mimeType())
+                    .build();
+        }
 
         // We search for an error message in the verifyResponse or settleResponse.
         String errorMessage = X402_PAYMENT_REQUIRED_MESSAGE;
@@ -213,10 +225,12 @@ public class X402Interceptor implements HandlerInterceptor {
         final PaymentRequired paymentRequired = PaymentRequired.builder()
                 .x402Version(X402_SUPPORTED_VERSION_BY_MOGAMI.version())
                 .error(errorMessage)
+                .resource(paymentResource)
                 .accepts(paymentRequirementsAnnotations
                         .stream()
                         .map(paymentRequirement -> payFactories.buildRequirements(paymentRequirement, request))
                         .collect(Collectors.toCollection(LinkedList::new)))
+                .extensions(Map.of())
                 .build();
 
         // We write the response.

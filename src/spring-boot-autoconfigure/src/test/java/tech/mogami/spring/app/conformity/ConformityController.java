@@ -12,18 +12,17 @@ public class ConformityController extends BaseTest {
     @X402PayUSDC(
             amount = "0.01",
             payTo = "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
-            network = "base-sepolia",
-            description = "Access to protected content",
-            maximumTimeoutSeconds = 300,
-            outputSchema = """
-                    {
-                      "input": {
-                        "discoverable": true,
-                        "method": "GET",
-                        "type": "http"
-                      }
-                    }
-                    """
+            network = "eip155:84532",
+            maximumTimeoutSeconds = 300
+//            outputSchema = """
+//                    {
+//                      "input": {
+//                        "discoverable": true,
+//                        "method": "GET",
+//                        "type": "http"
+//                      }
+//                    }
+//                    """
     )
     @GetMapping("/protected")
     public String protectedService() {

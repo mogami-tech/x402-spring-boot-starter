@@ -1,11 +1,9 @@
 package tech.mogami.spring.factory.annotation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 import tech.mogami.commons.constant.network.Network;
 import tech.mogami.commons.constant.network.Networks;
 import tech.mogami.spring.parameter.X402Parameters;
@@ -30,32 +28,15 @@ public abstract class AbstractPayFactory<A extends Annotation> implements PayFac
     protected AmountProviderResolver amountResolver;
 
     /**
-     * Gets the network by name, defaulting to the one in the parameters if not specified.
+     * Gets the network by it's blockchain network identifier in CAIP-2 format (e.g., "eip155:84532").
      *
-     * @param networkName the network name
+     * @param networkId Blockchain network identifier in CAIP-2 format (e.g., "eip155:84532")
      * @return the network
      * @throws IllegalArgumentException if the network is unsupported
      */
-    protected Network getNetwork(final String networkName) {
-        return Networks.findByName(StringUtils.firstNonBlank(networkName, x402Parameters.defaultNetwork()))
-                .orElseThrow(() -> new IllegalArgumentException("Unsupported network: " + networkName));
-    }
-
-    /**
-     * Parses the output schema from a JSON string.
-     *
-     * @param outputSchema the JSON string
-     * @return the parsed JsonNode, or null if invalid or blank
-     */
-    protected JsonNode parseOutputSchema(final String outputSchema) {
-        if (StringUtils.isNotBlank(outputSchema)) {
-            try {
-                return new ObjectMapper().readTree(outputSchema);
-            } catch (JsonProcessingException e) {
-                log.error("Invalid outputSchema JSON: {}", outputSchema, e);
-            }
-        }
-        return null;
+    protected Network getNetworkByNetworkId(@Nullable final String networkId) {
+        return Networks.findByNetworkId(StringUtils.firstNonBlank(networkId, x402Parameters.defaultNetwork()))
+                .orElseThrow(() -> new IllegalArgumentException("Unsupported network: " + networkId));
     }
 
 }

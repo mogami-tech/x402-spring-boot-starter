@@ -36,7 +36,7 @@ public abstract class AbstractPayFactory<A extends Annotation> implements PayFac
      */
     protected Network getNetworkByNetworkId(@Nullable final String networkId) {
         return Networks.findByNetworkId(StringUtils.firstNonBlank(networkId, x402Parameters.defaultNetwork()))
-                .orElseThrow(() -> new IllegalArgumentException("Unsupported network: " + networkId));
+                .orElseThrow(() -> new IllegalArgumentException("Unknown network: " + networkId));
     }
 
 }

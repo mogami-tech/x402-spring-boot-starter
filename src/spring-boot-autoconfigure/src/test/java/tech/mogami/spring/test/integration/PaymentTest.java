@@ -40,8 +40,8 @@ public class PaymentTest {
 
     static Stream<String> protectedUrls() {
         return Stream.of(
-                "https://www.x402.org/protected"
-                //"http://localhost:[PORT]/protected"
+                //"https://www.x402.org/protected"
+                "http://localhost:[PORT]/protected"
         );
     }
 
@@ -68,7 +68,7 @@ public class PaymentTest {
                             assertThat(paymentRequired.error()).isEqualTo("Payment required");
                             assertThat(paymentRequired.resource())
                                     .satisfies(paymentResource -> {
-                                        assertThat(paymentResource.url()).contains("/protected");
+                                        assertThat(paymentResource.url()).contains("https://www.x402.org/protected");
                                         assertThat(paymentResource.description()).contains("Access to protected content");
                                         assertThat(paymentResource.mimeType()).isBlank();
                                     });

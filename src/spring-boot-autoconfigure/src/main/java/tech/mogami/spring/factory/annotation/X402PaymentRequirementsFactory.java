@@ -29,7 +29,7 @@ public class X402PaymentRequirementsFactory extends AbstractPayFactory<X402Payme
                                 annotation.amountProvider(),
                                 request)
                 )
-                .asset(StringUtils.firstNonBlank(annotation.asset(), network.usdc().contractAddress()))
+                .asset(annotation.asset())
                 .payTo(StringUtils.firstNonBlank(annotation.payTo(), x402Parameters.defaultPayTo()))
                 .maxTimeoutSeconds(annotation.maximumTimeoutSeconds())
                 .extra(Arrays.stream(annotation.extra())

@@ -1,6 +1,5 @@
 package tech.mogami.spring.interceptor;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +33,7 @@ import java.util.stream.Collectors;
 import static jakarta.servlet.http.HttpServletResponse.SC_PAYMENT_REQUIRED;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static tech.mogami.commons.constant.X402Constants.X402_PAYMENT_REQUIRED_HEADER;
 import static tech.mogami.commons.constant.X402Constants.X402_PAYMENT_REQUIRED_MESSAGE;
 import static tech.mogami.commons.constant.X402Constants.X402_PAYMENT_RESPONSE_HEADER;
 import static tech.mogami.commons.constant.X402Constants.X402_PAYMENT_SIGNATURE_HEADER;
@@ -47,9 +47,6 @@ import static tech.mogami.commons.constant.version.X402Versions.X402_SUPPORTED_V
 @RequiredArgsConstructor
 @SuppressWarnings("checkstyle:DesignForExtension")
 public class X402Interceptor implements HandlerInterceptor {
-
-    /** Object mapper. */
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     /** Pay factories. */
     private final PayFactories payFactories;
@@ -69,8 +66,8 @@ public class X402Interceptor implements HandlerInterceptor {
 
             // Getting all payment requirements annotations ============================================================
             final Set<Annotation> paymentRequirementsList = new LinkedHashSet<>();
-            paymentRequirementsList.addAll(AnnotatedElementUtils.findMergedRepeatableAnnotations(hm.getMethod(), X402PaymentRequirements.class));
             paymentRequirementsList.addAll(AnnotatedElementUtils.findMergedRepeatableAnnotations(hm.getMethod(), X402PayUSDC.class));
+            paymentRequirementsList.addAll(AnnotatedElementUtils.findMergedRepeatableAnnotations(hm.getMethod(), X402PaymentRequirements.class));
 
             // We retrieve all schemes.
             if (!paymentRequirementsList.isEmpty()) {
@@ -236,7 +233,8 @@ public class X402Interceptor implements HandlerInterceptor {
         // We write the response.
         response.setStatus(SC_PAYMENT_REQUIRED);
         response.setContentType(APPLICATION_JSON_VALUE);
-        objectMapper.writeValue(response.getWriter(), paymentRequired);
+        response.addHeader(X402_PAYMENT_REQUIRED_HEADER, Base64Util.encode(JsonUtil.toJson(paymentRequired)));
+        //objectMapper.writeValue(response.getWriter(), paymentRequired);
     }
 
 }

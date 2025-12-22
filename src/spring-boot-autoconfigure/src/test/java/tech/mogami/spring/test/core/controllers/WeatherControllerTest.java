@@ -1,11 +1,8 @@
 package tech.mogami.spring.test.core.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockserver.integration.ClientAndServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,10 +17,6 @@ import java.util.Base64;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockserver.model.HttpRequest.request;
-import static org.mockserver.model.HttpResponse.response;
-import static org.mockserver.model.MediaType.APPLICATION_JSON;
-import static org.mockserver.model.StringBody.subString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -48,59 +41,57 @@ import static tech.mogami.commons.payment.schemes.Schemes.EXACT_SCHEME;
 @DisplayName("Weather controller tests")
 public class WeatherControllerTest extends BaseTest {
 
-    private static ClientAndServer mockServer;
-
     @Autowired
     X402Parameters x402Parameters;
 
     @Autowired
     MockMvc mockMvc;
 
-    @BeforeEach
-    public void setup() {
-        mockServer = ClientAndServer.startClientAndServer(10000);
-        // get /weather with invalid payment header test
-        mockServer.when(request().withPath("/facilitator/verify").withBody(subString("isValidFalse"))
-        ).respond(response()
-                .withStatusCode(200).withContentType(APPLICATION_JSON)
-                .withBody("""
-                        {
-                          "isValid": false,
-                          "invalidReason": "invalid_scheme",
-                          "payer": "0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F71"
-                        }
-                        """)
-        );
-        mockServer.when(request().withPath("/facilitator/verify").withBody(subString("isValidTrue"))
-        ).respond(response()
-                .withStatusCode(200).withContentType(APPLICATION_JSON)
-                .withBody("""
-                        {
-                          "isValid": true,
-                          "payer": "0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F72"
-                        }
-                        """)
-        );
-        // get /weather with valid payment header test
-        mockServer.when(request().withPath("/facilitator/settle").withBody(subString("isValidTrue"))
-        ).respond(response()
-                .withStatusCode(200).withContentType(APPLICATION_JSON)
-                .withBody("""
-                        {
-                          "success": true,
-                          "network": "base-sepolia",
-                          "transaction": "0x7cbf21c639f7bcd8e68ba02b83b34187f686577a0cead0d7c6f0f57183a84b51",
-                          "errorReason": "invalid_scheme",
-                          "payer": "0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F73"
-                        }
-                        """)
-        );
-    }
-
-    @AfterEach
-    public void tearDown() {
-        mockServer.stop();
-    }
+//    @BeforeEach
+//    public void setup() {
+//        mockServer = ClientAndServer.startClientAndServer(10000);
+//        // get /weather with invalid payment header test
+//        mockServer.when(request().withPath("/facilitator/verify").withBody(subString("isValidFalse"))
+//        ).respond(response()
+//                .withStatusCode(200).withContentType(APPLICATION_JSON)
+//                .withBody("""
+//                        {
+//                          "isValid": false,
+//                          "invalidReason": "invalid_scheme",
+//                          "payer": "0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F71"
+//                        }
+//                        """)
+//        );
+//        mockServer.when(request().withPath("/facilitator/verify").withBody(subString("isValidTrue"))
+//        ).respond(response()
+//                .withStatusCode(200).withContentType(APPLICATION_JSON)
+//                .withBody("""
+//                        {
+//                          "isValid": true,
+//                          "payer": "0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F72"
+//                        }
+//                        """)
+//        );
+//        // get /weather with valid payment header test
+//        mockServer.when(request().withPath("/facilitator/settle").withBody(subString("isValidTrue"))
+//        ).respond(response()
+//                .withStatusCode(200).withContentType(APPLICATION_JSON)
+//                .withBody("""
+//                        {
+//                          "success": true,
+//                          "network": "base-sepolia",
+//                          "transaction": "0x7cbf21c639f7bcd8e68ba02b83b34187f686577a0cead0d7c6f0f57183a84b51",
+//                          "errorReason": "invalid_scheme",
+//                          "payer": "0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F73"
+//                        }
+//                        """)
+//        );
+//    }
+//
+//    @AfterEach
+//    public void tearDown() {
+//        mockServer.stop();
+//    }
 
     @Test
     @DisplayName("get /weather/without-payment")

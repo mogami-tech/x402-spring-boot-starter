@@ -91,12 +91,6 @@
             <artifactId>okhttp</artifactId>
             <version>${okhttp.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.mock-server</groupId>
-            <artifactId>mockserver-junit-jupiter-no-dependencies</artifactId>
-            <version>${mockserver.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <!-- Build configuration ======================================================================================= -->

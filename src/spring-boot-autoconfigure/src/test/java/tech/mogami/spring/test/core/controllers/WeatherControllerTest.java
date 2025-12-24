@@ -236,7 +236,6 @@ public class WeatherControllerTest extends BaseTest {
 //                .andReturn();
 
         // Testing the decoded payment payload received in the response.
-        // TODO Fix this
 //        assertThat((PaymentPayload) result.getRequest().getAttribute(X402_X_PAYMENT_HEADER_DECODED))
 //                .isNotNull()
 //                .satisfies(paymentPayload -> {
@@ -270,7 +269,6 @@ public class WeatherControllerTest extends BaseTest {
 //                .andReturn();
 
         // Testing the decoded payment payload received in the response.
-        // TODO Fix this
 //        assertThat((PaymentPayload) result.getRequest().getAttribute(X402_X_PAYMENT_HEADER_DECODED))
 //                .isNotNull()
 //                .satisfies(paymentPayload -> {

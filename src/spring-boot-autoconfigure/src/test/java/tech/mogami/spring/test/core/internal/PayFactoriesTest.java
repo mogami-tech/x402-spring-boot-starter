@@ -16,6 +16,7 @@ import tech.mogami.spring.parameter.X402Parameters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static tech.mogami.commons.constant.network.contract.BaseContracts.BASE_MAINNET_USDC_CONTRACT;
 import static tech.mogami.commons.constant.network.contract.BaseContracts.BASE_SEPOLIA_USDC_CONTRACT;
 import static tech.mogami.commons.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_NAME;
@@ -50,7 +51,7 @@ public class PayFactoriesTest {
     @Test
     @DisplayName("X402PayUSDCFactory")
     void testX402PayUSDCFactory() throws NoSuchMethodException {
-
+        fail("TODO Fix this test");
         // simpleX402PayUSDC
         assertThat(payFactories.buildRequirements(
                 getClass().getDeclaredMethod("simpleX402PayUSDC").getAnnotation(X402PayUSDC.class),
@@ -100,6 +101,7 @@ public class PayFactoriesTest {
     @Test
     @DisplayName("X402PaymentRequirementsFactory")
     void X402PaymentRequirementsFactory() throws NoSuchMethodException {
+        fail("TODO Fix this test");
         var annotations = AnnotatedElementUtils.findMergedRepeatableAnnotations(
                 WeatherController.class.getDeclaredMethod("weather"),
                 X402PaymentRequirements.class);

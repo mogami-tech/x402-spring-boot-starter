@@ -20,7 +20,8 @@ public class X402PayUSDCFactory extends AbstractPayFactory<X402PayUSDC> {
 
     @Override
     public final PaymentRequirements buildRequirements(final X402PayUSDC annotation, final HttpServletRequest request) {
-        final Network network = getNetworkByNetworkId(annotation.network());
+        // Choosing the network.
+        final Network network = getNetworkByNetworkId(StringUtils.firstNonBlank(annotation.network(), x402Parameters.defaultNetwork()));
 
         return PaymentRequirements.builder()
                 .scheme(annotation.scheme())

@@ -30,8 +30,8 @@ import static tech.mogami.commons.constant.version.X402Versions.X402_SUPPORTED_V
 import static tech.mogami.commons.payment.schemes.Schemes.EXACT_SCHEME;
 import static tech.mogami.commons.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_PARAMETER_NAME;
 import static tech.mogami.commons.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_PARAMETER_VERSION;
-import static tech.mogami.commons.test.BaseTestData.TEST_CLIENT_WALLET_ADDRESS_1;
-import static tech.mogami.commons.test.BaseTestData.TEST_CLIENT_WALLET_ADDRESS_1_PRIVATE_KEY;
+import static tech.mogami.commons.test.BaseMogamiTestData.TEST_CLIENT_WALLET_ADDRESS_1;
+import static tech.mogami.commons.test.BaseMogamiTestData.TEST_CLIENT_WALLET_ADDRESS_1_PRIVATE_KEY;
 
 @AutoConfigureMockMvc
 @SpringBootTest(
@@ -46,8 +46,8 @@ public class PaymentTest {
 
     static Stream<String> protectedUrls() {
         return Stream.of(
-                "https://www.x402.org/protected"
-                //"http://localhost:[PORT]/protected"
+                "https://www.x402.org/protected",
+                "http://localhost:port/protected"
         );
     }
 
@@ -58,7 +58,7 @@ public class PaymentTest {
     @ParameterizedTest(name = "Paywall enforced on {0}")
     @DisplayName("Paywall on https://www.x402.org/protected and localhost")
     void paywall(final String url) {
-        final String finalUrl = url.replace("[PORT]", Integer.toString(port));
+        final String finalUrl = url.replace("port", Integer.toString(port));
         Optional<PaymentRequired> paymentRequired = Optional.empty();
 
         // Calling protected url without payment =======================================================================
@@ -162,9 +162,45 @@ public class PaymentTest {
 //            fail("IOException during HTTP request to " + url + " with payment: " + e.getMessage());
 //        }
 
-        // We make a real payment ======================================================================================
+        // We make a payment without signature =========================================================================
         assertTrue(paymentRequired.isPresent());
         Map<String, String> paymentHeaders = X402V2Client.buildPaymentHeaders(
+                X402V2Client.createPaymentPayload(paymentRequired.get().accepts().getFirst(), TEST_CLIENT_WALLET_ADDRESS_1)
+        );
+        try (Response noSignaturePaymentResponse = CLIENT.newCall(new Request.Builder()
+                .url(finalUrl)
+                .get()
+                .addHeader(
+                        X402_PAYMENT_SIGNATURE_HEADER,
+                        paymentHeaders.get(X402_PAYMENT_SIGNATURE_HEADER)
+                )
+                .build()).execute()) {
+
+            // Checking the response header.
+            // TODO Fix this
+//            X402V2Client.fetchSettlementResponse(getHeaders(noSignaturePaymentResponse)).ifPresentOrElse(
+//                    settlementResponse -> {
+//                        System.out.println("✅ Settlement response received: " + settlementResponse);
+//                        assertThat(settlementResponse.success()).isFalse();
+//                        assertThat(settlementResponse.errorReason()).isEqualTo(INVALID_EXACT_EVM_PAYLOAD_SIGNATURE.getCode());
+//                        assertThat(settlementResponse.payer()).isEqualTo(TEST_CLIENT_WALLET_ADDRESS_1);
+//                        assertThat(settlementResponse.transaction()).isBlank();
+//                        assertThat(settlementResponse.network()).isEqualTo(BASE_SEPOLIA.networkId());
+//                    },
+//                    () -> fail("No settlement response found in the paid request headers.")
+//            );
+
+            // Checking the response body.
+            System.out.println("Server response: " + noSignaturePaymentResponse);
+            assertThat(noSignaturePaymentResponse).isNotNull();
+            assertThat(noSignaturePaymentResponse.isSuccessful()).isFalse();
+
+        } catch (IOException e) {
+            fail("IOException during HTTP request to " + url + " with payment: " + e.getMessage());
+        }
+
+        // We make a real payment ======================================================================================
+        paymentHeaders = X402V2Client.buildPaymentHeaders(
                 X402V2Client.signPaymentPayload(
                         paymentRequired.get().accepts().getFirst(),
                         X402V2Client.createPaymentPayload(paymentRequired.get().accepts().getFirst(), TEST_CLIENT_WALLET_ADDRESS_1),
@@ -180,6 +216,20 @@ public class PaymentTest {
                 )
                 .build()).execute()) {
 
+            // Checking the response header.
+            // TODO Fix this
+//            X402V2Client.fetchSettlementResponse(getHeaders(paidResponse)).ifPresentOrElse(
+//                    settlementResponse -> {
+//                        System.out.println("✅ Settlement response received: " + settlementResponse);
+//                        assertThat(settlementResponse.success()).isTrue();
+//                        assertThat(settlementResponse.errorReason()).isBlank();
+//                        assertThat(settlementResponse.payer()).isEqualTo(TEST_CLIENT_WALLET_ADDRESS_1);
+//                        assertThat(settlementResponse.transaction()).isNotBlank();
+//                        assertThat(settlementResponse.network()).isEqualTo(BASE_SEPOLIA.networkId());
+//                    },
+//                    () -> fail("No settlement response found in the paid request headers.")
+//            );
+
             // Checking the response body.
             System.out.println("Server response: " + paidResponse);
             assertThat(paidResponse).isNotNull();
@@ -190,8 +240,6 @@ public class PaymentTest {
         } catch (IOException e) {
             fail("IOException during HTTP request to " + url + ": " + e.getMessage());
         }
-
-
     }
 
     private Map<String, String> getHeaders(Response response) {

@@ -5,6 +5,9 @@ run_install:
 run_tests:
     mvn clean install
 
+run_integration_tests:
+    mvn verify -Pintegration-tests
+
 # Release ==============================================================================================================
 run_deploy_snapshot:
     mvn -B -Prelease clean deploy

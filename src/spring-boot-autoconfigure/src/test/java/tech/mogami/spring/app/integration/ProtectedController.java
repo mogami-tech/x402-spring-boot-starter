@@ -2,10 +2,10 @@ package tech.mogami.spring.app.integration;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import tech.mogami.commons.test.BaseTest;
 import tech.mogami.spring.annotation.X402PayUSDC;
 import tech.mogami.spring.annotation.X402PaymentRequirements;
 import tech.mogami.spring.annotation.X402Resource;
+import tech.mogami.spring.test.util.BaseTest;
 
 @SuppressWarnings("SameReturnValue")
 @RestController

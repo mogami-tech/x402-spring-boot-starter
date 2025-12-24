@@ -31,7 +31,7 @@ public @interface X402PayUSDC {
     String scheme() default EXACT_SCHEME_NAME;
 
     /**
-     * Blockchain network identifier (e.g., "base-sepolia", "base").
+     * Blockchain network identifier in CAIP-2 format (e.g., "eip155:84532").
      *
      * @return the network
      */

@@ -30,11 +30,10 @@ public class AmountProviderControllerTest extends BaseTest {
                 .andExpect(status().isPaymentRequired())
                 .andReturn();
 
-        assertThat(X402V2Client.fetchPaymentRequirements(getHeaders(result.getResponse())))
-                .isNotNull()
-                .hasSize(1)
-                .satisfies(paymentRequirementsList -> {
-                    assertThat(paymentRequirementsList.getFirst())
+        assertThat(X402V2Client.extractPaymentRequired(getHeaders(result.getResponse())))
+                .isPresent().get()
+                .satisfies(paymentRequired -> {
+                    assertThat(paymentRequired.accepts().getFirst())
                             .isNotNull()
                             .satisfies(paymentRequirement -> {
                                 assertThat(paymentRequirement.amount()).isEqualTo("3001");
@@ -46,11 +45,10 @@ public class AmountProviderControllerTest extends BaseTest {
                 .andExpect(status().isPaymentRequired())
                 .andReturn();
 
-        assertThat(X402V2Client.fetchPaymentRequirements(getHeaders(result.getResponse())))
-                .isNotNull()
-                .hasSize(1)
-                .satisfies(paymentRequirementsList -> {
-                    assertThat(paymentRequirementsList.getFirst())
+        assertThat(X402V2Client.extractPaymentRequired(getHeaders(result.getResponse())))
+                .isPresent().get()
+                .satisfies(paymentRequired -> {
+                    assertThat(paymentRequired.accepts().getFirst())
                             .isNotNull()
                             .satisfies(paymentRequirement -> {
                                 assertThat(paymentRequirement.amount()).isEqualTo("1001");
@@ -66,11 +64,10 @@ public class AmountProviderControllerTest extends BaseTest {
                 .andExpect(status().isPaymentRequired())
                 .andReturn();
 
-        assertThat(X402V2Client.fetchPaymentRequirements(getHeaders(result.getResponse())))
-                .isNotNull()
-                .hasSize(1)
-                .satisfies(paymentRequirementsList -> {
-                    assertThat(paymentRequirementsList.getFirst())
+        assertThat(X402V2Client.extractPaymentRequired(getHeaders(result.getResponse())))
+                .isPresent().get()
+                .satisfies(paymentRequired -> {
+                    assertThat(paymentRequired.accepts().getFirst())
                             .isNotNull()
                             .satisfies(paymentRequirement -> {
                                 assertThat(paymentRequirement.amount()).isEqualTo("6002");
@@ -82,11 +79,10 @@ public class AmountProviderControllerTest extends BaseTest {
                 .andExpect(status().isPaymentRequired())
                 .andReturn();
 
-        assertThat(X402V2Client.fetchPaymentRequirements(getHeaders(result.getResponse())))
-                .isNotNull()
-                .hasSize(1)
-                .satisfies(paymentRequirementsList -> {
-                    assertThat(paymentRequirementsList.getFirst())
+        assertThat(X402V2Client.extractPaymentRequired(getHeaders(result.getResponse())))
+                .isPresent().get()
+                .satisfies(paymentRequired -> {
+                    assertThat(paymentRequired.accepts().getFirst())
                             .isNotNull()
                             .satisfies(paymentRequirement -> {
                                 assertThat(paymentRequirement.amount()).isEqualTo("5002");
@@ -102,11 +98,10 @@ public class AmountProviderControllerTest extends BaseTest {
                 .andExpect(status().isPaymentRequired())
                 .andReturn();
 
-        assertThat(X402V2Client.fetchPaymentRequirements(getHeaders(result.getResponse())))
-                .isNotNull()
-                .hasSize(1)
-                .satisfies(paymentRequirementsList -> {
-                    assertThat(paymentRequirementsList.getFirst())
+        assertThat(X402V2Client.extractPaymentRequired(getHeaders(result.getResponse())))
+                .isPresent().get()
+                .satisfies(paymentRequired -> {
+                    assertThat(paymentRequired.accepts().getFirst())
                             .isNotNull()
                             .satisfies(paymentRequirement -> {
                                 assertThat(paymentRequirement.amount()).isEqualTo("3001");
@@ -118,11 +113,10 @@ public class AmountProviderControllerTest extends BaseTest {
                 .andExpect(status().isPaymentRequired())
                 .andReturn();
 
-        assertThat(X402V2Client.fetchPaymentRequirements(getHeaders(result.getResponse())))
-                .isNotNull()
-                .hasSize(1)
-                .satisfies(paymentRequirementsList -> {
-                    assertThat(paymentRequirementsList.getFirst())
+        assertThat(X402V2Client.extractPaymentRequired(getHeaders(result.getResponse())))
+                .isPresent().get()
+                .satisfies(paymentRequired -> {
+                    assertThat(paymentRequired.accepts().getFirst())
                             .isNotNull()
                             .satisfies(paymentRequirement -> {
                                 assertThat(paymentRequirement.amount()).isEqualTo("2001");
@@ -138,11 +132,10 @@ public class AmountProviderControllerTest extends BaseTest {
                 .andExpect(status().isPaymentRequired())
                 .andReturn();
 
-        assertThat(X402V2Client.fetchPaymentRequirements(getHeaders(result.getResponse())))
-                .isNotNull()
-                .hasSize(1)
-                .satisfies(paymentRequirementsList -> {
-                    assertThat(paymentRequirementsList.getFirst())
+        assertThat(X402V2Client.extractPaymentRequired(getHeaders(result.getResponse())))
+                .isPresent().get()
+                .satisfies(paymentRequired -> {
+                    assertThat(paymentRequired.accepts().getFirst())
                             .isNotNull()
                             .satisfies(paymentRequirement -> {
                                 assertThat(paymentRequirement.amount()).isEqualTo("6002");
@@ -154,11 +147,10 @@ public class AmountProviderControllerTest extends BaseTest {
                 .andExpect(status().isPaymentRequired())
                 .andReturn();
 
-        assertThat(X402V2Client.fetchPaymentRequirements(getHeaders(result.getResponse())))
-                .isNotNull()
-                .hasSize(1)
-                .satisfies(paymentRequirementsList -> {
-                    assertThat(paymentRequirementsList.getFirst())
+        assertThat(X402V2Client.extractPaymentRequired(getHeaders(result.getResponse())))
+                .isPresent().get()
+                .satisfies(paymentRequired -> {
+                    assertThat(paymentRequired.accepts().getFirst())
                             .isNotNull()
                             .satisfies(paymentRequirement -> {
                                 assertThat(paymentRequirement.amount()).isEqualTo("4002");

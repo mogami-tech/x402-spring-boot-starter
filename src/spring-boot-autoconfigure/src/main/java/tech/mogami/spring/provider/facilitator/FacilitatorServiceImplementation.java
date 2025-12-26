@@ -9,11 +9,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
-import tech.mogami.commons.api.facilitator.settle.SettleRequest;
-import tech.mogami.commons.api.facilitator.settle.SettleResponse;
+import tech.mogami.commons.api.facilitator.settle.SettlementRequest;
+import tech.mogami.commons.api.facilitator.settle.SettlementResponse;
 import tech.mogami.commons.api.facilitator.supported.SupportedResponse;
-import tech.mogami.commons.api.facilitator.verify.VerifyRequest;
-import tech.mogami.commons.api.facilitator.verify.VerifyResponse;
+import tech.mogami.commons.api.facilitator.verify.VerificationRequest;
+import tech.mogami.commons.api.facilitator.verify.VerificationResponse;
 import tech.mogami.commons.payment.PaymentPayload;
 import tech.mogami.commons.payment.PaymentRequirements;
 import tech.mogami.commons.util.JsonUtil;
@@ -65,9 +65,9 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
     }
 
     @Override
-    public Mono<VerifyResponse> verify(final PaymentPayload paymentPayload,
-                                       final PaymentRequirements paymentRequirements) {
-        VerifyRequest verifyRequest = VerifyRequest.builder()
+    public Mono<VerificationResponse> verify(final PaymentPayload paymentPayload,
+                                             final PaymentRequirements paymentRequirements) {
+        VerificationRequest verifyRequest = VerificationRequest.builder()
                 //.x402Version(paymentPayload.x402Version())
                 .paymentPayload(paymentPayload)
                 .paymentRequirements(paymentRequirements)
@@ -82,16 +82,15 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
                 .contentType(APPLICATION_JSON)
                 .bodyValue(verifyRequest)
                 .retrieve()
-                .bodyToMono(VerifyResponse.class)
+                .bodyToMono(VerificationResponse.class)
                 .doOnNext(response -> log.info("Facilitator /verify response: '{}'", JsonUtil.toJson(response)))
                 .doOnError(WebClientResponseException.class, error -> log.error("Facilitator /verify error: '{}'", error.getResponseBodyAsString()));
     }
 
     @Override
-    public Mono<SettleResponse> settle(final PaymentPayload paymentPayload,
-                                       final PaymentRequirements paymentRequirements) {
-        SettleRequest settleRequest = SettleRequest.builder()
-                //.x402Version(paymentPayload.x402Version())
+    public Mono<SettlementResponse> settle(final PaymentPayload paymentPayload,
+                                           final PaymentRequirements paymentRequirements) {
+        SettlementRequest settleRequest = SettlementRequest.builder()
                 .paymentPayload(paymentPayload)
                 .paymentRequirements(paymentRequirements)
                 .build();
@@ -105,7 +104,7 @@ public class FacilitatorServiceImplementation implements FacilitatorService {
                 .contentType(APPLICATION_JSON)
                 .bodyValue(settleRequest)
                 .retrieve()
-                .bodyToMono(SettleResponse.class)
+                .bodyToMono(SettlementResponse.class)
                 .doOnNext(response -> log.info("Facilitator /settle response: '{}'", JsonUtil.toJson(response)))
                 .doOnError(WebClientResponseException.class, error ->
                         log.error("Facilitator /settle error: '{}'", error.getResponseBodyAsString()));

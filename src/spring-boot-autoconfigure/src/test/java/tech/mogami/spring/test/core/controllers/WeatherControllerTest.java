@@ -102,7 +102,7 @@ public class WeatherControllerTest extends BaseTest {
                 .andExpect(status().isPaymentRequired())
                 .andReturn();
 
-        assertThat(X402V2Client.fetchPaymentRequired(getHeaders(result.getResponse())))
+        assertThat(X402V2Client.extractPaymentRequired(getHeaders(result.getResponse())))
                 .isPresent().get()
                 .satisfies(paymentRequired -> {
                     // Version =========================================================================================
@@ -164,7 +164,7 @@ public class WeatherControllerTest extends BaseTest {
                 .andExpect(status().isPaymentRequired())
                 .andReturn();
 
-        assertThat(X402V2Client.fetchPaymentRequired(getHeaders(result.getResponse())))
+        assertThat(X402V2Client.extractPaymentRequired(getHeaders(result.getResponse())))
                 .isPresent().get()
                 .satisfies(paymentRequired -> {
                     // Version =========================================================================================

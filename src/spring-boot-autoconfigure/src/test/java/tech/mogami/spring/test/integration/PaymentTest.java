@@ -1,5 +1,6 @@
 package tech.mogami.spring.test.integration;
 
+import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -23,14 +24,12 @@ import static jakarta.servlet.http.HttpServletResponse.SC_PAYMENT_REQUIRED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static tech.mogami.commons.constant.X402Constants.X402_PAYMENT_SIGNATURE_HEADER;
 import static tech.mogami.commons.constant.network.Networks.BASE_SEPOLIA;
 import static tech.mogami.commons.constant.network.contract.BaseContracts.BASE_SEPOLIA_USDC_CONTRACT;
 import static tech.mogami.commons.constant.version.X402Versions.X402_SUPPORTED_VERSION_BY_MOGAMI;
 import static tech.mogami.commons.payment.schemes.Schemes.EXACT_SCHEME;
 import static tech.mogami.commons.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_PARAMETER_NAME;
 import static tech.mogami.commons.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_PARAMETER_VERSION;
-import static tech.mogami.commons.test.BaseMogamiTestData.TEST_CLIENT_WALLET_ADDRESS_1;
 import static tech.mogami.commons.test.BaseMogamiTestData.TEST_CLIENT_WALLET_ADDRESS_1_PRIVATE_KEY;
 
 @AutoConfigureMockMvc
@@ -69,7 +68,7 @@ public class PaymentTest {
             }
 
             // Extracting the payments requirements from the header ================================================
-            paymentRequired = X402V2Client.fetchPaymentRequired(getHeaders(initialResponse));
+            paymentRequired = X402V2Client.extractPaymentRequired(getHeaders(initialResponse));
             assertThat(paymentRequired).isNotEmpty().get()
                     .satisfies(p -> {
                         assertThat(p.getVersion()).isPresent();
@@ -162,18 +161,17 @@ public class PaymentTest {
 //            fail("IOException during HTTP request to " + url + " with payment: " + e.getMessage());
 //        }
 
-        // We make a payment without signature =========================================================================
+        // We make a payment without balance ===========================================================================
         assertTrue(paymentRequired.isPresent());
-        Map<String, String> paymentHeaders = X402V2Client.buildPaymentHeaders(
-                X402V2Client.createPaymentPayload(paymentRequired.get().accepts().getFirst(), TEST_CLIENT_WALLET_ADDRESS_1)
-        );
+        var payloadWithEmptyBalance = X402V2Client.buildPaymentPayload(
+                paymentRequired.get(),
+                paymentRequired.get().accepts().getFirst(),
+                Credentials.create("0x1d353b7fbc67f67108c7690b572a6fd979325ce3cc3d18c82643cc9af41b2506"));
+
         try (Response noSignaturePaymentResponse = CLIENT.newCall(new Request.Builder()
                 .url(finalUrl)
                 .get()
-                .addHeader(
-                        X402_PAYMENT_SIGNATURE_HEADER,
-                        paymentHeaders.get(X402_PAYMENT_SIGNATURE_HEADER)
-                )
+                .headers(Headers.of(X402V2Client.buildPaymentHeaders(payloadWithEmptyBalance)))
                 .build()).execute()) {
 
             // Checking the response header.
@@ -200,20 +198,15 @@ public class PaymentTest {
         }
 
         // We make a real payment ======================================================================================
-        paymentHeaders = X402V2Client.buildPaymentHeaders(
-                X402V2Client.signPaymentPayload(
-                        paymentRequired.get().accepts().getFirst(),
-                        X402V2Client.createPaymentPayload(paymentRequired.get().accepts().getFirst(), TEST_CLIENT_WALLET_ADDRESS_1),
-                        Credentials.create(TEST_CLIENT_WALLET_ADDRESS_1_PRIVATE_KEY))
+        var validPayload = X402V2Client.buildPaymentPayload(
+                paymentRequired.get(),
+                paymentRequired.get().accepts().getFirst(),
+                Credentials.create(TEST_CLIENT_WALLET_ADDRESS_1_PRIVATE_KEY)
         );
-
         try (Response paidResponse = CLIENT.newCall(new Request.Builder()
                 .url(finalUrl)
                 .get()
-                .addHeader(
-                        X402_PAYMENT_SIGNATURE_HEADER,
-                        paymentHeaders.get(X402_PAYMENT_SIGNATURE_HEADER)
-                )
+                .headers(Headers.of(X402V2Client.buildPaymentHeaders(validPayload)))
                 .build()).execute()) {
 
             // Checking the response header.

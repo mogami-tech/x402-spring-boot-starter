@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.servlet.HandlerInterceptor;
-import tech.mogami.commons.api.facilitator.settle.SettleResponse;
-import tech.mogami.commons.api.facilitator.verify.VerifyResponse;
+import tech.mogami.commons.api.facilitator.settle.SettlementResponse;
+import tech.mogami.commons.api.facilitator.verify.VerificationResponse;
 import tech.mogami.commons.payment.PaymentPayload;
 import tech.mogami.commons.payment.PaymentRequired;
 import tech.mogami.commons.payment.PaymentResource;
@@ -90,7 +90,7 @@ public class X402Interceptor implements HandlerInterceptor {
                     // TODO Check if paymentPayload.accepted() is in the list of paymentRequirements from annotations.
 
                     // Calling /verify on the facilitator server =======================================================
-                    VerifyResponse verifyResponse;
+                    VerificationResponse verifyResponse;
                     try {
                         verifyResponse = facilitatorService.verify(paymentPayload, paymentPayload.accepted()).block();
                     } catch (WebClientResponseException e) {
@@ -98,10 +98,10 @@ public class X402Interceptor implements HandlerInterceptor {
                         String responseBody = e.getResponseBodyAsString(UTF_8);
                         log.error("Calling /verify failed: {} - {}", e.getStatusCode(), responseBody);
                         try {
-                            verifyResponse = JsonUtil.fromJson(responseBody, VerifyResponse.class);
+                            verifyResponse = JsonUtil.fromJson(responseBody, VerificationResponse.class);
                         } catch (Exception ex) {
                             log.error("The result from /verify is not valid: {}", responseBody);
-                            verifyResponse = VerifyResponse.builder()
+                            verifyResponse = VerificationResponse.builder()
                                     .isValid(false)
                                     .invalidReason("Reply error from calling /verify: " + responseBody)
                                     .build();
@@ -123,7 +123,7 @@ public class X402Interceptor implements HandlerInterceptor {
                     }
 
                     // Calling /settle and setting the response header =================================================
-                    SettleResponse settleResponse;
+                    SettlementResponse settleResponse;
                     try {
                         settleResponse = facilitatorService.settle(paymentPayload, paymentPayload.accepted()).block();
                     } catch (WebClientResponseException e) {
@@ -131,10 +131,10 @@ public class X402Interceptor implements HandlerInterceptor {
                         String responseBody = e.getResponseBodyAsString(UTF_8);
                         log.error("Calling /settle failed: {} - {}", e.getStatusCode(), responseBody);
                         try {
-                            settleResponse = JsonUtil.fromJson(responseBody, SettleResponse.class);
+                            settleResponse = JsonUtil.fromJson(responseBody, SettlementResponse.class);
                         } catch (Exception ex) {
                             log.error("The result from /settle is not valid: {}", responseBody);
-                            settleResponse = SettleResponse.builder()
+                            settleResponse = SettlementResponse.builder()
                                     .success(false)
                                     .errorReason("Reply error from calling /settle: " + responseBody)
                                     .build();
@@ -157,7 +157,7 @@ public class X402Interceptor implements HandlerInterceptor {
 
                 } catch (IllegalArgumentException e) {
                     log.error("Error decoding payment header: {}", e.getMessage());
-                    final VerifyResponse verifyResponse = VerifyResponse.builder()
+                    final VerificationResponse verifyResponse = VerificationResponse.builder()
                             .isValid(false)
                             .invalidReason("Error decoding payment header: " + e.getMessage())
                             .build();
@@ -182,16 +182,16 @@ public class X402Interceptor implements HandlerInterceptor {
      *
      * @param request                        The HTTP request
      * @param response                       The HTTP response
-     * @param verifyResponse                 The verify response
-     * @param settleResponse                 The settle response
+     * @param verificationResponse           The verification response
+     * @param settlementResponse             The settlement response
      * @param x402ResourceAnnotation         The x402 resource annotation
      * @param paymentRequirementsAnnotations The list of payment requirements annotations
      * @throws Exception If an error occurs
      */
     private void return402(final HttpServletRequest request,
                            final HttpServletResponse response,
-                           final VerifyResponse verifyResponse,
-                           final SettleResponse settleResponse,
+                           final VerificationResponse verificationResponse,
+                           final SettlementResponse settlementResponse,
                            final X402Resource x402ResourceAnnotation,
                            final Set<Annotation> paymentRequirementsAnnotations) throws Exception {
 
@@ -211,11 +211,11 @@ public class X402Interceptor implements HandlerInterceptor {
 
         // We search for an error message in the verifyResponse or settleResponse.
         String errorMessage = X402_PAYMENT_REQUIRED_MESSAGE;
-        if (verifyResponse != null && verifyResponse.invalidReason() != null) {
-            errorMessage = verifyResponse.invalidReason();
+        if (verificationResponse != null && verificationResponse.invalidReason() != null) {
+            errorMessage = verificationResponse.invalidReason();
         }
-        if (settleResponse != null && settleResponse.errorReason() != null) {
-            errorMessage = settleResponse.errorReason();
+        if (settlementResponse != null && settlementResponse.errorReason() != null) {
+            errorMessage = settlementResponse.errorReason();
         }
 
         // We build the payment required object.

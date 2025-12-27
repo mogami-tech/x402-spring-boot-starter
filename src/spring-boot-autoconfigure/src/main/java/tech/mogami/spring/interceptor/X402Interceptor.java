@@ -17,6 +17,7 @@ import tech.mogami.commons.payment.PaymentRequired;
 import tech.mogami.commons.payment.PaymentResource;
 import tech.mogami.commons.util.Base64Util;
 import tech.mogami.commons.util.JsonUtil;
+import tech.mogami.commons.util.X402HeaderUtil;
 import tech.mogami.spring.annotation.X402PayUSDC;
 import tech.mogami.spring.annotation.X402PaymentRequirements;
 import tech.mogami.spring.annotation.X402Resource;
@@ -230,10 +231,15 @@ public class X402Interceptor implements HandlerInterceptor {
                 .extensions(Map.of())
                 .build();
 
+        // We build the response header.
+
         // We write the response.
         response.setStatus(SC_PAYMENT_REQUIRED);
         response.setContentType(APPLICATION_JSON_VALUE);
-        response.addHeader(X402_PAYMENT_REQUIRED_HEADER, Base64Util.encode(JsonUtil.toJson(paymentRequired)));
+        response.addHeader(X402_PAYMENT_REQUIRED_HEADER, X402HeaderUtil.encodePaymentRequired(paymentRequired));
+        if (settlementResponse != null) {
+            response.addHeader(X402_PAYMENT_RESPONSE_HEADER, X402HeaderUtil.encodeSettlementResponse(settlementResponse));
+        }
         //objectMapper.writeValue(response.getWriter(), paymentRequired);
     }
 

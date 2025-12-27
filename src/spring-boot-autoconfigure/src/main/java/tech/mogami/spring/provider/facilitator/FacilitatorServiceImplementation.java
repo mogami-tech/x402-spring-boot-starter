@@ -3,6 +3,7 @@ package tech.mogami.spring.provider.facilitator;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -31,6 +32,7 @@ import static tech.mogami.commons.api.facilitator.FacilitatorApiEndpoints.VERIFY
  */
 @Slf4j
 @Service
+@Profile("!mockedFacilitator")
 @RequiredArgsConstructor
 @SuppressWarnings({"checkstyle:DesignForExtension", "unused"})
 public class FacilitatorServiceImplementation implements FacilitatorService {

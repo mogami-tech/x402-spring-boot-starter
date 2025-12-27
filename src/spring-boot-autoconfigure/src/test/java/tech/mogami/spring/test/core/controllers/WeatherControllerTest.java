@@ -5,11 +5,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.web3j.crypto.Credentials;
 import tech.mogami.java.client.X402V2Client;
 import tech.mogami.spring.parameter.X402Parameters;
 import tech.mogami.spring.test.util.BaseTest;
+
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -17,6 +22,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static tech.mogami.commons.constant.X402Constants.X402_DEFAULT_PAYMENT_TIMEOUT_SECONDS;
+import static tech.mogami.commons.constant.X402Constants.X402_PAYMENT_SIGNATURE_HEADER;
+import static tech.mogami.commons.constant.X402Error.INSUFFICIENT_FUNDS;
 import static tech.mogami.commons.constant.network.Networks.BASE_MAINNET;
 import static tech.mogami.commons.constant.network.Networks.BASE_SEPOLIA;
 import static tech.mogami.commons.constant.network.contract.BaseContracts.BASE_MAINNET_USDC_CONTRACT;
@@ -26,11 +33,8 @@ import static tech.mogami.commons.payment.schemes.Schemes.EXACT_SCHEME;
 import static tech.mogami.commons.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_PARAMETER_NAME;
 import static tech.mogami.commons.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_PARAMETER_VERSION;
 
-@SuppressWarnings("ALL")
-@SpringBootTest(
-        properties = {
-                "x402.facilitator.base-url=http://localhost:10000/facilitator",
-        })
+@SpringBootTest
+@ActiveProfiles("mockedFacilitator")
 @AutoConfigureMockMvc
 @DisplayName("Weather controller tests")
 public class WeatherControllerTest extends BaseTest {
@@ -40,52 +44,6 @@ public class WeatherControllerTest extends BaseTest {
 
     @Autowired
     MockMvc mockMvc;
-
-//    @BeforeEach
-//    public void setup() {
-//        mockServer = ClientAndServer.startClientAndServer(10000);
-//        // get /weather with invalid payment header test
-//        mockServer.when(request().withPath("/facilitator/verify").withBody(subString("isValidFalse"))
-//        ).respond(response()
-//                .withStatusCode(200).withContentType(APPLICATION_JSON)
-//                .withBody("""
-//                        {
-//                          "isValid": false,
-//                          "invalidReason": "invalid_scheme",
-//                          "payer": "0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F71"
-//                        }
-//                        """)
-//        );
-//        mockServer.when(request().withPath("/facilitator/verify").withBody(subString("isValidTrue"))
-//        ).respond(response()
-//                .withStatusCode(200).withContentType(APPLICATION_JSON)
-//                .withBody("""
-//                        {
-//                          "isValid": true,
-//                          "payer": "0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F72"
-//                        }
-//                        """)
-//        );
-//        // get /weather with valid payment header test
-//        mockServer.when(request().withPath("/facilitator/settle").withBody(subString("isValidTrue"))
-//        ).respond(response()
-//                .withStatusCode(200).withContentType(APPLICATION_JSON)
-//                .withBody("""
-//                        {
-//                          "success": true,
-//                          "network": "base-sepolia",
-//                          "transaction": "0x7cbf21c639f7bcd8e68ba02b83b34187f686577a0cead0d7c6f0f57183a84b51",
-//                          "errorReason": "invalid_scheme",
-//                          "payer": "0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F73"
-//                        }
-//                        """)
-//        );
-//    }
-//
-//    @AfterEach
-//    public void tearDown() {
-//        mockServer.stop();
-//    }
 
     @Test
     @DisplayName("get /weather/without-payment")
@@ -224,37 +182,35 @@ public class WeatherControllerTest extends BaseTest {
     @Test
     @DisplayName("get /weather with invalid payment header")
     void getWeatherWithInvalidPaymentHeader() throws Exception {
-        fail("TODO Fix this test");
-        // Calling the API with the payment header.
-//        var result = mockMvc.perform(get("/weather").header(X402_PAYMENT_REQUIRED_HEADER, getSampleEncodedPaymentHeader("isValidFalse")))
-//                .andDo(print())
-//                .andExpect(status().isPaymentRequired())
-//                .andExpect(content().contentType(APPLICATION_JSON_VALUE))
-//                .andExpect(jsonPath("$.x402Version").value(X402_SUPPORTED_VERSION_BY_MOGAMI.version()))
-//                .andExpect(jsonPath("$.error").value("invalid_scheme"))
-//                .andExpect(jsonPath("$.accepts.length()").value(2))
-//                .andReturn();
+        // Getting the payment required to build a payment payload with an empty wallet address ========================
+        var result = mockMvc.perform(get("/weather"))
+                .andExpect(status().isPaymentRequired())
+                .andReturn();
+        var PaymentRequired = X402V2Client.extractPaymentRequired(getHeaders(result.getResponse()))
+                .orElseThrow(() -> new IllegalStateException("PaymentRequired should be present"));
 
-        // Testing the decoded payment payload received in the response.
-//        assertThat((PaymentPayload) result.getRequest().getAttribute(X402_X_PAYMENT_HEADER_DECODED))
-//                .isNotNull()
-//                .satisfies(paymentPayload -> {
-//                    assertThat(paymentPayload.x402Version()).isEqualTo(X402_SUPPORTED_VERSION_BY_MOGAMI.version());
-//                    assertThat(paymentPayload.scheme()).isEqualTo(EXACT_SCHEME.name());
-//                    assertThat(paymentPayload.network()).isEqualTo(BASE_SEPOLIA.name());
-//                    assertThat((ExactSchemePayload) paymentPayload.payload())
-//                            .isNotNull()
-//                            .satisfies(payload -> {
-//                                assertThat(payload).isInstanceOf(ExactSchemePayload.class);
-//                                assertThat(payload.signature()).isEqualTo("0x1c7e56451968cc2c2816fc776c6f75483815408b2e087d568ce7e8509c59911b3c9353dbdff8b565680e9defd52336eb2213dfd83f1a07c20625e53d8fda2b951b");
-//                                assertThat(payload.authorization().from()).isEqualTo("0x857b06519E91e3A54538791bDbb0E22373e36b66");
-//                                assertThat(payload.authorization().to()).isEqualTo("0x2980bc24bBFB34DE1BBC91479Cb712ffbCE02F73");
-//                                assertThat(payload.authorization().value()).isEqualTo("1000");
-//                                assertThat(payload.authorization().validAfter()).isEqualTo("1747486410");
-//                                assertThat(payload.authorization().validBefore()).isEqualTo("1747486530");
-//                                assertThat(payload.authorization().nonce()).isEqualTo("isValidFalse");
-//                            });
-//                });
+        // Sending a payment payload with an empty wallet address ======================================================
+        var emptyBalancePaymentPayload = X402V2Client.buildPaymentPayload(
+                PaymentRequired,
+                PaymentRequired.accepts().getFirst(),
+                Credentials.create(EMPTY_WALLET_ADDRESS_PRIVATE_KEY)
+        );
+        final Map<String, String> paymentHeaders = X402V2Client.buildPaymentHeaders(emptyBalancePaymentPayload);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(X402_PAYMENT_SIGNATURE_HEADER, paymentHeaders.get(X402_PAYMENT_SIGNATURE_HEADER));
+
+        result = mockMvc.perform(get("/weather").headers(headers))
+                .andExpect(status().isPaymentRequired())
+                .andReturn();
+
+        // We should get a payment required response indicating insufficient funds =====================================
+        assertThat(X402V2Client.extractPaymentRequired(getHeaders(result.getResponse())))
+                .isPresent().get()
+                .satisfies(paymentRequiredResponse -> {
+                    assertThat(paymentRequiredResponse.x402Version()).isEqualTo(X402_SUPPORTED_VERSION_BY_MOGAMI.version());
+                    assertThat(paymentRequiredResponse.error()).isEqualTo(INSUFFICIENT_FUNDS.getCode());
+                });
+
     }
 
     @Test

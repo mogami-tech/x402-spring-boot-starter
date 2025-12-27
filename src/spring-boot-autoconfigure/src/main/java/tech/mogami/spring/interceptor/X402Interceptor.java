@@ -58,7 +58,7 @@ public class X402Interceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(@NonNull final HttpServletRequest request,
                              @NonNull final HttpServletResponse response,
-                             @NonNull final Object handler) throws Exception {
+                             @NonNull final Object handler) {
 
         // We check if the handler is a HandlerMethod (spring method).
         if (handler instanceof HandlerMethod hm) {
@@ -84,9 +84,8 @@ public class X402Interceptor implements HandlerInterceptor {
                 try {
 
                     // The payment is present, we decode it (base64) transform it ======================================
-                    final String paymentHeaderString = Base64Util.decode(request.getHeader(X402_PAYMENT_SIGNATURE_HEADER));
-                    final PaymentPayload paymentPayload = JsonUtil.fromJson(paymentHeaderString, PaymentPayload.class);
-                    log.info("Payment received for url {}: {}", request.getRequestURL().toString(), paymentHeaderString);
+                    final PaymentPayload paymentPayload = X402HeaderUtil.decodePaymentPayload(request.getHeader(X402_PAYMENT_SIGNATURE_HEADER));
+                    log.info("Payment received for url {}: {}", request.getRequestURL().toString(), paymentPayload);
 
                     // TODO Check if paymentPayload.accepted() is in the list of paymentRequirements from annotations.
 
@@ -187,16 +186,15 @@ public class X402Interceptor implements HandlerInterceptor {
      * @param settlementResponse             The settlement response
      * @param x402ResourceAnnotation         The x402 resource annotation
      * @param paymentRequirementsAnnotations The list of payment requirements annotations
-     * @throws Exception If an error occurs
      */
     private void return402(final HttpServletRequest request,
                            final HttpServletResponse response,
                            final VerificationResponse verificationResponse,
                            final SettlementResponse settlementResponse,
                            final X402Resource x402ResourceAnnotation,
-                           final Set<Annotation> paymentRequirementsAnnotations) throws Exception {
+                           final Set<Annotation> paymentRequirementsAnnotations) {
 
-        // We treat the resource annotation to build the resource object.
+        // We treat the resource annotation to build the resource object ===============================================
         PaymentResource paymentResource;
         if (x402ResourceAnnotation == null) {
             paymentResource = PaymentResource.builder()
@@ -210,7 +208,7 @@ public class X402Interceptor implements HandlerInterceptor {
                     .build();
         }
 
-        // We search for an error message in the verifyResponse or settleResponse.
+        // We search for an error message in the verifyResponse or settleResponse ======================================
         String errorMessage = X402_PAYMENT_REQUIRED_MESSAGE;
         if (verificationResponse != null && verificationResponse.invalidReason() != null) {
             errorMessage = verificationResponse.invalidReason();
@@ -219,7 +217,7 @@ public class X402Interceptor implements HandlerInterceptor {
             errorMessage = settlementResponse.errorReason();
         }
 
-        // We build the payment required object.
+        // We build the payment required object ========================================================================
         final PaymentRequired paymentRequired = PaymentRequired.builder()
                 .x402Version(X402_SUPPORTED_VERSION_BY_MOGAMI.version())
                 .error(errorMessage)
@@ -231,16 +229,13 @@ public class X402Interceptor implements HandlerInterceptor {
                 .extensions(Map.of())
                 .build();
 
-        // We build the response header.
-
-        // We write the response.
+        // We write the response =======================================================================================
         response.setStatus(SC_PAYMENT_REQUIRED);
         response.setContentType(APPLICATION_JSON_VALUE);
         response.addHeader(X402_PAYMENT_REQUIRED_HEADER, X402HeaderUtil.encodePaymentRequired(paymentRequired));
         if (settlementResponse != null) {
             response.addHeader(X402_PAYMENT_RESPONSE_HEADER, X402HeaderUtil.encodeSettlementResponse(settlementResponse));
         }
-        //objectMapper.writeValue(response.getWriter(), paymentRequired);
     }
 
 }

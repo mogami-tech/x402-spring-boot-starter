@@ -32,13 +32,9 @@ public class AmountProviderControllerTest extends BaseTest {
 
         assertThat(X402V2Client.extractPaymentRequired(getHeaders(result.getResponse())))
                 .isPresent().get()
-                .satisfies(paymentRequired -> {
-                    assertThat(paymentRequired.accepts().getFirst())
-                            .isNotNull()
-                            .satisfies(paymentRequirement -> {
-                                assertThat(paymentRequirement.amount()).isEqualTo("3001");
-                            });
-                });
+                .satisfies(paymentRequired -> assertThat(paymentRequired.accepts().getFirst())
+                        .isNotNull()
+                        .satisfies(paymentRequirement -> assertThat(paymentRequirement.amount()).isEqualTo("3001")));
 
         // With type parameter.
         result = mockMvc.perform(get("/dynamicAmountWithX402PaymentRequirements").param("type", "image"))
@@ -47,13 +43,9 @@ public class AmountProviderControllerTest extends BaseTest {
 
         assertThat(X402V2Client.extractPaymentRequired(getHeaders(result.getResponse())))
                 .isPresent().get()
-                .satisfies(paymentRequired -> {
-                    assertThat(paymentRequired.accepts().getFirst())
-                            .isNotNull()
-                            .satisfies(paymentRequirement -> {
-                                assertThat(paymentRequirement.amount()).isEqualTo("1001");
-                            });
-                });
+                .satisfies(paymentRequired -> assertThat(paymentRequired.accepts().getFirst())
+                        .isNotNull()
+                        .satisfies(paymentRequirement -> assertThat(paymentRequirement.amount()).isEqualTo("1001")));
     }
 
     @Test
@@ -66,13 +58,9 @@ public class AmountProviderControllerTest extends BaseTest {
 
         assertThat(X402V2Client.extractPaymentRequired(getHeaders(result.getResponse())))
                 .isPresent().get()
-                .satisfies(paymentRequired -> {
-                    assertThat(paymentRequired.accepts().getFirst())
-                            .isNotNull()
-                            .satisfies(paymentRequirement -> {
-                                assertThat(paymentRequirement.amount()).isEqualTo("6002");
-                            });
-                });
+                .satisfies(paymentRequired -> assertThat(paymentRequired.accepts().getFirst())
+                        .isNotNull()
+                        .satisfies(paymentRequirement -> assertThat(paymentRequirement.amount()).isEqualTo("6002")));
 
         // With type parameter.
         result = mockMvc.perform(get("/dynamicAmountWithX402PaymentRequirementsWithSpring").param("type", "text"))
@@ -81,13 +69,9 @@ public class AmountProviderControllerTest extends BaseTest {
 
         assertThat(X402V2Client.extractPaymentRequired(getHeaders(result.getResponse())))
                 .isPresent().get()
-                .satisfies(paymentRequired -> {
-                    assertThat(paymentRequired.accepts().getFirst())
-                            .isNotNull()
-                            .satisfies(paymentRequirement -> {
-                                assertThat(paymentRequirement.amount()).isEqualTo("5002");
-                            });
-                });
+                .satisfies(paymentRequired -> assertThat(paymentRequired.accepts().getFirst())
+                        .isNotNull()
+                        .satisfies(paymentRequirement -> assertThat(paymentRequirement.amount()).isEqualTo("5002")));
     }
 
     @Test
@@ -100,13 +84,9 @@ public class AmountProviderControllerTest extends BaseTest {
 
         assertThat(X402V2Client.extractPaymentRequired(getHeaders(result.getResponse())))
                 .isPresent().get()
-                .satisfies(paymentRequired -> {
-                    assertThat(paymentRequired.accepts().getFirst())
-                            .isNotNull()
-                            .satisfies(paymentRequirement -> {
-                                assertThat(paymentRequirement.amount()).isEqualTo("3001");
-                            });
-                });
+                .satisfies(paymentRequired -> assertThat(paymentRequired.accepts().getFirst())
+                        .isNotNull()
+                        .satisfies(paymentRequirement -> assertThat(paymentRequirement.amount()).isEqualTo("3001")));
 
         // With type parameter.
         result = mockMvc.perform(get("/dynamicAmountWithX402PayUSDC").param("type", "text"))
@@ -115,13 +95,9 @@ public class AmountProviderControllerTest extends BaseTest {
 
         assertThat(X402V2Client.extractPaymentRequired(getHeaders(result.getResponse())))
                 .isPresent().get()
-                .satisfies(paymentRequired -> {
-                    assertThat(paymentRequired.accepts().getFirst())
-                            .isNotNull()
-                            .satisfies(paymentRequirement -> {
-                                assertThat(paymentRequirement.amount()).isEqualTo("2001");
-                            });
-                });
+                .satisfies(paymentRequired -> assertThat(paymentRequired.accepts().getFirst())
+                        .isNotNull()
+                        .satisfies(paymentRequirement -> assertThat(paymentRequirement.amount()).isEqualTo("2001")));
     }
 
     @Test
@@ -134,13 +110,9 @@ public class AmountProviderControllerTest extends BaseTest {
 
         assertThat(X402V2Client.extractPaymentRequired(getHeaders(result.getResponse())))
                 .isPresent().get()
-                .satisfies(paymentRequired -> {
-                    assertThat(paymentRequired.accepts().getFirst())
-                            .isNotNull()
-                            .satisfies(paymentRequirement -> {
-                                assertThat(paymentRequirement.amount()).isEqualTo("6002");
-                            });
-                });
+                .satisfies(paymentRequired -> assertThat(paymentRequired.accepts().getFirst())
+                        .isNotNull()
+                        .satisfies(paymentRequirement -> assertThat(paymentRequirement.amount()).isEqualTo("6002")));
 
         // With type parameter.
         result = mockMvc.perform(get("/dynamicAmountWithX402PayUSDCWithSpring").param("type", "image"))
@@ -149,13 +121,9 @@ public class AmountProviderControllerTest extends BaseTest {
 
         assertThat(X402V2Client.extractPaymentRequired(getHeaders(result.getResponse())))
                 .isPresent().get()
-                .satisfies(paymentRequired -> {
-                    assertThat(paymentRequired.accepts().getFirst())
-                            .isNotNull()
-                            .satisfies(paymentRequirement -> {
-                                assertThat(paymentRequirement.amount()).isEqualTo("4002");
-                            });
-                });
+                .satisfies(paymentRequired -> assertThat(paymentRequired.accepts().getFirst())
+                        .isNotNull()
+                        .satisfies(paymentRequirement -> assertThat(paymentRequirement.amount()).isEqualTo("4002")));
     }
 
 

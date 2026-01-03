@@ -87,7 +87,20 @@ public class X402Interceptor implements HandlerInterceptor {
                     final PaymentPayload paymentPayload = X402HeaderUtil.decodePaymentPayload(request.getHeader(X402_PAYMENT_SIGNATURE_HEADER));
                     log.info("Payment received for url {}: {}", request.getRequestURL().toString(), paymentPayload);
 
-                    // TODO Check if paymentPayload.accepted() is in the list of paymentRequirements from annotations.
+                    // Check if paymentPayload.accepted() is in the list of paymentRequirements from annotations =======
+                    boolean hasFoundCompatiblePaymentRequirements = paymentRequirementsList
+                            .stream()
+                            .map(paymentRequirement -> payFactories.buildRequirements(paymentRequirement, request))
+                            .anyMatch(paymentRequirements -> paymentRequirements.isCompatibleWith(paymentPayload.accepted()));
+                    if (!hasFoundCompatiblePaymentRequirements) {
+                        log.error("PaymentRequirements from payment payload is not compatible with any of the required payment requirements: {}", paymentPayload.accepted());
+                        final VerificationResponse verifyResponse = VerificationResponse.builder()
+                                .isValid(false)
+                                .invalidReason("PaymentRequirements from payment payload is not compatible with any of the required payment requirements")
+                                .build();
+                        return402(request, response, verifyResponse, null, resourceAnnotation, paymentRequirementsList);
+                        return false;
+                    }
 
                     // Calling /verify on the facilitator server =======================================================
                     VerificationResponse verifyResponse;

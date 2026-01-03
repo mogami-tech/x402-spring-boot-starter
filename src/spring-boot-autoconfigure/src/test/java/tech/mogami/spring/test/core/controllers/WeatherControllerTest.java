@@ -10,6 +10,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.web3j.crypto.Credentials;
+import tech.mogami.commons.payment.PaymentRequirements;
 import tech.mogami.java.client.X402V2Client;
 import tech.mogami.spring.parameter.X402Parameters;
 import tech.mogami.spring.test.util.BaseTest;
@@ -209,7 +210,53 @@ public class WeatherControllerTest extends BaseTest {
                     assertThat(paymentRequiredResponse.x402Version()).isEqualTo(X402_SUPPORTED_VERSION_BY_MOGAMI.version());
                     assertThat(paymentRequiredResponse.error()).isEqualTo(INSUFFICIENT_FUNDS.getCode());
                 });
+    }
 
+    @Test
+    @DisplayName("get /weatherWithX402PayUSDC with an unknow payment requirements")
+    void getWeatherWithX402PayUSDCWithAnUnknowPaymentRequirements() throws Exception {
+        // Getting the payment required to build a payment payload =====================================================
+        var result = mockMvc.perform(get("/weatherWithX402PayUSDC"))
+                .andExpect(status().isPaymentRequired())
+                .andReturn();
+        var PaymentRequired = X402V2Client.extractPaymentRequired(getHeaders(result.getResponse()))
+                .orElseThrow(() -> new IllegalStateException("PaymentRequired should be present"));
+
+        // We create a different payment requirements to generate a payment payload that will be considered invalid ====
+        var anotherPaymentRequirements = PaymentRequirements.builder()
+                .scheme(EXACT_SCHEME.name())
+                .network(BASE_SEPOLIA.networkId())
+                .amount("10000")
+                .payTo(TEST_SERVER_WALLET_ADDRESS_1)
+                .maxTimeoutSeconds(60)
+                .asset("0x036CbD53842c5426634e7929541eC2318f3dCF7e")
+                .extra(EXACT_SCHEME_PARAMETER_NAME, "USDC")
+                .extra(EXACT_SCHEME_PARAMETER_VERSION, "2")
+                .build();
+
+        var paymentPayload = X402V2Client.buildPaymentPayload(
+                PaymentRequired,
+                anotherPaymentRequirements,
+                Credentials.create(TEST_CLIENT_WALLET_ADDRESS_1_PRIVATE_KEY)
+        );
+
+
+        final Map<String, String> paymentHeaders = X402V2Client.buildPaymentHeaders(paymentPayload);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(X402_PAYMENT_SIGNATURE_HEADER, paymentHeaders.get(X402_PAYMENT_SIGNATURE_HEADER));
+
+        // Calling the API with the payment header.
+        result = mockMvc.perform(get("/weatherWithX402PayUSDC").headers(headers))
+                .andExpect(status().isPaymentRequired())
+                .andReturn();
+
+        // Checking the response =======================================================================================
+        assertThat(X402V2Client.extractPaymentRequired(getHeaders(result.getResponse())))
+                .isPresent().get()
+                .satisfies(paymentRequiredResponse -> {
+                    assertThat(paymentRequiredResponse.x402Version()).isEqualTo(X402_SUPPORTED_VERSION_BY_MOGAMI.version());
+                    assertThat(paymentRequiredResponse.error()).isEqualTo("PaymentRequirements from payment payload is not compatible with any of the required payment requirements");
+                });
     }
 
     @Test

@@ -84,7 +84,7 @@
         <maven.gitflow-maven-plugin.version>1.21.0</maven.gitflow-maven-plugin.version>
         <maven.gpg-plugin.version>3.2.8</maven.gpg-plugin.version>
         <maven.deploy-plugin.version>3.1.4</maven.deploy-plugin.version>
-        <maven.central-publishing-maven-plugin.version>0.9.0</maven.central-publishing-maven-plugin.version>
+        <maven.central-publishing-maven-plugin.version>0.10.0</maven.central-publishing-maven-plugin.version>
     </properties>
 
     <!-- Dependency management ===================================================================================== -->

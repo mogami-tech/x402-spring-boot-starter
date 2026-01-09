@@ -8,7 +8,7 @@ import org.hibernate.validator.constraints.URL;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 import tech.mogami.commons.validator.BlockchainAddress;
-import tech.mogami.commons.validator.Network;
+import tech.mogami.commons.validator.NetworkId;
 
 /**
  * X402 Parameters.
@@ -27,7 +27,7 @@ public record X402Parameters(
         Facilitator facilitator,
 
         @NotBlank(message = "{validation.default-network.empty}")
-        @Network(message = "{validation.default-network.invalid}")
+        @NetworkId(message = "{validation.default-network.invalid}")
         String defaultNetwork,
 
         @NotBlank(message = "{validation.default-payTo.empty}")

@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.RestController;
 import tech.mogami.spring.annotation.X402PayUSDC;
 import tech.mogami.spring.annotation.X402PaymentRequirements;
 
-import static tech.mogami.commons.constant.network.base.BaseContracts.BASE_SEPOLIA_USDC_CONTRACT;
-import static tech.mogami.commons.test.BaseTestData.TEST_SERVER_WALLET_ADDRESS_1;
+import static tech.mogami.commons.constant.network.contract.BaseContracts.BASE_SEPOLIA_USDC_CONTRACT;
+import static tech.mogami.commons.test.BaseMogamiTestData.TEST_SERVER_WALLET_ADDRESS_1;
 
 @SuppressWarnings("SameReturnValue")
 @RestController
@@ -14,8 +14,8 @@ public class AmountProviderController {
 
     @X402PaymentRequirements(
             scheme = "exact",
-            network = "base-sepolia",
-            maximumAmountRequired = "1000",
+            network = "eip155:84532",
+            amount = "1000",
             amountProvider = BasicAmountProvider.class,
             payTo = TEST_SERVER_WALLET_ADDRESS_1,
             asset = BASE_SEPOLIA_USDC_CONTRACT,
@@ -31,8 +31,8 @@ public class AmountProviderController {
 
     @X402PaymentRequirements(
             scheme = "exact",
-            network = "base-sepolia",
-            maximumAmountRequired = "1000",
+            network = "eip155:84532",
+            amount = "1000",
             amountProvider = SpringAmountProvider.class,
             payTo = TEST_SERVER_WALLET_ADDRESS_1,
             asset = BASE_SEPOLIA_USDC_CONTRACT,

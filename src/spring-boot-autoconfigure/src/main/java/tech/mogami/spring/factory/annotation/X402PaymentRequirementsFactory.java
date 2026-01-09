@@ -18,24 +18,20 @@ public class X402PaymentRequirementsFactory extends AbstractPayFactory<X402Payme
 
     @Override
     public final PaymentRequirements buildRequirements(final X402PaymentRequirements annotation, final HttpServletRequest request) {
-        final Network network = getNetwork(annotation.network());
+        final Network network = getNetworkByNetworkId(annotation.network());
 
         return PaymentRequirements.builder()
                 .scheme(annotation.scheme())
-                .network(network.name())
-                .maxAmountRequired(
-                        amountResolver.resolveAmountInAtomicUnit(annotation.maximumAmountRequired(),
+                .network(network.networkId())
+                .amount(
+                        amountResolver.resolveAmountInAtomicUnit(
+                                annotation.amount(),
                                 annotation.amountProvider(),
                                 request)
                 )
-                .resource(request.getRequestURL().toString())
-                .description(annotation.description())
-                .mimeType(annotation.mimeType())
-                .outputSchema(parseOutputSchema(annotation.outputSchema()))
+                .asset(annotation.asset())
                 .payTo(StringUtils.firstNonBlank(annotation.payTo(), x402Parameters.defaultPayTo()))
                 .maxTimeoutSeconds(annotation.maximumTimeoutSeconds())
-                .mimeType(annotation.mimeType())
-                .asset(StringUtils.firstNonBlank(annotation.asset(), network.usdc().contractAddress()))
                 .extra(Arrays.stream(annotation.extra())
                         .collect(Collectors.toMap(
                                 X402PaymentRequirements.ExtraEntry::key,

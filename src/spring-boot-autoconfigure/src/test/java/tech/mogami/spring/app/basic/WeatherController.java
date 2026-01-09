@@ -2,11 +2,13 @@ package tech.mogami.spring.app.basic;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import tech.mogami.commons.test.BaseTest;
 import tech.mogami.spring.annotation.X402PayUSDC;
 import tech.mogami.spring.annotation.X402PaymentRequirements;
+import tech.mogami.spring.annotation.X402Resource;
+import tech.mogami.spring.test.util.BaseTest;
 
-import static tech.mogami.commons.constant.network.base.BaseContracts.BASE_SEPOLIA_USDC_CONTRACT;
+import static tech.mogami.commons.constant.network.contract.BaseContracts.BASE_SEPOLIA_USDC_CONTRACT;
+
 
 @SuppressWarnings("SameReturnValue")
 @RestController
@@ -21,8 +23,8 @@ public class WeatherController extends BaseTest {
 
     @X402PaymentRequirements(
             scheme = "exact",
-            network = "base-sepolia",
-            maximumAmountRequired = "1000",
+            network = "eip155:84532",
+            amount = "1000",
             payTo = TEST_SERVER_WALLET_ADDRESS_1,
             asset = BASE_SEPOLIA_USDC_CONTRACT,
             extra = {
@@ -32,9 +34,9 @@ public class WeatherController extends BaseTest {
     )
     @X402PaymentRequirements(
             scheme = "exact",
-            network = "base-sepolia",
-            maximumAmountRequired = "2000",
-            description = "Description number 2",
+            network = "eip155:84532",
+            amount = "2000",
+            maximumTimeoutSeconds = 10,
             payTo = TEST_SERVER_WALLET_ADDRESS_2,
             asset = BASE_SEPOLIA_USDC_CONTRACT
     )
@@ -45,12 +47,17 @@ public class WeatherController extends BaseTest {
 
     // X402PayUSDC annotation ==========================================================================================
 
+    @X402Resource(
+            url = "/weatherWithX402PayUSDC",
+            description = "Access to weather data with X402PayUSDC",
+            mimeType = "text/plain"
+    )
     @X402PayUSDC(amount = "3.6")
     @X402PayUSDC(
             amount = "5.2",
             payTo = "0x71C7656EC7ab88b098defB751B7401B5f6d8976H",
-            network = "base",
-            description = "Complex payment"
+            network = "eip155:8453",
+            maximumTimeoutSeconds = 10
     )
     @GetMapping("/weatherWithX402PayUSDC")
     public String weatherWithX402PayUSDC() {

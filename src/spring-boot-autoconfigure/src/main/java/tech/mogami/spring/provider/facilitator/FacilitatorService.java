@@ -1,9 +1,9 @@
 package tech.mogami.spring.provider.facilitator;
 
 import reactor.core.publisher.Mono;
-import tech.mogami.commons.api.facilitator.settle.SettleResponse;
+import tech.mogami.commons.api.facilitator.settle.SettlementResponse;
 import tech.mogami.commons.api.facilitator.supported.SupportedResponse;
-import tech.mogami.commons.api.facilitator.verify.VerifyResponse;
+import tech.mogami.commons.api.facilitator.verify.VerificationResponse;
 import tech.mogami.commons.payment.PaymentPayload;
 import tech.mogami.commons.payment.PaymentRequirements;
 
@@ -26,8 +26,8 @@ public interface FacilitatorService {
      * @param paymentRequirements payment requirements
      * @return status
      */
-    Mono<VerifyResponse> verify(PaymentPayload paymentPayload,
-                                PaymentRequirements paymentRequirements);
+    Mono<VerificationResponse> verify(PaymentPayload paymentPayload,
+                                      PaymentRequirements paymentRequirements);
 
     /**
      * Settle the payment with the facilitator service.
@@ -36,7 +36,7 @@ public interface FacilitatorService {
      * @param paymentRequirements payment requirements
      * @return status
      */
-    Mono<SettleResponse> settle(PaymentPayload paymentPayload,
-                                PaymentRequirements paymentRequirements);
+    Mono<SettlementResponse> settle(PaymentPayload paymentPayload,
+                                    PaymentRequirements paymentRequirements);
 
 }

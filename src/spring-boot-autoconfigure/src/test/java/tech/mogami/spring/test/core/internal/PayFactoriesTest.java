@@ -1,4 +1,4 @@
-package tech.mogami.spring.test.internal;
+package tech.mogami.spring.test.core.internal;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.DisplayName;
@@ -18,14 +18,13 @@ import java.math.BigInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static tech.mogami.commons.constant.network.base.BaseContracts.BASE_MAINNET_USDC_CONTRACT;
-import static tech.mogami.commons.constant.network.base.BaseContracts.BASE_SEPOLIA_USDC_CONTRACT;
+import static tech.mogami.commons.constant.network.Networks.BASE_MAINNET;
+import static tech.mogami.commons.constant.network.contract.BaseContracts.BASE_MAINNET_USDC_CONTRACT;
+import static tech.mogami.commons.constant.network.contract.BaseContracts.BASE_SEPOLIA_USDC_CONTRACT;
 import static tech.mogami.commons.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_NAME;
 import static tech.mogami.commons.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_PARAMETER_NAME;
 import static tech.mogami.commons.payment.schemes.exact.ExactSchemeConstants.EXACT_SCHEME_PARAMETER_VERSION;
-import static tech.mogami.commons.test.BaseTestData.TEST_SERVER_WALLET_ADDRESS_1;
+import static tech.mogami.commons.test.BaseMogamiTestData.TEST_SERVER_WALLET_ADDRESS_1;
 
 @SuppressWarnings("EmptyMethod")
 @SpringBootTest
@@ -46,8 +45,7 @@ public class PayFactoriesTest {
     @X402PayUSDC(
             amount = "5.1",
             payTo = "0x71C7656EC7ab88b098defB751B7401B5f6d8976F",
-            network = "base",
-            description = "Complex payment"
+            network = "eip155:8453"
     )
     void complexeX402PayUSDC() {
     }
@@ -55,7 +53,6 @@ public class PayFactoriesTest {
     @Test
     @DisplayName("X402PayUSDCFactory")
     void testX402PayUSDCFactory() throws NoSuchMethodException {
-
         // simpleX402PayUSDC
         assertThat(payFactories.buildRequirements(
                 getClass().getDeclaredMethod("simpleX402PayUSDC").getAnnotation(X402PayUSDC.class),
@@ -64,13 +61,10 @@ public class PayFactoriesTest {
                 .satisfies(requirements -> {
                     assertThat(requirements.scheme()).isEqualTo(EXACT_SCHEME_NAME);
                     assertThat(requirements.network()).isEqualTo(x402Parameters.defaultNetwork());
-                    assertThat(requirements.maxAmountRequiredAsBigInteger().compareTo(new BigInteger("3500000"))).isEqualTo(0);
-                    assertThat(requirements.resource()).isEqualTo("http://localhost:8080/x402/pay");
-                    assertThat(requirements.description()).isBlank();
-                    assertThat(requirements.mimeType()).isEqualTo(APPLICATION_JSON.toString());
+                    assertThat(requirements.amountAsBigInteger().compareTo(new BigInteger("3500000"))).isEqualTo(0);
+                    assertThat(requirements.asset()).isEqualTo(BASE_SEPOLIA_USDC_CONTRACT);
                     assertThat(requirements.payTo()).isEqualTo(x402Parameters.defaultPayTo());
                     assertThat(requirements.maxTimeoutSeconds()).isEqualTo(60);
-                    assertThat(requirements.asset()).isEqualTo(BASE_SEPOLIA_USDC_CONTRACT);
                     assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_NAME)).isPresent();
                     assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_NAME)).get().isEqualTo("USDC");
                     assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_VERSION)).isPresent();
@@ -84,14 +78,11 @@ public class PayFactoriesTest {
                 .isNotNull()
                 .satisfies(requirements -> {
                     assertThat(requirements.scheme()).isEqualTo(EXACT_SCHEME_NAME);
-                    assertThat(requirements.network()).isEqualTo("base");
-                    assertThat(requirements.maxAmountRequiredAsBigInteger().compareTo(new BigInteger("5100000"))).isEqualTo(0);
-                    assertThat(requirements.resource()).isEqualTo("http://localhost:8080/x402/pay");
-                    assertThat(requirements.description()).isEqualTo("Complex payment");
-                    assertThat(requirements.mimeType()).isEqualTo(APPLICATION_JSON.toString());
+                    assertThat(requirements.network()).isEqualTo(BASE_MAINNET.networkId());
+                    assertThat(requirements.amountAsBigInteger().compareTo(new BigInteger("5100000"))).isEqualTo(0);
+                    assertThat(requirements.asset()).isEqualTo(BASE_MAINNET_USDC_CONTRACT);
                     assertThat(requirements.payTo()).isEqualTo("0x71C7656EC7ab88b098defB751B7401B5f6d8976F");
                     assertThat(requirements.maxTimeoutSeconds()).isEqualTo(60);
-                    assertThat(requirements.asset()).isEqualTo(BASE_MAINNET_USDC_CONTRACT);
                     assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_NAME)).isPresent();
                     assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_NAME)).get().isEqualTo("USD Coin");
                     assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_VERSION)).isPresent();
@@ -116,13 +107,10 @@ public class PayFactoriesTest {
                 .satisfies(requirements -> {
                     assertThat(requirements.scheme()).isEqualTo(EXACT_SCHEME_NAME);
                     assertThat(requirements.network()).isEqualTo(x402Parameters.defaultNetwork());
-                    assertThat(requirements.maxAmountRequiredAsBigInteger().compareTo(new BigInteger("1000"))).isEqualTo(0);
-                    assertThat(requirements.resource()).isEqualTo("http://localhost:8080/x402/pay");
-                    assertThat(requirements.description()).isBlank();
-                    assertThat(requirements.mimeType()).isEqualToIgnoringCase(APPLICATION_JSON_VALUE);
+                    assertThat(requirements.amountAsBigInteger().compareTo(new BigInteger("1000"))).isEqualTo(0);
+                    assertThat(requirements.asset()).isEqualTo(BASE_SEPOLIA_USDC_CONTRACT);
                     assertThat(requirements.payTo()).isEqualTo(TEST_SERVER_WALLET_ADDRESS_1);
                     assertThat(requirements.maxTimeoutSeconds()).isEqualTo(60);
-                    assertThat(requirements.asset()).isEqualTo(BASE_SEPOLIA_USDC_CONTRACT);
                     assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_NAME)).isPresent();
                     assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_NAME)).get().isEqualTo("USDC");
                     assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_VERSION)).isPresent();

@@ -57,8 +57,8 @@
         <skip.integration.tests>true</skip.integration.tests>
 
         <!-- Mogami -->
-        <mogami.commons.version>2.0.0</mogami.commons.version>
-        <mogami.java-client.version>2.0.0</mogami.java-client.version>
+        <mogami.commons.version>2.0.1-SNAPSHOT</mogami.commons.version>
+        <mogami.java-client.version>2.0.1-SNAPSHOT</mogami.java-client.version>
 
         <!-- Spring -->
         <spring-boot.version>3.5.9</spring-boot.version>
@@ -102,6 +102,16 @@
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>apache-client</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>

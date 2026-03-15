@@ -64,7 +64,7 @@
         <spring-boot.version>3.5.11</spring-boot.version>
 
         <!-- Core utils -->
-        <lombok.version>1.18.42</lombok.version>
+        <lombok.version>1.18.44</lombok.version>
         <lombok.mapstruct.version>0.2.0</lombok.mapstruct.version>
         <mapstruct.version>1.6.3</mapstruct.version>
         <jspecify.version>1.0.0</jspecify.version>

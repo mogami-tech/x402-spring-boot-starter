@@ -87,29 +87,31 @@ public class ConcurrentNonceControllerTest extends BaseTest {
 
         // Send the first request in a background thread; it will be held inside verify()
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future<MvcResult> future1 = executor.submit(() ->
-                mockMvc.perform(get("/weather").headers(headers)).andReturn()
-        );
+        try {
+            Future<MvcResult> future1 = executor.submit(() ->
+                    mockMvc.perform(get("/weather").headers(headers)).andReturn()
+            );
 
-        // Wait until the first request has entered verify() and holds the nonce
-        assertTrue(verifyStarted.await(5, TimeUnit.SECONDS), "First request should reach verify");
+            // Wait until the first request has entered verify() and holds the nonce
+            assertTrue(verifyStarted.await(5, TimeUnit.SECONDS), "First request should reach verify");
 
-        // Send a second request with the same payment header while the first is still in-flight
-        MvcResult result2 = mockMvc.perform(get("/weather").headers(headers))
-                .andExpect(status().isPaymentRequired())
-                .andReturn();
+            // Send a second request with the same payment header while the first is still in-flight
+            MvcResult result2 = mockMvc.perform(get("/weather").headers(headers))
+                    .andExpect(status().isPaymentRequired())
+                    .andReturn();
 
-        // The second request must be rejected because the nonce is already being processed
-        assertThat(X402V2Client.extractPaymentRequired(getHeaders(result2.getResponse())))
-                .isPresent().get()
-                .satisfies(pr -> assertThat(pr.error()).isEqualTo("Payment is already being processed"));
+            // The second request must be rejected because the nonce is already being processed
+            assertThat(X402V2Client.extractPaymentRequired(getHeaders(result2.getResponse())))
+                    .isPresent().get()
+                    .satisfies(pr -> assertThat(pr.error()).isEqualTo("Payment is already being processed"));
 
-        // Release the first request and verify it completes successfully
-        releaseVerify.countDown();
-        MvcResult result1 = future1.get(10, TimeUnit.SECONDS);
-        assertThat(result1.getResponse().getStatus()).isEqualTo(200);
-
-        executor.shutdown();
+            // Release the first request and verify it completes successfully
+            releaseVerify.countDown();
+            MvcResult result1 = future1.get(10, TimeUnit.SECONDS);
+            assertThat(result1.getResponse().getStatus()).isEqualTo(200);
+        } finally {
+            executor.shutdown();
+        }
     }
 
 }

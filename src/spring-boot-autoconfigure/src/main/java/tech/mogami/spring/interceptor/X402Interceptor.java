@@ -97,16 +97,18 @@ public class X402Interceptor implements HandlerInterceptor {
                     // Extract the nonce and guard against concurrent reuse of the same payment proof (TOCTOU) =========
                     final String nonce = paymentPayload.getNonce()
                             .orElseThrow(() -> new IllegalArgumentException("Nonce is required in the payment payload"));
-                    if (!inFlightNonces.add(nonce)) {
-                        log.warn("Duplicate payment nonce detected, rejecting concurrent request: {}", nonce);
-                        final VerificationResponse duplicateNonceResponse = VerificationResponse.builder()
-                                .isValid(false)
-                                .invalidReason("Payment is already being processed")
-                                .build();
-                        return402(request, response, duplicateNonceResponse, null, resourceAnnotation, paymentRequirementsList);
-                        return false;
-                    }
+                    boolean nonceAdded = false;
                     try {
+                        if (!inFlightNonces.add(nonce)) {
+                            log.warn("Duplicate payment nonce detected, rejecting concurrent request: {}", nonce);
+                            final VerificationResponse duplicateNonceResponse = VerificationResponse.builder()
+                                    .isValid(false)
+                                    .invalidReason("Payment is already being processed")
+                                    .build();
+                            return402(request, response, duplicateNonceResponse, null, resourceAnnotation, paymentRequirementsList);
+                            return false;
+                        }
+                        nonceAdded = true;
 
                     // Check if paymentPayload.accepted() is in the list of paymentRequirements from annotations =======
                     boolean hasFoundCompatiblePaymentRequirements = paymentRequirementsList
@@ -190,7 +192,9 @@ public class X402Interceptor implements HandlerInterceptor {
                     }
 
                     } finally {
-                        inFlightNonces.remove(nonce);
+                        if (nonceAdded) {
+                            inFlightNonces.remove(nonce);
+                        }
                     }
                 } catch (IllegalArgumentException e) {
                     log.error("Error decoding payment header: {}", e.getMessage());

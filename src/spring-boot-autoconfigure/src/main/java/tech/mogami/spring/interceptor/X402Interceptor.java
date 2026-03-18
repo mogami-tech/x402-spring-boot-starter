@@ -29,6 +29,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_PAYMENT_REQUIRED;
@@ -54,6 +55,12 @@ public class X402Interceptor implements HandlerInterceptor {
 
     /** Facilitator service. */
     private final FacilitatorService facilitatorService;
+
+    /**
+     * Set of payment nonces currently being processed.
+     * Prevents concurrent reuse of the same payment proof during the verify–settle gap (TOCTOU protection).
+     */
+    private final Set<String> inFlightNonces = ConcurrentHashMap.newKeySet();
 
     @Override
     public boolean preHandle(@NonNull final HttpServletRequest request,
@@ -86,6 +93,20 @@ public class X402Interceptor implements HandlerInterceptor {
                     // The payment is present, we decode it (base64) transform it ======================================
                     final PaymentPayload paymentPayload = X402HeaderUtil.decodePaymentPayload(request.getHeader(X402_PAYMENT_SIGNATURE_HEADER));
                     log.info("Payment received for url {}: {}", request.getRequestURL().toString(), paymentPayload);
+
+                    // Extract the nonce and guard against concurrent reuse of the same payment proof (TOCTOU) =========
+                    final String nonce = paymentPayload.getNonce()
+                            .orElseThrow(() -> new IllegalArgumentException("Nonce is required in the payment payload"));
+                    if (!inFlightNonces.add(nonce)) {
+                        log.warn("Duplicate payment nonce detected, rejecting concurrent request: {}", nonce);
+                        final VerificationResponse duplicateNonceResponse = VerificationResponse.builder()
+                                .isValid(false)
+                                .invalidReason("Payment is already being processed")
+                                .build();
+                        return402(request, response, duplicateNonceResponse, null, resourceAnnotation, paymentRequirementsList);
+                        return false;
+                    }
+                    try {
 
                     // Check if paymentPayload.accepted() is in the list of paymentRequirements from annotations =======
                     boolean hasFoundCompatiblePaymentRequirements = paymentRequirementsList
@@ -168,6 +189,9 @@ public class X402Interceptor implements HandlerInterceptor {
                         return true;
                     }
 
+                    } finally {
+                        inFlightNonces.remove(nonce);
+                    }
                 } catch (IllegalArgumentException e) {
                     log.error("Error decoding payment header: {}", e.getMessage());
                     final VerificationResponse verifyResponse = VerificationResponse.builder()

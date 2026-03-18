@@ -23,8 +23,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -56,7 +56,7 @@ public class ConcurrentNonceControllerTest extends BaseTest {
         // Mock verify: blocks until released, simulating the verify–settle gap
         when(facilitatorService.verify(any(), any())).thenAnswer(invocation -> {
             verifyStarted.countDown();
-            assertTrue(releaseVerify.await(5, TimeUnit.SECONDS), "releaseVerify latch timed out");
+            assertTrue(releaseVerify.await(5, SECONDS), "releaseVerify latch timed out");
             return Mono.just(VerificationResponse.builder()
                     .isValid(true)
                     .payer(TEST_CLIENT_WALLET_ADDRESS_1)
@@ -93,7 +93,7 @@ public class ConcurrentNonceControllerTest extends BaseTest {
             );
 
             // Wait until the first request has entered verify() and holds the nonce
-            assertTrue(verifyStarted.await(5, TimeUnit.SECONDS), "First request should reach verify");
+            assertTrue(verifyStarted.await(5, SECONDS), "First request should reach verify");
 
             // Send a second request with the same payment header while the first is still in-flight
             MvcResult result2 = mockMvc.perform(get("/weather").headers(headers))
@@ -107,7 +107,7 @@ public class ConcurrentNonceControllerTest extends BaseTest {
 
             // Release the first request and verify it completes successfully
             releaseVerify.countDown();
-            MvcResult result1 = future1.get(10, TimeUnit.SECONDS);
+            MvcResult result1 = future1.get(10, SECONDS);
             assertThat(result1.getResponse().getStatus()).isEqualTo(200);
         } finally {
             executor.shutdown();

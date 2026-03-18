@@ -12,6 +12,30 @@ Its main responsibilities are:
 
 This repository is an integration layer between Spring Boot applications and the Mogami x402 stack.
 
+## System context
+
+This repository follows Mogami standards.
+
+### Mandatory standards
+- .ai/standards/checkstyle-rules.md
+- .ai/standards/java-style.md
+- .ai/standards/naming-rules.md
+- .ai/standards/spring-boot-rules.md
+- .ai/standards/testing-rules.md
+
+### Prompts
+- .ai/prompts/fix-bug.prompt.md
+- .ai/prompts/review-pr.prompt.md
+- .ai/prompts/multi-repo-change.prompt.md
+- .ai/prompts/add-liquibase-migration.prompt.md
+
+### Architecture
+- .ai/context/repo-map.md
+
+### Rules
+- Code that violates standards is invalid
+- Prefer simplicity, readability, and explicitness
+
 ## Main responsibilities
 This repository may contain:
 
@@ -150,13 +174,3 @@ When proposing a change:
 - show concrete code, not only high-level advice
 - mention downstream impact when relevant
 - mention compatibility risks when relevant
-
-## Repository context
-This repository is part of the Mogami x402 stack.
-
-It provides shared building blocks for other repositories.
-
-Always think in terms of cross-repository impact before changing public code.
-
-See the repository map for the global architecture:
-https://raw.githubusercontent.com/mogami-tech/mogami-standards/refs/heads/development/architecture/repo-map.md

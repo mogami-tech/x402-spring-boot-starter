@@ -296,4 +296,46 @@ public class WeatherControllerTest extends BaseTest {
                 });
     }
 
+    @Test
+    @DisplayName("get /weatherWithBazaar without payment header - should include bazaar extension")
+    @SuppressWarnings("unchecked")
+    void getWeatherWithBazaarWithoutPaymentHeader() throws Exception {
+        MvcResult result = mockMvc.perform(get("/weatherWithBazaar"))
+                .andExpect(status().isPaymentRequired())
+                .andReturn();
+
+        assertThat(X402V2Client.extractPaymentRequired(getHeaders(result.getResponse())))
+                .isPresent().get()
+                .satisfies(paymentRequired -> {
+                    // Extensions must contain bazaar ===================================================================
+                    assertThat(paymentRequired.extensions())
+                            .isNotNull()
+                            .containsKey("bazaar");
+
+                    // Bazaar extension must contain expected input fields ==============================================
+                    Map<String, Object> bazaar = (Map<String, Object>) paymentRequired.extensions().get("bazaar");
+                    assertThat(bazaar).containsKey("info");
+
+                    Map<String, Object> info = (Map<String, Object>) bazaar.get("info");
+                    assertThat(info).containsKey("input");
+                    assertThat(info).containsKey("output");
+
+                    Map<String, Object> input = (Map<String, Object>) info.get("input");
+                    assertThat(input).containsEntry("type", "http");
+                    assertThat(input).containsEntry("method", "GET");
+
+                    Map<String, Object> output = (Map<String, Object>) info.get("output");
+                    assertThat(output).containsEntry("type", "json");
+
+                    // Resource must reflect the X402Resource annotation ================================================
+                    assertThat(paymentRequired.resource())
+                            .isNotNull()
+                            .satisfies(resource -> {
+                                assertThat(resource.url()).isEqualTo("/weatherWithBazaar");
+                                assertThat(resource.description()).isEqualTo("Weather data with bazaar extension");
+                                assertThat(resource.mimeType()).isEqualTo("application/json");
+                            });
+                });
+    }
+
 }

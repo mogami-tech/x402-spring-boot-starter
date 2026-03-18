@@ -29,6 +29,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_PAYMENT_REQUIRED;
@@ -55,7 +56,11 @@ public class X402Interceptor implements HandlerInterceptor {
     /** Facilitator service. */
     private final FacilitatorService facilitatorService;
 
+    /** Set of payment nonces currently being processed. */
+    private final Set<String> inFlightNonces = ConcurrentHashMap.newKeySet();
+
     @Override
+    @SuppressWarnings("methodlength")
     public boolean preHandle(@NonNull final HttpServletRequest request,
                              @NonNull final HttpServletResponse response,
                              @NonNull final Object handler) {
@@ -87,87 +92,108 @@ public class X402Interceptor implements HandlerInterceptor {
                     final PaymentPayload paymentPayload = X402HeaderUtil.decodePaymentPayload(request.getHeader(X402_PAYMENT_SIGNATURE_HEADER));
                     log.info("Payment received for url {}: {}", request.getRequestURL().toString(), paymentPayload);
 
-                    // Check if paymentPayload.accepted() is in the list of paymentRequirements from annotations =======
-                    boolean hasFoundCompatiblePaymentRequirements = paymentRequirementsList
-                            .stream()
-                            .map(paymentRequirement -> payFactories.buildRequirements(paymentRequirement, request))
-                            .anyMatch(paymentRequirements -> paymentRequirements.isCompatibleWith(paymentPayload.accepted()));
-                    if (!hasFoundCompatiblePaymentRequirements) {
-                        log.error("PaymentRequirements from payment payload is not compatible with any of the required payment requirements: {}", paymentPayload.accepted());
-                        final VerificationResponse verifyResponse = VerificationResponse.builder()
-                                .isValid(false)
-                                .invalidReason("PaymentRequirements from payment payload is not compatible with any of the required payment requirements")
-                                .build();
-                        return402(request, response, verifyResponse, null, resourceAnnotation, paymentRequirementsList);
-                        return false;
-                    }
-
-                    // Calling /verify on the facilitator server =======================================================
-                    VerificationResponse verifyResponse;
+                    // Extract the nonce and guard against concurrent reuse of the same payment proof (TOCTOU) =========
+                    final String nonce = paymentPayload.getNonce()
+                            .orElseThrow(() -> new IllegalArgumentException("Nonce is required in the payment payload"));
+                    boolean nonceAdded = false;
                     try {
-                        verifyResponse = facilitatorService.verify(paymentPayload, paymentPayload.accepted()).block();
-                    } catch (WebClientResponseException e) {
-                        // The call failed - the body should contain a verifyResponse.
-                        String responseBody = e.getResponseBodyAsString(UTF_8);
-                        log.error("Calling /verify failed: {} - {}", e.getStatusCode(), responseBody);
-                        try {
-                            verifyResponse = JsonUtil.fromJson(responseBody, VerificationResponse.class);
-                        } catch (Exception ex) {
-                            log.error("The result from /verify is not valid: {}", responseBody);
-                            verifyResponse = VerificationResponse.builder()
+                        if (!inFlightNonces.add(nonce)) {
+                            log.warn("Duplicate payment nonce detected, rejecting concurrent request: {}", nonce);
+                            final VerificationResponse duplicateNonceResponse = VerificationResponse.builder()
                                     .isValid(false)
-                                    .invalidReason("Reply error from calling /verify: " + responseBody)
+                                    .invalidReason("Payment is already being processed")
                                     .build();
+                            return402(request, response, duplicateNonceResponse, null, resourceAnnotation, paymentRequirementsList);
+                            return false;
                         }
-                        return402(request, response, verifyResponse, null, resourceAnnotation, paymentRequirementsList);
-                        return false;
-                    }
+                        nonceAdded = true;
 
-                    // We have a result from the verification ==========================================================
-                    log.info("Verify result: {}", verifyResponse);
-                    if (verifyResponse == null || !verifyResponse.isValid()) {
-                        // Payment is invalid
-                        log.error("Payment is invalid: {}", verifyResponse);
-                        return402(request, response, verifyResponse, null, resourceAnnotation, paymentRequirementsList);
-                        return false;
-                    } else {
-                        // Payment is valid
-                        log.info("Payment is valid: {}", verifyResponse);
-                    }
+                        // Check if paymentPayload.accepted() is in the list of paymentRequirements from annotations =======
+                        boolean hasFoundCompatiblePaymentRequirements = paymentRequirementsList
+                                .stream()
+                                .map(paymentRequirement -> payFactories.buildRequirements(paymentRequirement, request))
+                                .anyMatch(paymentRequirements -> paymentRequirements.isCompatibleWith(paymentPayload.accepted()));
+                        if (!hasFoundCompatiblePaymentRequirements) {
+                            log.error("PaymentRequirements from payment payload is not compatible with any of the required payment requirements: {}", paymentPayload.accepted());
+                            final VerificationResponse verifyResponse = VerificationResponse.builder()
+                                    .isValid(false)
+                                    .invalidReason("PaymentRequirements from payment payload is not compatible with any of the required payment requirements")
+                                    .build();
+                            return402(request, response, verifyResponse, null, resourceAnnotation, paymentRequirementsList);
+                            return false;
+                        }
 
-                    // Calling /settle and setting the response header =================================================
-                    SettlementResponse settleResponse;
-                    try {
-                        settleResponse = facilitatorService.settle(paymentPayload, paymentPayload.accepted()).block();
-                    } catch (WebClientResponseException e) {
-                        // The call failed.
-                        String responseBody = e.getResponseBodyAsString(UTF_8);
-                        log.error("Calling /settle failed: {} - {}", e.getStatusCode(), responseBody);
+                        // Calling /verify on the facilitator server =======================================================
+                        VerificationResponse verifyResponse;
                         try {
-                            settleResponse = JsonUtil.fromJson(responseBody, SettlementResponse.class);
-                        } catch (Exception ex) {
-                            log.error("The result from /settle is not valid: {}", responseBody);
-                            settleResponse = SettlementResponse.builder()
-                                    .success(false)
-                                    .errorReason("Reply error from calling /settle: " + responseBody)
-                                    .build();
+                            verifyResponse = facilitatorService.verify(paymentPayload, paymentPayload.accepted()).block();
+                        } catch (WebClientResponseException e) {
+                            // The call failed - the body should contain a verifyResponse.
+                            String responseBody = e.getResponseBodyAsString(UTF_8);
+                            log.error("Calling /verify failed: {} - {}", e.getStatusCode(), responseBody);
+                            try {
+                                verifyResponse = JsonUtil.fromJson(responseBody, VerificationResponse.class);
+                            } catch (Exception ex) {
+                                log.error("The result from /verify is not valid: {}", responseBody);
+                                verifyResponse = VerificationResponse.builder()
+                                        .isValid(false)
+                                        .invalidReason("Reply error from calling /verify: " + responseBody)
+                                        .build();
+                            }
+                            return402(request, response, verifyResponse, null, resourceAnnotation, paymentRequirementsList);
+                            return false;
                         }
-                        return402(request, response, null, settleResponse, resourceAnnotation, paymentRequirementsList);
-                        return false;
-                    }
 
-                    if (settleResponse == null || !settleResponse.success()) {
-                        // Settlement failed
-                        log.error("Payment settlement failed: {}", settleResponse);
-                        return402(request, response, null, settleResponse, resourceAnnotation, paymentRequirementsList);
-                        return false;
-                    } else {
-                        // Payment settled! we let the user access the resource.
-                        log.info("Payment settled: {}", settleResponse);
-                        response.setHeader(X402_PAYMENT_RESPONSE_HEADER, Base64Util.encode(JsonUtil.toJson(settleResponse)));
-                        return true;
-                    }
+                        // We have a result from the verification ==========================================================
+                        log.info("Verify result: {}", verifyResponse);
+                        if (verifyResponse == null || !verifyResponse.isValid()) {
+                            // Payment is invalid
+                            log.error("Payment is invalid: {}", verifyResponse);
+                            return402(request, response, verifyResponse, null, resourceAnnotation, paymentRequirementsList);
+                            return false;
+                        } else {
+                            // Payment is valid
+                            log.info("Payment is valid: {}", verifyResponse);
+                        }
 
+                        // Calling /settle and setting the response header =================================================
+                        SettlementResponse settleResponse;
+                        try {
+                            settleResponse = facilitatorService.settle(paymentPayload, paymentPayload.accepted()).block();
+                        } catch (WebClientResponseException e) {
+                            // The call failed.
+                            String responseBody = e.getResponseBodyAsString(UTF_8);
+                            log.error("Calling /settle failed: {} - {}", e.getStatusCode(), responseBody);
+                            try {
+                                settleResponse = JsonUtil.fromJson(responseBody, SettlementResponse.class);
+                            } catch (Exception ex) {
+                                log.error("The result from /settle is not valid: {}", responseBody);
+                                settleResponse = SettlementResponse.builder()
+                                        .success(false)
+                                        .errorReason("Reply error from calling /settle: " + responseBody)
+                                        .build();
+                            }
+                            return402(request, response, null, settleResponse, resourceAnnotation, paymentRequirementsList);
+                            return false;
+                        }
+
+                        if (settleResponse == null || !settleResponse.success()) {
+                            // Settlement failed
+                            log.error("Payment settlement failed: {}", settleResponse);
+                            return402(request, response, null, settleResponse, resourceAnnotation, paymentRequirementsList);
+                            return false;
+                        } else {
+                            // Payment settled! we let the user access the resource.
+                            log.info("Payment settled: {}", settleResponse);
+                            response.setHeader(X402_PAYMENT_RESPONSE_HEADER, Base64Util.encode(JsonUtil.toJson(settleResponse)));
+                            return true;
+                        }
+
+                    } finally {
+                        if (nonceAdded) {
+                            inFlightNonces.remove(nonce);
+                        }
+                    }
                 } catch (IllegalArgumentException e) {
                     log.error("Error decoding payment header: {}", e.getMessage());
                     final VerificationResponse verifyResponse = VerificationResponse.builder()

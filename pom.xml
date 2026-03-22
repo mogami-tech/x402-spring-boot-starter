@@ -61,7 +61,7 @@
         <mogami.java-client.version>2.0.1-SNAPSHOT</mogami.java-client.version>
 
         <!-- Spring -->
-        <spring-boot.version>3.5.11</spring-boot.version>
+        <spring-boot.version>3.5.12</spring-boot.version>
 
         <!-- Core utils -->
         <lombok.version>1.18.44</lombok.version>

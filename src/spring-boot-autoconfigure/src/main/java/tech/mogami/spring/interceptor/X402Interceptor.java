@@ -18,10 +18,12 @@ import tech.mogami.commons.payment.PaymentResource;
 import tech.mogami.commons.util.Base64Util;
 import tech.mogami.commons.util.JsonUtil;
 import tech.mogami.commons.util.X402HeaderUtil;
+import tech.mogami.spring.annotation.X402Bazaar;
 import tech.mogami.spring.annotation.X402PayUSDC;
 import tech.mogami.spring.annotation.X402PaymentRequirements;
 import tech.mogami.spring.annotation.X402Resource;
 import tech.mogami.spring.factory.annotation.PayFactories;
+import tech.mogami.spring.factory.annotation.X402BazaarConverter;
 import tech.mogami.spring.provider.facilitator.FacilitatorService;
 
 import java.lang.annotation.Annotation;
@@ -70,6 +72,9 @@ public class X402Interceptor implements HandlerInterceptor {
             // Get the X402Resource annotation =========================================================================
             final X402Resource resourceAnnotation = AnnotatedElementUtils.findMergedAnnotation(hm.getMethod(), X402Resource.class);
 
+            // Get the X402Bazaar annotation ===========================================================================
+            final X402Bazaar bazaarAnnotation = AnnotatedElementUtils.findMergedAnnotation(hm.getMethod(), X402Bazaar.class);
+
             // Getting all payment requirements annotations ============================================================
             final Set<Annotation> paymentRequirementsList = new LinkedHashSet<>();
             paymentRequirementsList.addAll(AnnotatedElementUtils.findMergedRepeatableAnnotations(hm.getMethod(), X402PayUSDC.class));
@@ -81,7 +86,7 @@ public class X402Interceptor implements HandlerInterceptor {
                 // x402 URL Called without payment =====================================================================
                 if (request.getHeader(X402_PAYMENT_SIGNATURE_HEADER) == null) {
                     log.info("x402 URL Called without payment: {}", request.getRequestURL().toString());
-                    return402(request, response, null, null, resourceAnnotation, paymentRequirementsList);
+                    return402(request, response, null, null, resourceAnnotation, bazaarAnnotation, paymentRequirementsList);
                     return false;
                 }
 
@@ -103,7 +108,7 @@ public class X402Interceptor implements HandlerInterceptor {
                                     .isValid(false)
                                     .invalidReason("Payment is already being processed")
                                     .build();
-                            return402(request, response, duplicateNonceResponse, null, resourceAnnotation, paymentRequirementsList);
+                            return402(request, response, duplicateNonceResponse, null, resourceAnnotation, bazaarAnnotation, paymentRequirementsList);
                             return false;
                         }
                         nonceAdded = true;
@@ -119,7 +124,7 @@ public class X402Interceptor implements HandlerInterceptor {
                                     .isValid(false)
                                     .invalidReason("PaymentRequirements from payment payload is not compatible with any of the required payment requirements")
                                     .build();
-                            return402(request, response, verifyResponse, null, resourceAnnotation, paymentRequirementsList);
+                            return402(request, response, verifyResponse, null, resourceAnnotation, bazaarAnnotation, paymentRequirementsList);
                             return false;
                         }
 
@@ -140,7 +145,7 @@ public class X402Interceptor implements HandlerInterceptor {
                                         .invalidReason("Reply error from calling /verify: " + responseBody)
                                         .build();
                             }
-                            return402(request, response, verifyResponse, null, resourceAnnotation, paymentRequirementsList);
+                            return402(request, response, verifyResponse, null, resourceAnnotation, bazaarAnnotation, paymentRequirementsList);
                             return false;
                         }
 
@@ -149,7 +154,7 @@ public class X402Interceptor implements HandlerInterceptor {
                         if (verifyResponse == null || !verifyResponse.isValid()) {
                             // Payment is invalid
                             log.error("Payment is invalid: {}", verifyResponse);
-                            return402(request, response, verifyResponse, null, resourceAnnotation, paymentRequirementsList);
+                            return402(request, response, verifyResponse, null, resourceAnnotation, bazaarAnnotation, paymentRequirementsList);
                             return false;
                         } else {
                             // Payment is valid
@@ -173,14 +178,14 @@ public class X402Interceptor implements HandlerInterceptor {
                                         .errorReason("Reply error from calling /settle: " + responseBody)
                                         .build();
                             }
-                            return402(request, response, null, settleResponse, resourceAnnotation, paymentRequirementsList);
+                            return402(request, response, null, settleResponse, resourceAnnotation, bazaarAnnotation, paymentRequirementsList);
                             return false;
                         }
 
                         if (settleResponse == null || !settleResponse.success()) {
                             // Settlement failed
                             log.error("Payment settlement failed: {}", settleResponse);
-                            return402(request, response, null, settleResponse, resourceAnnotation, paymentRequirementsList);
+                            return402(request, response, null, settleResponse, resourceAnnotation, bazaarAnnotation, paymentRequirementsList);
                             return false;
                         } else {
                             // Payment settled! we let the user access the resource.
@@ -200,7 +205,7 @@ public class X402Interceptor implements HandlerInterceptor {
                             .isValid(false)
                             .invalidReason("Error decoding payment header: " + e.getMessage())
                             .build();
-                    return402(request, response, verifyResponse, null, resourceAnnotation, paymentRequirementsList);
+                    return402(request, response, verifyResponse, null, resourceAnnotation, bazaarAnnotation, paymentRequirementsList);
                     return false;
                 }
                 // =====================================================================================================
@@ -224,6 +229,7 @@ public class X402Interceptor implements HandlerInterceptor {
      * @param verificationResponse           The verification response
      * @param settlementResponse             The settlement response
      * @param x402ResourceAnnotation         The x402 resource annotation
+     * @param x402BazaarAnnotation           The x402 bazaar annotation
      * @param paymentRequirementsAnnotations The list of payment requirements annotations
      */
     private void return402(final HttpServletRequest request,
@@ -231,6 +237,7 @@ public class X402Interceptor implements HandlerInterceptor {
                            final VerificationResponse verificationResponse,
                            final SettlementResponse settlementResponse,
                            final X402Resource x402ResourceAnnotation,
+                           final X402Bazaar x402BazaarAnnotation,
                            final Set<Annotation> paymentRequirementsAnnotations) {
 
         // We treat the resource annotation to build the resource object ===============================================
@@ -256,6 +263,14 @@ public class X402Interceptor implements HandlerInterceptor {
             errorMessage = settlementResponse.errorReason();
         }
 
+        // We build the extensions map =================================================================================
+        final Map<String, Object> extensions;
+        if (x402BazaarAnnotation != null) {
+            extensions = Map.of("bazaar", X402BazaarConverter.convert(x402BazaarAnnotation));
+        } else {
+            extensions = Map.of();
+        }
+
         // We build the payment required object ========================================================================
         final PaymentRequired paymentRequired = PaymentRequired.builder()
                 .x402Version(X402_SUPPORTED_VERSION_BY_MOGAMI.version())
@@ -265,7 +280,7 @@ public class X402Interceptor implements HandlerInterceptor {
                         .stream()
                         .map(paymentRequirement -> payFactories.buildRequirements(paymentRequirement, request))
                         .collect(Collectors.toCollection(LinkedList::new)))
-                .extensions(Map.of())
+                .extensions(extensions)
                 .build();
 
         // We write the response =======================================================================================

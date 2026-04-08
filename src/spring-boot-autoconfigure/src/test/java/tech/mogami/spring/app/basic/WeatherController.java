@@ -2,6 +2,7 @@ package tech.mogami.spring.app.basic;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import tech.mogami.spring.annotation.X402Bazaar;
 import tech.mogami.spring.annotation.X402PayUSDC;
 import tech.mogami.spring.annotation.X402PaymentRequirements;
 import tech.mogami.spring.annotation.X402Resource;
@@ -62,6 +63,24 @@ public class WeatherController extends BaseTest {
     @GetMapping("/weatherWithX402PayUSDC")
     public String weatherWithX402PayUSDC() {
         return "It's sunny with X402PayUSDC!";
+    }
+
+    // X402Bazaar annotation ===========================================================================================
+
+    @X402Resource(
+            url = "/weatherWithBazaar",
+            description = "Weather data with bazaar extension",
+            mimeType = "application/json"
+    )
+    @X402Bazaar(
+            inputMethod = "GET",
+            outputType = "json",
+            outputExample = "{\"weather\":\"sunny\"}"
+    )
+    @X402PayUSDC(amount = "1.0")
+    @GetMapping("/weatherWithBazaar")
+    public String weatherWithBazaar() {
+        return "{\"weather\":\"sunny\"}";
     }
 
 }

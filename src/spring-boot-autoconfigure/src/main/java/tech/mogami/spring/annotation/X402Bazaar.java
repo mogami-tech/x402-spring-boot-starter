@@ -8,11 +8,9 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Adds bazaar extension metadata to an x402-protected method.
- * <p>
+ * Adds bazaar extension metadata to a x402-protected method.
  * Use this annotation alongside {@link X402PaymentRequirements} or {@link X402PayUSDC} to
  * include bazaar-compatible discovery information in the 402 Payment Required response.
- * </p>
  */
 @Documented
 @Retention(RUNTIME)

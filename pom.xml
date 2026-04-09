@@ -57,8 +57,8 @@
         <skip.integration.tests>true</skip.integration.tests>
 
         <!-- Mogami -->
-        <mogami.commons.version>2.0.1-SNAPSHOT</mogami.commons.version>
-        <mogami.java-client.version>2.0.1-SNAPSHOT</mogami.java-client.version>
+        <mogami.commons.version>2.0.1</mogami.commons.version>
+        <mogami.java-client.version>2.0.1</mogami.java-client.version>
 
         <!-- Spring -->
         <spring-boot.version>3.5.13</spring-boot.version>

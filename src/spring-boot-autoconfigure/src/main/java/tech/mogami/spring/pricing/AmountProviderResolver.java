@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@SuppressWarnings("unused")
 public class AmountProviderResolver {
 
     /** Application context for bean retrieval. */

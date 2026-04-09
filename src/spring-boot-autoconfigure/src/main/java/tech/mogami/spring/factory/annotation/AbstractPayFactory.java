@@ -28,7 +28,7 @@ public abstract class AbstractPayFactory<A extends Annotation> implements PayFac
     protected AmountProviderResolver amountResolver;
 
     /**
-     * Gets the network by it's blockchain network identifier in CAIP-2 format (e.g., "eip155:84532").
+     * Gets the network by its blockchain network identifier in CAIP-2 format (e.g., "eip155:84532").
      *
      * @param networkId Blockchain network identifier in CAIP-2 format (e.g., "eip155:84532")
      * @return the network

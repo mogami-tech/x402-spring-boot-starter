@@ -38,7 +38,7 @@ public class MogamiAutoConfiguration implements WebMvcConfigurer {
     @PostConstruct
     public void init() {
         log.info("Using Mogami x402 spring boot starter");
-        log.info("[Configuration] Using x402 v2");
+        log.info("[Configuration] Using x402 V2");
         log.info("[Configuration] Using {} as facilitator server", x402Parameters.facilitator().baseUrl());
         log.info("[Configuration] Using {} as default network", x402Parameters.defaultNetwork());
         log.info("[Configuration] Using {} as default payTo address", x402Parameters.defaultPayTo());

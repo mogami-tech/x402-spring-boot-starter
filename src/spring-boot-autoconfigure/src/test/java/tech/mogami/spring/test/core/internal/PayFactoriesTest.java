@@ -47,7 +47,7 @@ public class PayFactoriesTest {
             payTo = "0x71C7656EC7ab88b098defB751B7401B5f6d8976F",
             network = "eip155:8453"
     )
-    void complexeX402PayUSDC() {
+    void complexX402PayUSDC() {
     }
 
     @Test
@@ -71,9 +71,9 @@ public class PayFactoriesTest {
                     assertThat(requirements.getExtra(EXACT_SCHEME_PARAMETER_VERSION)).get().isEqualTo("2");
                 });
 
-        // complexeX402PayUSDC
+        // complexX402PayUSDC
         assertThat(payFactories.buildRequirements(
-                getClass().getDeclaredMethod("complexeX402PayUSDC").getAnnotation(X402PayUSDC.class),
+                getClass().getDeclaredMethod("complexX402PayUSDC").getAnnotation(X402PayUSDC.class),
                 getRequest()))
                 .isNotNull()
                 .satisfies(requirements -> {

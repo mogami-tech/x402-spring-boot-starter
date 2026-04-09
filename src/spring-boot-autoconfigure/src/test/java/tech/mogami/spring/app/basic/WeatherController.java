@@ -69,8 +69,7 @@ public class WeatherController extends BaseTest {
 
     @X402Resource(
             url = "/weatherWithBazaar",
-            description = "Weather data with bazaar extension",
-            mimeType = "application/json"
+            description = "Weather data with bazaar extension"
     )
     @X402Bazaar(
             inputMethod = "GET",

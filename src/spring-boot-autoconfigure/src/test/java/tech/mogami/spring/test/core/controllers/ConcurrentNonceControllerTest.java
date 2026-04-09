@@ -86,8 +86,7 @@ public class ConcurrentNonceControllerTest extends BaseTest {
         headers.add(X402_PAYMENT_SIGNATURE_HEADER, paymentHeaders.get(X402_PAYMENT_SIGNATURE_HEADER));
 
         // Send the first request in a background thread; it will be held inside verify()
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        try {
+        try (ExecutorService executor = Executors.newSingleThreadExecutor()) {
             Future<MvcResult> future1 = executor.submit(() ->
                     mockMvc.perform(get("/weather").headers(headers)).andReturn()
             );
@@ -109,8 +108,6 @@ public class ConcurrentNonceControllerTest extends BaseTest {
             releaseVerify.countDown();
             MvcResult result1 = future1.get(10, SECONDS);
             assertThat(result1.getResponse().getStatus()).isEqualTo(200);
-        } finally {
-            executor.shutdown();
         }
     }
 
